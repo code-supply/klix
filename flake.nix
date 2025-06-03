@@ -16,7 +16,7 @@
         ] (system: generate (import nixpkgs { inherit system; }));
     in
     {
-      nixosModules.default = import ./modules { };
+      nixosModules.default = import ./modules;
 
       devShells = forAllSystems (
         { pkgs, ... }:
