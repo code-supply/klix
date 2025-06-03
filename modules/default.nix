@@ -67,19 +67,82 @@ in
   };
 
   config = {
-    services.klipper.package =
-      (pkgs.klipper.override {
-        inherit extraPythonPackages;
-      }).overrideAttrs
-        {
-          postUnpack = pkgs.lib.concatMapAttrsStringSep "\n" (
-            name: pluginCfg:
-            let
-              plugin = plugins.${name};
-              dest = if plugin.configLink ? to then plugin.configLink.to else plugin.configLink.from;
-            in
-            "ln -sfv ${plugin.src}/${plugin.configLink.from} source/klippy/extras/${dest}"
-          ) enabledPlugins;
+    users = {
+      users = {
+        klipper = {
+          isSystemUser = true;
+          group = "klipper";
+          home = "/home/klipper";
+          createHome = true;
         };
+        moonraker.extraGroups = [ "klipper" ];
+      };
+      groups.klipper = { };
+    };
+
+    services.klipper = {
+      enable = true;
+
+      logFile = "/var/lib/klipper/klipper.log";
+      user = "klipper";
+      group = "klipper";
+
+      package =
+        (pkgs.klipper.override {
+          inherit extraPythonPackages;
+        }).overrideAttrs
+          {
+            postUnpack = pkgs.lib.concatMapAttrsStringSep "\n" (
+              name: pluginCfg:
+              let
+                plugin = plugins.${name};
+                dest = if plugin.configLink ? to then plugin.configLink.to else plugin.configLink.from;
+              in
+              "ln -sfv ${plugin.src}/${plugin.configLink.from} source/klippy/extras/${dest}"
+            ) enabledPlugins;
+          };
+    };
+
+    security.polkit.enable = true;
+
+    services.moonraker = {
+      enable = true;
+      address = "0.0.0.0";
+      allowSystemControl = true;
+      settings = {
+        octoprint_compat = { };
+        authorization = {
+          force_logins = false;
+          trusted_clients = [
+            "0.0.0.0/0"
+          ];
+          cors_domains = [
+            "*"
+          ];
+        };
+        file_manager = {
+          enable_object_processing = true;
+        };
+      };
+    };
+
+    services.fluidd = {
+      enable = true;
+    };
+
+    services.nginx.clientMaxBodySize = "100m";
+
+    boot = {
+      consoleLogLevel = 3;
+      initrd.verbose = false;
+      kernelParams = [
+        "quiet"
+        "splash"
+        "boot.shell_on_fail"
+        "udev.log_priority=3"
+        "rd.systemd.show_status=auto"
+      ];
+      loader.timeout = 0;
+    };
   };
 }
