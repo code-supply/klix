@@ -7,7 +7,6 @@
   services.nginx.clientMaxBodySize = "100m";
 
   boot = {
-    consoleLogLevel = lib.mkDefault 3;
     initrd.verbose = false;
     kernelParams = [
       "quiet"
