@@ -9,7 +9,6 @@ pkgs.nixosTest {
       ../modules/klipper
       ../modules/moonraker
     ];
-    environment.systemPackages = [ pkgs.jq ];
     services.klipper = {
       settings = {
         mcu.serial = "/dev/corn-flakes";
