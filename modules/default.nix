@@ -1,4 +1,3 @@
-{ lib, ... }:
 {
   services.fluidd = {
     enable = true;
