@@ -18,9 +18,10 @@
     {
       nixosModules = {
         default = import ./modules;
+        boot = import ./modules/boot;
+        fluidd = import ./modules/fluidd;
         klipper = import ./modules/klipper;
         moonraker = import ./modules/moonraker;
-        fluidd = import ./modules/fluidd;
       };
 
       checks = forAllSystems (

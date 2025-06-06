@@ -4,12 +4,19 @@ pkgs.nixosTest {
   name = "Test Klix functionality";
   nodes.printer = {
     imports = [
-      ../modules
+      ../modules/boot
+      ../modules/fluidd
       ../modules/klipper
       ../modules/moonraker
-      ../modules/fluidd
     ];
-    services.klipper.settings = { };
+    services.klipper = {
+      settings = { };
+      plugins = {
+        kamp.enable = true;
+        shaketune.enable = true;
+        z_calibration.enable = true;
+      };
+    };
   };
   testScript = ''
     moonraker_port = 7125
