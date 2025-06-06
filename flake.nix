@@ -16,7 +16,19 @@
         ] (system: generate (import nixpkgs { inherit system; }));
     in
     {
-      nixosModules.default = import ./modules;
+      nixosModules = {
+        default = import ./modules;
+        klipper = import ./modules/klipper;
+        moonraker = import ./modules/moonraker;
+        fluidd = import ./modules/fluidd;
+      };
+
+      checks = forAllSystems (
+        { pkgs, ... }:
+        {
+          default = pkgs.callPackage ./tests { };
+        }
+      );
 
       devShells = forAllSystems (
         { pkgs, ... }:
