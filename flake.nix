@@ -14,14 +14,21 @@
           "aarch64-linux"
           "x86_64-linux"
         ] (system: generate (import nixpkgs { inherit system; }));
-    in
-    {
-      nixosModules = {
-        default = import ./modules;
+
+      modules = {
         boot = import ./modules/boot;
         fluidd = import ./modules/fluidd;
         klipper = import ./modules/klipper;
         moonraker = import ./modules/moonraker;
+      };
+    in
+    {
+      nixosModules = modules // {
+        default = {
+          imports = builtins.attrValues modules ++ [
+            "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+          ];
+        };
       };
 
       checks = forAllSystems (
