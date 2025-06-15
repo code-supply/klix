@@ -16,7 +16,7 @@
         ] (system: generate (import nixpkgs { inherit system; }));
 
       modules = {
-        boot = import ./modules/boot;
+        system = import ./modules/system;
         fluidd = import ./modules/fluidd;
         klipper = import ./modules/klipper;
         moonraker = import ./modules/moonraker;
@@ -34,7 +34,7 @@
       checks = forAllSystems (
         { pkgs, ... }:
         {
-          default = pkgs.callPackage ./tests { };
+          default = pkgs.callPackage ./tests { imports = builtins.attrValues modules; };
         }
       );
 

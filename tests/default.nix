@@ -1,14 +1,10 @@
-{ pkgs }:
+{ pkgs, imports }:
 
 pkgs.nixosTest {
   name = "Test Klix functionality";
   nodes.printer = {
-    imports = [
-      ../modules/boot
-      ../modules/fluidd
-      ../modules/klipper
-      ../modules/moonraker
-    ];
+    inherit imports;
+
     services.klipper = {
       settings = {
         mcu.serial = "/dev/corn-flakes";
