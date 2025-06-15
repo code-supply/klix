@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "kamp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1723517933,
+        "narHash": "sha256-05l1rXmjiI+wOj2vJQdMf/cwVUOyq5d21LZesSowuvc=",
+        "owner": "kyleisah",
+        "repo": "Klipper-Adaptive-Meshing-Purging",
+        "rev": "b0dad8ec9ee31cb644b94e39d4b8a8fb9d6c9ba0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kyleisah",
+        "repo": "Klipper-Adaptive-Meshing-Purging",
+        "type": "github"
+      }
+    },
     "klipperscreen": {
       "flake": false,
       "locked": {
@@ -50,9 +66,44 @@
     },
     "root": {
       "inputs": {
+        "kamp": "kamp",
         "klipperscreen": "klipperscreen",
         "nixos-hardware": "nixos-hardware",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "shaketune": "shaketune",
+        "z_calibration": "z_calibration"
+      }
+    },
+    "shaketune": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1745004182,
+        "narHash": "sha256-zzskp7ZiwR7nJ2e5eTCyEilctDoRxZdBn90zncFm0Rw=",
+        "owner": "Frix-x",
+        "repo": "klippain-shaketune",
+        "rev": "c8ef451ec4153af492193ac31ed7eea6a52dbe4e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Frix-x",
+        "repo": "klippain-shaketune",
+        "type": "github"
+      }
+    },
+    "z_calibration": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1746608692,
+        "narHash": "sha256-WWP0LqhJ3ET4nxR8hVpq1uMOSK+CX7f3LXjOAZbRY8c=",
+        "owner": "protoloft",
+        "repo": "klipper_z_calibration",
+        "rev": "487056ac07e7df082ea0b9acc7365b4a9874889e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "protoloft",
+        "repo": "klipper_z_calibration",
+        "type": "github"
       }
     }
   },

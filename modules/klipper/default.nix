@@ -54,9 +54,10 @@ in
               name: pluginCfg:
               let
                 plugin = plugins.${name};
+                pluginSrc = pkgs.klipper.passthru.pluginSources.${name};
                 dest = if plugin.configLink ? to then plugin.configLink.to else plugin.configLink.from;
               in
-              "ln -sfv ${plugin.src}/${plugin.configLink.from} source/klippy/extras/${dest}"
+              "ln -sfv ${pluginSrc}/${plugin.configLink.from} source/klippy/extras/${dest}"
             ) enabledPlugins;
           };
     };

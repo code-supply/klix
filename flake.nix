@@ -2,8 +2,24 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+
     klipperscreen = {
       url = "github:KlipperScreen/KlipperScreen";
+      flake = false;
+    };
+
+    kamp = {
+      url = "github:kyleisah/Klipper-Adaptive-Meshing-Purging";
+      flake = false;
+    };
+
+    shaketune = {
+      url = "github:Frix-x/klippain-shaketune";
+      flake = false;
+    };
+
+    z_calibration = {
+      url = "github:protoloft/klipper_z_calibration";
       flake = false;
     };
   };
@@ -14,6 +30,9 @@
       nixpkgs,
       nixos-hardware,
       klipperscreen,
+      kamp,
+      shaketune,
+      z_calibration,
     }:
     let
       forAllSystems =
@@ -38,6 +57,12 @@
             (final: prev: {
               klipperscreen = prev.klipperscreen.overrideAttrs {
                 src = klipperscreen;
+              };
+
+              klipper = prev.klipper.overrideAttrs {
+                passthru.pluginSources = {
+                  inherit kamp shaketune z_calibration;
+                };
               };
             })
           ];
