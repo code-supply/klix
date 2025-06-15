@@ -26,12 +26,12 @@
         ] (system: generate (import nixpkgs { inherit system; }));
 
       modules = {
-        system = import ./modules/system;
         fluidd = import ./modules/fluidd;
         klipper = import ./modules/klipper;
         klipperscreen = import ./modules/klipperscreen;
         moonraker = import ./modules/moonraker;
         plymouth = import ./modules/plymouth;
+        system = import ./modules/system;
 
         overlays = {
           nixpkgs.overlays = [
@@ -48,6 +48,7 @@
       nixosModules = modules // {
         default = {
           imports = builtins.attrValues modules ++ [
+            { system = "aarch64-linux"; }
             "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
             nixos-hardware.nixosModules.raspberry-pi-4
             ./modules/system/raspberry-pi.nix
