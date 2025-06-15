@@ -14,6 +14,8 @@ in
     ];
   };
 
+  security.sudo.wheelNeedsPassword = false;
+
   services.displayManager.autoLogin = {
     enable = true;
     user = username;

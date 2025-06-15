@@ -1,5 +1,6 @@
 {
   imports = [
+    ./network.nix
     ./user.nix
   ];
 
