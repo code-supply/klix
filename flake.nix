@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     klipperscreen = {
       url = "github:KlipperScreen/KlipperScreen";
       flake = false;
@@ -11,6 +12,7 @@
     {
       self,
       nixpkgs,
+      nixos-hardware,
       klipperscreen,
     }:
     let
@@ -37,6 +39,8 @@
         default = {
           imports = builtins.attrValues modules ++ [
             "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+            nixos-hardware.nixosModules.raspberry-pi-4
+            ./modules/system/raspberry-pi.nix
             {
               nixpkgs.overlays = [
                 (final: prev: {
