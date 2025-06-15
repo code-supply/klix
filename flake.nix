@@ -49,7 +49,6 @@
         default = {
           imports = builtins.attrValues modules ++ [
             { nixpkgs.hostPlatform = "aarch64-linux"; }
-            "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
             nixos-hardware.nixosModules.raspberry-pi-4
             ./modules/system/raspberry-pi.nix
           ];

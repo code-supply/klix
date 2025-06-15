@@ -1,4 +1,10 @@
+{ modulesPath, ... }:
+
 {
+  imports = [
+    "${modulesPath}/installer/sd-card/sd-image-aarch64.nix"
+  ];
+
   nixpkgs.overlays = [
     (final: prev: {
       # https://github.com/NixOS/nixpkgs/issues/126755#issuecomment-869149243
