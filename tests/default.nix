@@ -5,6 +5,8 @@ pkgs.nixosTest {
   nodes.printer = {
     inherit imports;
 
+    services.klipperscreen.enable = true;
+
     services.klipper = {
       settings = {
         mcu.serial = "/dev/corn-flakes";
@@ -51,6 +53,7 @@ pkgs.nixosTest {
 
         z_calibration = { };
       };
+
       plugins = {
         kamp.enable = true;
         shaketune.enable = true;
@@ -58,5 +61,6 @@ pkgs.nixosTest {
       };
     };
   };
+
   testScript = builtins.readFile ./default.py;
 }
