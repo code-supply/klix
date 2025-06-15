@@ -32,6 +32,16 @@
         klipperscreen = import ./modules/klipperscreen;
         moonraker = import ./modules/moonraker;
         plymouth = import ./modules/plymouth;
+
+        overlays = {
+          nixpkgs.overlays = [
+            (final: prev: {
+              klipperscreen = prev.klipperscreen.overrideAttrs {
+                src = klipperscreen;
+              };
+            })
+          ];
+        };
       };
     in
     {
@@ -41,15 +51,6 @@
             "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
             nixos-hardware.nixosModules.raspberry-pi-4
             ./modules/system/raspberry-pi.nix
-            {
-              nixpkgs.overlays = [
-                (final: prev: {
-                  klipperscreen = prev.klipperscreen.overrideAttrs {
-                    src = klipperscreen;
-                  };
-                })
-              ];
-            }
           ];
         };
       };
