@@ -1,10 +1,18 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    klipperscreen = {
+      url = "github:KlipperScreen/KlipperScreen";
+      flake = false;
+    };
   };
 
   outputs =
-    { self, nixpkgs }:
+    {
+      self,
+      nixpkgs,
+      klipperscreen,
+    }:
     let
       forAllSystems =
         generate:
@@ -19,6 +27,7 @@
         system = import ./modules/system;
         fluidd = import ./modules/fluidd;
         klipper = import ./modules/klipper;
+        klipperscreen = import ./modules/klipperscreen;
         moonraker = import ./modules/moonraker;
       };
     in
@@ -27,6 +36,15 @@
         default = {
           imports = builtins.attrValues modules ++ [
             "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+            {
+              nixpkgs.overlays = [
+                (final: prev: {
+                  klipperscreen = prev.klipperscreen.overrideAttrs {
+                    src = klipperscreen;
+                  };
+                })
+              ];
+            }
           ];
         };
       };

@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "klipperscreen": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1750000006,
+        "narHash": "sha256-h5WmmIq6Q7w4/oeyFYQFFPxpFCiWTnZ6Lt485OLQl/o=",
+        "owner": "KlipperScreen",
+        "repo": "KlipperScreen",
+        "rev": "5ba4a1ff134ac1eba236043b8ec316c2298846e5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "KlipperScreen",
+        "repo": "KlipperScreen",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1748856973,
@@ -18,6 +34,7 @@
     },
     "root": {
       "inputs": {
+        "klipperscreen": "klipperscreen",
         "nixpkgs": "nixpkgs"
       }
     }
