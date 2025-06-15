@@ -2,6 +2,7 @@
   pkgs,
   lib,
   config,
+  inputs,
   ...
 }:
 let
@@ -16,7 +17,7 @@ let
       plugin: if plugin ? deps then (plugin.deps p) else [ ]
     ) enabledPluginDefinitions;
 
-  plugins = pkgs.callPackages ./plugins { };
+  plugins = import ./plugins;
 in
 {
   options = {
@@ -54,7 +55,7 @@ in
               name: pluginCfg:
               let
                 plugin = plugins.${name};
-                pluginSrc = pkgs.klipper.passthru.pluginSources.${name};
+                pluginSrc = inputs.${name};
                 dest = if plugin.configLink ? to then plugin.configLink.to else plugin.configLink.from;
               in
               "ln -sfv ${pluginSrc}/${plugin.configLink.from} source/klippy/extras/${dest}"

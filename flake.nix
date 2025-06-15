@@ -30,10 +30,8 @@
       nixpkgs,
       nixos-hardware,
       klipperscreen,
-      kamp,
-      shaketune,
-      z_calibration,
-    }:
+      ...
+    }@inputs:
     let
       forAllSystems =
         generate:
@@ -45,6 +43,7 @@
         ] (system: generate (import nixpkgs { inherit system; }));
 
       modules = {
+        set-inputs._module.args = { inherit inputs; };
         fluidd = import ./modules/fluidd;
         klipper = import ./modules/klipper;
         klipperscreen = import ./modules/klipperscreen;
@@ -57,12 +56,6 @@
             (final: prev: {
               klipperscreen = prev.klipperscreen.overrideAttrs {
                 src = klipperscreen;
-              };
-
-              klipper = prev.klipper.overrideAttrs {
-                passthru.pluginSources = {
-                  inherit kamp shaketune z_calibration;
-                };
               };
             })
           ];
