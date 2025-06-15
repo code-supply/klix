@@ -29,6 +29,7 @@
         klipper = import ./modules/klipper;
         klipperscreen = import ./modules/klipperscreen;
         moonraker = import ./modules/moonraker;
+        plymouth = import ./modules/plymouth;
       };
     in
     {
