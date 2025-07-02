@@ -5,7 +5,7 @@ in
   users.users.${username} = {
     isNormalUser = true;
     description = "Klix";
-    group = "klix";
+    group = username;
     extraGroups = [
       "dialout"
       "disk"
@@ -14,6 +14,7 @@ in
       "wheel"
     ];
   };
+  users.groups.${username} = { };
 
   security.sudo.wheelNeedsPassword = false;
 
