@@ -5,6 +5,7 @@ in
   users.users.${username} = {
     isNormalUser = true;
     description = "Klix";
+    group = "klix";
     extraGroups = [
       "dialout"
       "disk"
