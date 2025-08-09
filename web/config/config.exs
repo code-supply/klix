@@ -33,7 +33,9 @@ config :klix, Klix.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.25.4",
+  version: System.get_env("ESBUILD_VERSION"),
+  version_check: false,
+  path: System.find_executable("esbuild"),
   klix: [
     args:
       ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
@@ -43,7 +45,9 @@ config :esbuild,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "4.1.7",
+  version: System.get_env("TAILWIND_VERSION"),
+  version_check: false,
+  path: System.find_executable("tailwindcss"),
   klix: [
     args: ~w(
       --input=assets/css/app.css
