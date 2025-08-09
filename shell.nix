@@ -4,7 +4,9 @@ with pkgs;
 
 mkShell {
   packages = [
-    python3
+    elixir
+    elixir-ls
     nixfmt-rfc-style
+    python3
   ];
 }
