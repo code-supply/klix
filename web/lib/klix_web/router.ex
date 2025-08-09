@@ -17,7 +17,7 @@ defmodule KlixWeb.Router do
   scope "/", KlixWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", CustomImageLive
   end
 
   # Other scopes may use custom stacks.
