@@ -11,7 +11,7 @@ defmodule KlixWeb.CustomImageLive do
           <h1 class="text-5xl font-bold">Klix</h1>
           <h2>Klipper + NixOS</h2>
           <p class="py-6">A parametric operating system for 3D printers.</p>
-          <.form for={@image} phx-submit="download" class="grid grid-cols-2 gap-3">
+          <.form for={@image} id="image" phx-submit="download" class="grid grid-cols-2 gap-3">
             <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
               <legend class="fieldset-legend">Base OS Options</legend>
 
@@ -44,7 +44,7 @@ defmodule KlixWeb.CustomImageLive do
             </fieldset>
 
             <div class="col-span-2">
-              <button id="download" class="btn btn-primary float-right" phx-click="download">
+              <button id="download" class="btn btn-primary float-right">
                 <.icon name="hero-arrow-down-tray" /> Download Raspberry Pi Image
               </button>
             </div>
@@ -66,7 +66,13 @@ defmodule KlixWeb.CustomImageLive do
     }
   end
 
-  def handle_event(_event, _unsigned_params, socket) do
-    {:noreply, socket}
+  def handle_event("download", %{"image" => image_params}, socket) do
+    case Klix.Images.create(image_params) do
+      {:ok, _image} ->
+        {:noreply, socket}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :image, to_form(changeset))}
+    end
   end
 end
