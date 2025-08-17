@@ -15,7 +15,7 @@ defmodule KlixWeb.CustomImageLive do
             <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
               <legend class="fieldset-legend">Base OS Options</legend>
 
-              <.input label="Hostname" placeholder="Printy Mc. Printface" field={@image[:hostname]} />
+              <.input label="Hostname" placeholder="printy-mc-printface" field={@image[:hostname]} />
               <.input
                 label="Time Zone"
                 placeholder="Europe/London"
