@@ -2,35 +2,14 @@ defmodule Klix.ImagesTest do
   use Klix.DataCase, async: true
   use ExUnitProperties
 
-  defmodule Hostname do
-    import StreamData
-
-    @valid_first_chars [?a..?z, ?A..?Z, ?0..?9]
-    @valid_subsequent_chars [?- | @valid_first_chars]
-
-    def generator do
-      bind(first_char(), fn first ->
-        bind(subsequent_chars(max_length: 252), fn rest ->
-          constant("#{first}#{rest}")
-        end)
-      end)
-    end
-
-    defp first_char do
-      @valid_first_chars
-      |> string(length: 1)
-    end
-
-    defp subsequent_chars(opts) do
-      @valid_subsequent_chars
-      |> string(opts)
-      |> filter(&(!String.ends_with?(&1, "-")))
-    end
-  end
-
   describe "hostname" do
+    test "must be present" do
+      {:error, changeset} = Klix.Images.create(%{})
+      assert changeset.errors[:hostname] == {"can't be blank", [validation: :required]}
+    end
+
     property "valid when string of a-zA-Z 0-9 or hyphen" do
-      check all hostname <- Hostname.generator() do
+      check all hostname <- Klix.Hostname.generator() do
         assert {:ok, _} = Klix.Images.create(%{"hostname" => hostname})
       end
     end

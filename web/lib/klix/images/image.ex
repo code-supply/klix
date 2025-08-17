@@ -20,5 +20,6 @@ defmodule Klix.Images.Image do
     |> validate_format(:hostname, ~r/^[^-].*$/, message: "must not start with a hyphen")
     |> validate_format(:hostname, ~r/^.*[^-]$/, message: "must not end with a hyphen")
     |> validate_length(:hostname, max: 253)
+    |> validate_required(:hostname)
   end
 end
