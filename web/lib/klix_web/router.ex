@@ -18,6 +18,7 @@ defmodule KlixWeb.Router do
     pipe_through :browser
 
     live "/", CustomImageLive
+    live "/images/:id", ImageLive
   end
 
   # Other scopes may use custom stacks.

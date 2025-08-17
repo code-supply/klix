@@ -9,6 +9,7 @@ defmodule Klix.Repo.Migrations.CreateImages do
       add :plugin_kamp_enabled, :boolean, null: false
       add :plugin_shaketune_enabled, :boolean, null: false
       add :plugin_z_calibration_enabled, :boolean, null: false
+      add :public_key, :text, null: false
 
       timestamps(type: :utc_datetime)
     end

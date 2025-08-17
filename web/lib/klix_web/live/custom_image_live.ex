@@ -1,57 +1,50 @@
 defmodule KlixWeb.CustomImageLive do
-  use Phoenix.LiveView
+  use KlixWeb, :live_view
 
   import KlixWeb.CoreComponents
 
   def render(assigns) do
     ~H"""
-    <div class="hero bg-base-200 min-h-screen">
-      <div class="hero-content">
-        <div>
-          <h1 class="text-5xl font-bold">Klix</h1>
-          <h2>Klipper + NixOS</h2>
-          <p class="py-6">A parametric operating system for 3D printers.</p>
-          <.form for={@image} id="image" phx-submit="download" class="grid grid-cols-2 gap-3">
-            <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-              <legend class="fieldset-legend">Base OS Options</legend>
+    <h2 class="mt-6 mb-4 text-3xl">Customise your image</h2>
 
-              <.input label="Hostname" placeholder="printy-mc-printface" field={@image[:hostname]} />
-              <.input
-                label="Time Zone"
-                placeholder="Europe/London"
-                field={@image[:timezone]}
-                type="select"
-                options={Tzdata.zone_list()}
-              />
-              <.input label="Public SSH key" field={@image[:public_key]} type="textarea" />
-              <.input
-                label="Enable KlipperScreen"
-                field={@image[:klipperscreen_enabled]}
-                type="checkbox"
-              />
-            </fieldset>
+    <.form for={@image} id="image" phx-submit="download" class="grid gap-3">
+      <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+        <legend class="fieldset-legend">Base OS Options</legend>
 
-            <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-              <legend class="fieldset-legend">Plugins</legend>
+        <.input label="Hostname" placeholder="printy-mc-printface" field={@image[:hostname]} />
+        <.input
+          label="Time Zone"
+          placeholder="Europe/London"
+          field={@image[:timezone]}
+          type="select"
+          options={Tzdata.zone_list()}
+        />
+        <.input label="Public SSH key" field={@image[:public_key]} type="textarea" />
+        <.input
+          label="Enable KlipperScreen"
+          field={@image[:klipperscreen_enabled]}
+          type="checkbox"
+        />
+      </fieldset>
 
-              <.input label="KAMP" field={@image[:plugin_kamp_enabled]} type="checkbox" />
-              <.input label="Shaketune" field={@image[:plugin_shaketune_enabled]} type="checkbox" />
-              <.input
-                label="Z Calibration"
-                field={@image[:plugin_z_calibration_enabled]}
-                type="checkbox"
-              />
-            </fieldset>
+      <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+        <legend class="fieldset-legend">Plugins</legend>
 
-            <div class="col-span-2">
-              <button id="download" class="btn btn-primary float-right">
-                <.icon name="hero-arrow-down-tray" /> Download Raspberry Pi Image
-              </button>
-            </div>
-          </.form>
-        </div>
+        <.input label="KAMP" field={@image[:plugin_kamp_enabled]} type="checkbox" />
+        <.input label="Shaketune" field={@image[:plugin_shaketune_enabled]} type="checkbox" />
+        <.input
+          label="Z Calibration"
+          field={@image[:plugin_z_calibration_enabled]}
+          type="checkbox"
+        />
+      </fieldset>
+
+      <div class="col-span-2">
+        <button id="download" class="btn btn-primary float-right">
+          <.icon name="hero-arrow-down-tray" /> Download Raspberry Pi Image
+        </button>
       </div>
-    </div>
+    </.form>
     """
   end
 
@@ -68,8 +61,8 @@ defmodule KlixWeb.CustomImageLive do
 
   def handle_event("download", %{"image" => image_params}, socket) do
     case Klix.Images.create(image_params) do
-      {:ok, _image} ->
-        {:noreply, socket}
+      {:ok, image} ->
+        {:noreply, push_navigate(socket, to: ~p"/images/#{image.id}")}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :image, to_form(changeset))}

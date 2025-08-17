@@ -3,6 +3,20 @@ defmodule KlixWeb.CustomImageTest do
 
   import Phoenix.LiveViewTest
 
+  @valid_params %{"hostname" => "my-printer", "public_key" => "my-ssh-key"}
+
+  test "shows a message when download requested", %{conn: conn} do
+    {:ok, view, _html} = live(conn, ~p"/")
+
+    {:ok, _view, html} =
+      view
+      |> form("#image", image: @valid_params)
+      |> render_submit()
+      |> follow_redirect(conn)
+
+    assert html =~ "being prepared"
+  end
+
   test "shows validation errors", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/")
 

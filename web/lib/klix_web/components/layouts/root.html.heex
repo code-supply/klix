@@ -31,6 +31,32 @@
     </script>
   </head>
   <body>
-    {@inner_content}
+    <header class="hero bg-base-200">
+      <div class="hero-content">
+        <div>
+          <h1 class="mt-6 text-5xl font-bold">Klix</h1>
+          <h2>Klipper + NixOS</h2>
+          <p class="py-6">A parametric operating system for 3D printers.</p>
+        </div>
+      </div>
+    </header>
+    <section class="md:w-1/2 w-3/4 m-auto pb-6">
+      {@inner_content}
+    </section>
+    <footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
+      <nav></nav>
+      <nav>
+        <h6 class="footer-title">Developers</h6>
+        <a class="link link-hover">Code Supply</a>
+        <a class="link link-hover">Andrew Bruce</a>
+      </nav>
+      <nav>
+        <h6 class="footer-title">Source</h6>
+        <a class="link link-hover" href="https://github.com/code-supply/klix">GitHub</a>
+        <a class="link link-hover" href="https://github.com/code-supply/klix/blob/main/LICENSE">
+          License
+        </a>
+      </nav>
+    </footer>
   </body>
 </html>
