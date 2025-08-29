@@ -4,6 +4,65 @@ defmodule Klix.ImagesTest do
 
   @valid_params %{"hostname" => "my-printer", "public_key" => "my-ssh-key"}
 
+  test "converts to a Nix flake" do
+    {:ok, image} =
+      Klix.Images.create(%{
+        "hostname" => "some-printer",
+        "timezone" => "Europe/Madrid",
+        "public_key" => "a-valid-key",
+        "klipperscreen_enabled" => false,
+        "plugin_kamp_enabled" => true,
+        "plugin_shaketune_enabled" => false,
+        "plugin_z_calibration_enabled" => true
+      })
+
+    assert Klix.Images.to_flake(image) ==
+             """
+             {
+               inputs = {
+                 nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+                 klix = {
+                   url = "github:code-supply/klix";
+                   inputs.nixpkgs.follows = "nixpkgs";
+                 };
+               };
+
+               outputs =
+                 {
+                   self,
+                   nixpkgs,
+                   klix,
+                 }:
+                 {
+                   packages.aarch64-linux.image = self.nixosConfigurations.some-printer.config.system.build.sdImage;
+                   nixosConfigurations.some-printer = nixpkgs.lib.nixosSystem {
+                     modules = [
+                       klix.nixosModules.default
+                       {
+                         networking.hostName = "some-printer";
+                         time.timeZone = "Europe/Madrid";
+                         system.stateVersion = "25.05";
+                         users.users.klix.openssh.authorizedKeys.keys = [
+                           "a-valid-key"
+                         ];
+                         services.klix.configDir = ./klipper;
+                         services.klipper = {
+                           plugins = {
+                             kamp.enable = true;
+                             shaketune.enable = false;
+                             z_calibration.enable = true;
+                           };
+                         };
+
+                         services.klipperscreen.enable = false;
+                       }
+                     ];
+                   };
+                 }
+             }
+             """
+  end
+
   describe "SSH key" do
     test "must be present" do
       {:error, changeset} = Klix.Images.create(%{})
