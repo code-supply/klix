@@ -119,10 +119,19 @@ defmodule Klix.ImagesTest do
       {:error, dot} = Klix.Images.create(%{"hostname" => "a.b"})
 
       assert backtick.errors[:hostname] ==
-               {"must be A-Za-z0-9 or dash", validation: :format}
+               {"must be A-Za-z0-9 or hyphen", validation: :format}
 
       assert dot.errors[:hostname] ==
-               {"must be A-Za-z0-9 or dash", validation: :format}
+               {"must be A-Za-z0-9 or hyphen", validation: :format}
+    end
+  end
+
+  describe "timezone" do
+    test "must be in the list" do
+      {:error, image} = Klix.Images.create(%{"timezone" => "Not/AZone"})
+
+      assert {"must be a valid timezone", [{:validation, :inclusion} | _]} =
+               image.errors[:timezone]
     end
   end
 end
