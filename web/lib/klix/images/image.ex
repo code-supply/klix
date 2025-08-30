@@ -10,6 +10,8 @@ defmodule Klix.Images.Image do
     field :plugin_z_calibration_enabled, :boolean, default: true
     field :public_key, :string
 
+    has_many :builds, Klix.Images.Build
+
     timestamps()
   end
 

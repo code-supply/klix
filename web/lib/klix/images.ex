@@ -6,9 +6,13 @@ defmodule Klix.Images do
   end
 
   def create(attrs) do
-    %Image{}
+    %Image{builds: [[]]}
     |> Klix.Images.Image.changeset(attrs)
     |> Klix.Repo.insert()
+  end
+
+  def next_build do
+    Klix.Images.Build |> Klix.Repo.one!()
   end
 
   def to_flake(%Image{} = image) do
