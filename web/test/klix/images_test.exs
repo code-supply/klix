@@ -113,5 +113,16 @@ defmodule Klix.ImagesTest do
       assert ends_with_hyphen.errors[:hostname] ==
                {"must not end with a hyphen", validation: :format}
     end
+
+    test "hostname can't have dodgy characters" do
+      {:error, backtick} = Klix.Images.create(%{"hostname" => "`"})
+      {:error, dot} = Klix.Images.create(%{"hostname" => "a.b"})
+
+      assert backtick.errors[:hostname] ==
+               {"must be A-Za-z0-9 or dash", validation: :format}
+
+      assert dot.errors[:hostname] ==
+               {"must be A-Za-z0-9 or dash", validation: :format}
+    end
   end
 end
