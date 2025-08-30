@@ -2,23 +2,18 @@ defmodule Klix.ImagesTest do
   use Klix.DataCase, async: true
   use ExUnitProperties
 
-  @valid_params %{
-    "hostname" => "my-printer",
-    "public_key" =>
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
-  }
-
   test "converts to a Nix flake" do
     {:ok, image} =
-      Klix.Images.create(%{
-        "hostname" => "some-printer",
-        "timezone" => "Europe/Madrid",
-        "public_key" => @valid_params["public_key"],
-        "klipperscreen_enabled" => false,
-        "plugin_kamp_enabled" => true,
-        "plugin_shaketune_enabled" => false,
-        "plugin_z_calibration_enabled" => true
-      })
+      Klix.Factory.params(
+        :image,
+        hostname: "some-printer",
+        timezone: "Europe/Madrid",
+        klipperscreen_enabled: false,
+        plugin_kamp_enabled: true,
+        plugin_shaketune_enabled: false,
+        plugin_z_calibration_enabled: true
+      )
+      |> Klix.Images.create()
 
     assert Klix.Images.to_flake(image) ==
              """
@@ -89,7 +84,7 @@ defmodule Klix.ImagesTest do
 
     property "valid when string of a-zA-Z 0-9 or hyphen" do
       check all hostname <- Klix.Hostname.generator() do
-        assert {:ok, _} = Klix.Images.create(Map.put(@valid_params, "hostname", hostname))
+        assert {:ok, _} = Klix.Factory.params(:image, hostname: hostname) |> Klix.Images.create()
       end
     end
 
