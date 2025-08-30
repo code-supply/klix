@@ -12,7 +12,7 @@ defmodule Klix.Images do
   end
 
   def next_build do
-    Klix.Images.Build |> Klix.Repo.one!()
+    Klix.Images.Build |> Klix.Repo.one()
   end
 
   def to_flake(%Image{} = image) do

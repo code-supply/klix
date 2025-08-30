@@ -7,15 +7,25 @@ defmodule Klix.Builder do
 
   @impl true
   def init(opts) do
-    state = %{clock: Keyword.fetch!(opts, :clock)}
-    send(state.clock, :clock_read)
+    state = %{scheduler: Keyword.fetch!(opts, :scheduler)}
+    emit(:idle)
     {:ok, state}
   end
 
   @impl true
-  def handle_info({:clock_time, _datetime}, state) do
-    build = Klix.Images.next_build()
-    :telemetry.execute([:builder, :start], %{image_id: build.image_id}, %{})
+  def handle_info(:run, state) do
+    case Klix.Images.next_build() do
+      nil ->
+        emit(:no_builds)
+
+      build ->
+        emit(:build_found, %{image_id: build.image_id})
+    end
+
     {:noreply, state}
+  end
+
+  defp emit(name, measurements \\ %{}) do
+    :telemetry.execute([:builder, name], measurements, %{})
   end
 end
