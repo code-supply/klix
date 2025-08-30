@@ -3,7 +3,11 @@ defmodule KlixWeb.CustomImageTest do
 
   import Phoenix.LiveViewTest
 
-  @valid_params %{"hostname" => "my-printer", "public_key" => "my-ssh-key"}
+  @valid_params %{
+    "hostname" => "my-printer",
+    "public_key" =>
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
+  }
 
   test "shows a message when download requested", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/")

@@ -30,5 +30,15 @@ defmodule Klix.Images.Image do
     |> validate_format(:hostname, ~r/^.*[^-]$/, message: "must not end with a hyphen")
     |> validate_length(:hostname, max: 253)
     |> validate_required([:hostname, :public_key])
+    |> validate_change(:public_key, &errors_for/2)
+  end
+
+  defp errors_for(:public_key, nil), do: []
+
+  defp errors_for(:public_key, key) do
+    case :ssh_file.decode(key, :public_key) do
+      {:error, type} -> [public_key: {"not a valid key", validation: type}]
+      _ -> []
+    end
   end
 end

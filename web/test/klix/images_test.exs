@@ -2,14 +2,18 @@ defmodule Klix.ImagesTest do
   use Klix.DataCase, async: true
   use ExUnitProperties
 
-  @valid_params %{"hostname" => "my-printer", "public_key" => "my-ssh-key"}
+  @valid_params %{
+    "hostname" => "my-printer",
+    "public_key" =>
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
+  }
 
   test "converts to a Nix flake" do
     {:ok, image} =
       Klix.Images.create(%{
         "hostname" => "some-printer",
         "timezone" => "Europe/Madrid",
-        "public_key" => "a-valid-key",
+        "public_key" => @valid_params["public_key"],
         "klipperscreen_enabled" => false,
         "plugin_kamp_enabled" => true,
         "plugin_shaketune_enabled" => false,
@@ -43,7 +47,7 @@ defmodule Klix.ImagesTest do
                          time.timeZone = "Europe/Madrid";
                          system.stateVersion = "25.05";
                          users.users.klix.openssh.authorizedKeys.keys = [
-                           "a-valid-key"
+                           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
                          ];
                          services.klix.configDir = ./klipper;
                          services.klipper = {
@@ -67,6 +71,13 @@ defmodule Klix.ImagesTest do
     test "must be present" do
       {:error, changeset} = Klix.Images.create(%{})
       assert changeset.errors[:public_key] == {"can't be blank", [validation: :required]}
+    end
+
+    test "must be a valid key" do
+      {:error, changeset} = Klix.Images.create(%{"public_key" => "invalid key"})
+
+      assert changeset.errors[:public_key] ==
+               {"not a valid key", [validation: :key_decode_failed]}
     end
   end
 
