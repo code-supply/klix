@@ -13,7 +13,7 @@ defmodule Klix.Builder do
   end
 
   @impl true
-  def handle_info(:run, state) do
+  def handle_info(:set_up, state) do
     case Klix.Images.next_build() do
       nil ->
         emit(:no_builds)
@@ -27,6 +27,22 @@ defmodule Klix.Builder do
         emit(:build_setup_complete, %{image_id: build.image_id})
     end
 
+    {:noreply, state}
+  end
+
+  def handle_info(:run, state) do
+    port =
+      Port.open(
+        {:spawn, "nix build --print-build-logs .#packages.aarch64-linux.image"},
+        [:binary, cd: state.build_dir]
+      )
+
+    emit(:build_started, %{port: port})
+    {:noreply, state}
+  end
+
+  def handle_info({port, {:data, output}}, state) when is_port(port) do
+    IO.puts("LOG: #{output}")
     {:noreply, state}
   end
 
