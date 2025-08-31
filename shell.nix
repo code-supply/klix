@@ -4,6 +4,7 @@ with pkgs;
 
 mkShell {
   shellHook = ''
+    export ERL_AFLAGS="-kernel shell_history enabled"
     export ESBUILD_VERSION="${pkgs.esbuild.version}"
     export TAILWIND_VERSION="${pkgs.tailwindcss_4.version}"
   '';
