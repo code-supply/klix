@@ -7,7 +7,7 @@ defmodule Klix.Builder do
 
   @impl true
   def init(opts) do
-    state = %{scheduler: Keyword.fetch!(opts, :scheduler)}
+    state = Enum.into(opts, %{})
     emit(:idle)
     {:ok, state}
   end
@@ -19,7 +19,12 @@ defmodule Klix.Builder do
         emit(:no_builds)
 
       build ->
-        emit(:build_found, %{image_id: build.image_id})
+        :ok =
+          state.build_dir
+          |> Path.join("flake.nix")
+          |> File.write(Klix.Images.to_flake(build.image))
+
+        emit(:build_setup_complete, %{image_id: build.image_id})
     end
 
     {:noreply, state}

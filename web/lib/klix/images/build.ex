@@ -6,4 +6,18 @@ defmodule Klix.Images.Build do
 
     timestamps()
   end
+
+  defmodule Query do
+    import Ecto.Query
+
+    alias Klix.Images.Build
+
+    def base do
+      from(Build, as: :builds)
+    end
+
+    def next(query \\ base()) do
+      preload(query, [:image])
+    end
+  end
 end
