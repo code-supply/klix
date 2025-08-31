@@ -57,7 +57,7 @@ defmodule Klix.ImagesTest do
                        }
                      ];
                    };
-                 }
+                 };
              }
              """
   end

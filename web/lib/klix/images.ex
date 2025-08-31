@@ -57,7 +57,7 @@ defmodule Klix.Images do
               }
             ];
           };
-        }
+        };
     }
     """
   end
