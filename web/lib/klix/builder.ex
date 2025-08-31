@@ -7,7 +7,12 @@ defmodule Klix.Builder do
 
   @impl true
   def init(opts) do
-    state = Enum.into(opts, %{})
+    state =
+      Enum.into(opts, %{
+        build_dir: "/tmp/klix-build",
+        cmd: "nix build --print-build-logs .#packages.aarch64-linux.image"
+      })
+
     emit(:idle)
     {:ok, state}
   end
@@ -33,15 +38,31 @@ defmodule Klix.Builder do
   def handle_info(:run, state) do
     port =
       Port.open(
-        {:spawn, "nix build --print-build-logs .#packages.aarch64-linux.image"},
-        [:binary, :stderr_to_stdout, cd: state.build_dir]
+        {:spawn, state.cmd},
+        [
+          :binary,
+          :stderr_to_stdout,
+          :exit_status,
+          cd: state.build_dir
+        ]
       )
 
     emit(:build_started, %{port: port})
     {:noreply, state}
   end
 
-  def handle_info({port, {:data, _output}}, state) when is_port(port) do
+  def handle_info({port, {:data, output}}, state) when is_port(port) do
+    IO.puts(output)
+    {:noreply, state}
+  end
+
+  def handle_info({port, {:exit_status, 0}}, state) when is_port(port) do
+    send(port, {self(), :close})
+    emit(:build_completed)
+    {:noreply, state}
+  end
+
+  def handle_info({port, :closed}, state) when is_port(port) do
     {:noreply, state}
   end
 

@@ -19,7 +19,8 @@ defmodule Klix.ImagesTest do
              """
              {
                inputs = {
-                 nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+                 nixpkgs.url = "github:NixOS/nixpkgs/e6cb50b7edb109d393856d19b797ba6b6e71a4fc";
+                 klipperConfig.url = "github:code-supply/code-supply";
                  klix = {
                    url = "github:code-supply/klix";
                    inputs.nixpkgs.follows = "nixpkgs";
@@ -29,6 +30,7 @@ defmodule Klix.ImagesTest do
                outputs =
                  {
                    self,
+                   klipperConfig,
                    nixpkgs,
                    klix,
                  }:
@@ -44,7 +46,7 @@ defmodule Klix.ImagesTest do
                          users.users.klix.openssh.authorizedKeys.keys = [
                            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
                          ];
-                         services.klix.configDir = ./klipper;
+                         services.klix.configDir = "${klipperConfig}/boxes/ketchup-king/klipper";
                          services.klipper = {
                            plugins = {
                              kamp.enable = true;

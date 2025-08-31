@@ -1,40 +1,30 @@
 defmodule Klix.BuilderTest do
   use Klix.DataCase, async: true
 
-  # avoid nix/git issues by creating tmp_dir in /tmp
-  @moduletag tmp_dir:
-               __DIR__
-               |> Path.split()
-               |> Enum.map(fn _ -> ".." end)
-               |> Path.join()
-               |> Path.join("tmp")
-               |> Path.join("klix-builder-test")
-
-  setup ctx, do: File.mkdir_p!(ctx.tmp_dir)
+  @moduletag :tmp_dir
 
   describe "when an incomplete build is found" do
+    setup do
+      {:ok, image} = Klix.Factory.params(:image) |> Klix.Images.create()
+      %{image: image}
+    end
+
     test "emits an event", ctx do
-      {:ok, %{id: id}} = Klix.Factory.params(:image) |> Klix.Images.create()
-
       %{ref: ref} = start_builder(ctx)
-
-      assert_receive {[:builder, :build_setup_complete], ^ref, %{image_id: ^id}, _meta}
+      expected_id = ctx.image.id
+      assert_receive {[:builder, :build_setup_complete], ^ref, %{image_id: ^expected_id}, _meta}
     end
 
     test "creates a directory with the image's flake", ctx do
-      {:ok, image} = Klix.Factory.params(:image) |> Klix.Images.create()
-
       %{ref: ref} = start_builder(ctx)
 
       assert_receive {[:builder, :build_setup_complete], ^ref, _measurements, _meta}
 
       assert ctx.tmp_dir |> Path.join("flake.nix") |> File.read() ==
-               {:ok, Klix.Images.to_flake(image)}
+               {:ok, Klix.Images.to_flake(ctx.image)}
     end
 
-    test "runs nix build", ctx do
-      {:ok, _image} = Klix.Factory.params(:image) |> Klix.Images.create()
-
+    test "runs the build", ctx do
       %{ref: ref, builder: builder} = start_builder(ctx)
 
       assert_receive {[:builder, :build_setup_complete], ^ref, _measurements, _meta}
@@ -44,6 +34,10 @@ defmodule Klix.BuilderTest do
       assert_receive {[:builder, :build_started], ^ref, %{port: port}, _meta}
 
       assert Port.info(port)
+
+      send(builder, {port, {:exit_status, 0}})
+
+      assert_receive {[:builder, :build_completed], ^ref, %{}, _meta}
     end
   end
 
@@ -56,6 +50,7 @@ defmodule Klix.BuilderTest do
 
   defp subscribe do
     :telemetry_test.attach_event_handlers(self(), [
+      [:builder, :build_completed],
       [:builder, :build_setup_complete],
       [:builder, :build_started],
       [:builder, :idle],
@@ -69,7 +64,7 @@ defmodule Klix.BuilderTest do
     builder =
       start_link_supervised!({
         Klix.Builder,
-        build_dir: tmp_dir
+        build_dir: tmp_dir, cmd: "yes"
       })
 
     assert_receive {[:builder, :idle], ^ref, _empty_measurements, _meta}
