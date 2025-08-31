@@ -1,7 +1,16 @@
 defmodule Klix.BuilderTest do
   use Klix.DataCase, async: true
 
-  @moduletag :tmp_dir
+  # avoid nix/git issues by creating tmp_dir in /tmp
+  @moduletag tmp_dir:
+               __DIR__
+               |> Path.split()
+               |> Enum.map(fn _ -> ".." end)
+               |> Path.join()
+               |> Path.join("tmp")
+               |> Path.join("klix-builder-test")
+
+  setup ctx, do: File.mkdir_p!(ctx.tmp_dir)
 
   describe "when an incomplete build is found" do
     test "emits an event", ctx do
@@ -60,7 +69,7 @@ defmodule Klix.BuilderTest do
     builder =
       start_link_supervised!({
         Klix.Builder,
-        scheduler: self(), build_dir: tmp_dir
+        build_dir: tmp_dir
       })
 
     assert_receive {[:builder, :idle], ^ref, _empty_measurements, _meta}
