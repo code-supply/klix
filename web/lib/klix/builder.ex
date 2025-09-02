@@ -29,7 +29,10 @@ defmodule Klix.Builder do
           |> Path.join("flake.nix")
           |> File.write(Klix.Images.to_flake(build.image))
 
-        emit(:build_setup_complete, %{image_id: build.image_id})
+        emit(
+          :build_setup_complete,
+          %{image_id: build.image_id, build_id: build.id}
+        )
     end
 
     {:noreply, state}
@@ -52,7 +55,7 @@ defmodule Klix.Builder do
   end
 
   def handle_info({port, {:data, output}}, state) when is_port(port) do
-    IO.puts(output)
+    emit(:build_log, %{content: output})
     {:noreply, state}
   end
 

@@ -12,10 +12,13 @@ defmodule Klix.BuilderTest do
     test "emits an event", ctx do
       %{ref: ref} = start_builder(ctx)
       expected_id = ctx.image.id
-      assert_receive {[:builder, :build_setup_complete], ^ref, %{image_id: ^expected_id}, _meta}
+      [%{id: expected_build_id}] = ctx.image.builds
+
+      assert_receive {[:builder, :build_setup_complete], ^ref,
+                      %{image_id: ^expected_id, build_id: ^expected_build_id}, _meta}
     end
 
-    test "creates a directory with the image's flake", ctx do
+    test "writes the image's flake", ctx do
       %{ref: ref} = start_builder(ctx)
 
       assert_receive {[:builder, :build_setup_complete], ^ref, _measurements, _meta}
@@ -39,6 +42,14 @@ defmodule Klix.BuilderTest do
 
       assert_receive {[:builder, :build_completed], ^ref, %{}, _meta}
     end
+
+    test "emits log messages as telemetry", ctx do
+      %{ref: ref, builder: builder} = start_builder(ctx)
+      send(builder, :run)
+      assert_receive {[:builder, :build_log], ^ref, %{content: content}, _meta}
+      # output of 'yes'
+      assert content =~ "y\ny\ny\n"
+    end
   end
 
   describe "when there's nothing to do" do
@@ -51,6 +62,7 @@ defmodule Klix.BuilderTest do
   defp subscribe do
     :telemetry_test.attach_event_handlers(self(), [
       [:builder, :build_completed],
+      [:builder, :build_log],
       [:builder, :build_setup_complete],
       [:builder, :build_started],
       [:builder, :idle],
