@@ -2,6 +2,40 @@ defmodule Klix.ImagesTest do
   use Klix.DataCase, async: true
   use ExUnitProperties
 
+  describe "getting the next build" do
+    test "nil when there's no build" do
+      assert Klix.Images.next_build() == nil
+    end
+
+    test "preloaded with image when available" do
+      {:ok, %{builds: [initial_build]} = image} =
+        Klix.Factory.params(:image)
+        |> Klix.Images.create()
+
+      build = Klix.Images.next_build()
+      assert build.id == initial_build.id
+      assert build.image_id == image.id
+    end
+
+    test "chooses the oldest build" do
+      _new =
+        struct!(
+          Klix.Images.Build,
+          Klix.Factory.params(:build, inserted_at: ~U[3000-01-01 00:00:00Z])
+        )
+        |> Klix.Repo.insert!()
+
+      old =
+        struct!(
+          Klix.Images.Build,
+          Klix.Factory.params(:build, inserted_at: ~U[2000-01-01 00:00:00Z])
+        )
+        |> Klix.Repo.insert!()
+
+      assert Klix.Images.next_build().id == old.id
+    end
+  end
+
   test "converts to a Nix flake" do
     {:ok, image} =
       Klix.Factory.params(

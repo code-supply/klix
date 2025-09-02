@@ -12,7 +12,7 @@ defmodule Klix.Images.Image do
 
     has_many :builds, Klix.Images.Build
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   def changeset(image, params) do

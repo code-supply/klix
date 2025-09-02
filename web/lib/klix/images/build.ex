@@ -4,7 +4,7 @@ defmodule Klix.Images.Build do
   schema "builds" do
     belongs_to :image, Klix.Images.Image
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   defmodule Query do
@@ -17,7 +17,10 @@ defmodule Klix.Images.Build do
     end
 
     def next(query \\ base()) do
-      preload(query, [:image])
+      query
+      |> order_by([builds: b], asc: b.inserted_at, asc: b.id)
+      |> limit(1)
+      |> preload([:image])
     end
   end
 end
