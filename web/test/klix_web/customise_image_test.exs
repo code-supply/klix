@@ -1,4 +1,4 @@
-defmodule KlixWeb.CustomImageTest do
+defmodule KlixWeb.CustomiseImageTest do
   use KlixWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
