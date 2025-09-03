@@ -14,8 +14,8 @@ defmodule Klix.BuilderTest do
       expected_id = ctx.image.id
       [%{id: expected_build_id}] = ctx.image.builds
 
-      assert_receive {[:builder, :build_setup_complete], ^ref,
-                      %{image_id: ^expected_id, build_id: ^expected_build_id}, _meta}
+      assert_receive {[:builder, :build_setup_complete], ^ref, _empty_measurements,
+                      %{image_id: ^expected_id, build_id: ^expected_build_id}}
     end
 
     test "writes the image's flake", ctx do

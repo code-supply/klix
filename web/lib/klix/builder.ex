@@ -10,10 +10,11 @@ defmodule Klix.Builder do
     state =
       Enum.into(opts, %{
         build_dir: "/tmp/klix-build",
-        cmd: "nix build --print-build-logs .#packages.aarch64-linux.image"
+        cmd: "nix build --print-build-logs .#packages.aarch64-linux.image",
+        telemetry_meta: %{}
       })
 
-    emit(:idle)
+    emit(state, :idle)
     {:ok, state}
   end
 
@@ -21,7 +22,9 @@ defmodule Klix.Builder do
   def handle_info(:set_up, state) do
     case Klix.Images.next_build() do
       nil ->
-        emit(:no_builds)
+        state = %{state | telemetry_meta: %{}}
+        emit(state, :no_builds)
+        {:noreply, state}
 
       build ->
         :ok =
@@ -29,13 +32,17 @@ defmodule Klix.Builder do
           |> Path.join("flake.nix")
           |> File.write(Klix.Images.to_flake(build.image))
 
-        emit(
-          :build_setup_complete,
-          %{image_id: build.image_id, build_id: build.id}
-        )
-    end
+        state = %{
+          state
+          | telemetry_meta: %{
+              image_id: build.image_id,
+              build_id: build.id
+            }
+        }
 
-    {:noreply, state}
+        emit(state, :build_setup_complete)
+        {:noreply, state}
+    end
   end
 
   def handle_info(:run, state) do
@@ -50,18 +57,18 @@ defmodule Klix.Builder do
         ]
       )
 
-    emit(:build_started, %{port: port})
+    emit(state, :build_started, %{port: port})
     {:noreply, state}
   end
 
   def handle_info({port, {:data, output}}, state) when is_port(port) do
-    emit(:build_log, %{content: output})
+    emit(state, :build_log, %{content: output})
     {:noreply, state}
   end
 
   def handle_info({port, {:exit_status, 0}}, state) when is_port(port) do
     send(port, {self(), :close})
-    emit(:build_completed)
+    emit(state, :build_completed)
     {:noreply, state}
   end
 
@@ -69,7 +76,7 @@ defmodule Klix.Builder do
     {:noreply, state}
   end
 
-  defp emit(name, measurements \\ %{}) do
-    :telemetry.execute([:builder, name], measurements, %{})
+  defp emit(state, name, measurements \\ %{}) do
+    :telemetry.execute([:builder, name], measurements, state.telemetry_meta)
   end
 end
