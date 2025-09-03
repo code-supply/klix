@@ -22,7 +22,14 @@ defmodule Klix.Builder do
       Enum.into(opts, %{
         build: nil,
         build_dir: "/tmp/klix-build",
-        cmd: "nix build --json --no-pretty .#packages.aarch64-linux.image",
+        cmd: ~w(
+          nix
+          build 
+          --json 
+          --no-link 
+          --no-pretty 
+          .#packages.aarch64-linux.image
+        ),
         telemetry_meta: %{}
       })
 
@@ -40,9 +47,13 @@ defmodule Klix.Builder do
 
       build ->
         :ok =
-          state.build_dir
-          |> Path.join("flake.nix")
+          state
+          |> flake_nix_path()
           |> File.write(Klix.Images.to_flake(build.image))
+
+        state
+        |> flake_lock_path()
+        |> File.rm()
 
         state = %{
           state
@@ -82,13 +93,13 @@ defmodule Klix.Builder do
       )
       when is_port(port) do
     {:ok, flake_nix} =
-      state.build_dir
-      |> Path.join("flake.nix")
+      state
+      |> flake_nix_path()
       |> File.read()
 
     {:ok, flake_lock} =
-      state.build_dir
-      |> Path.join("flake.lock")
+      state
+      |> flake_lock_path()
       |> File.read()
 
     {:ok, build} = Klix.Images.set_build_flake_files(state.build, flake_nix, flake_lock)
@@ -131,4 +142,7 @@ defmodule Klix.Builder do
       Map.put(state.telemetry_meta, :pid, self())
     )
   end
+
+  defp flake_nix_path(state), do: Path.join(state.build_dir, "flake.nix")
+  defp flake_lock_path(state), do: Path.join(state.build_dir, "flake.lock")
 end

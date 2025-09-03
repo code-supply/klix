@@ -18,6 +18,20 @@ defmodule Klix.BuilderTest do
                       %{image_id: ^expected_id, build_id: ^expected_build_id, pid: ^builder}}
     end
 
+    test "deletes existing data in the build dir", ctx do
+      flake_nix = Path.join(ctx.tmp_dir, "flake.nix")
+      flake_lock = Path.join(ctx.tmp_dir, "flake.lock")
+      File.write!(flake_nix, "hi there")
+      File.touch!(flake_lock)
+
+      %{ref: ref} = start_builder(ctx)
+
+      assert_receive {[:builder, :build_setup_complete], ^ref, _empty_measurements, _metadata}
+
+      assert File.read!(flake_nix) != "hi there"
+      refute File.exists?(flake_lock)
+    end
+
     test "writes the image's flake", ctx do
       %{ref: ref, builder: builder} = start_builder(ctx)
 
