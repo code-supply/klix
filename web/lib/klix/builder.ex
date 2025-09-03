@@ -77,6 +77,10 @@ defmodule Klix.Builder do
   end
 
   defp emit(state, name, measurements \\ %{}) do
-    :telemetry.execute([:builder, name], measurements, state.telemetry_meta)
+    :telemetry.execute(
+      [:builder, name],
+      measurements,
+      Map.put(state.telemetry_meta, :pid, self())
+    )
   end
 end
