@@ -1,4 +1,5 @@
 defmodule Klix.Images do
+  alias __MODULE__.Build
   alias __MODULE__.Image
 
   def find!(id) do
@@ -13,6 +14,18 @@ defmodule Klix.Images do
 
   def next_build do
     Klix.Images.Build.Query.next() |> Klix.Repo.one()
+  end
+
+  def set_build_flake_files(%Build{} = build, flake_nix, flake_lock) do
+    build
+    |> Ecto.Changeset.change(flake_nix: flake_nix, flake_lock: flake_lock)
+    |> Klix.Repo.update()
+  end
+
+  def set_build_output_path(%Build{} = build, output_path) do
+    build
+    |> Ecto.Changeset.change(output_path: output_path)
+    |> Klix.Repo.update()
   end
 
   def to_flake(%Image{} = image) do

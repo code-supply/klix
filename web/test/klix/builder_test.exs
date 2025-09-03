@@ -9,7 +9,7 @@ defmodule Klix.BuilderTest do
       %{image: image}
     end
 
-    test "emits an event", ctx do
+    test "emits an event after setup message is sent", ctx do
       %{ref: ref, builder: builder} = start_builder(ctx)
       expected_id = ctx.image.id
       [%{id: expected_build_id}] = ctx.image.builds
@@ -42,6 +42,56 @@ defmodule Klix.BuilderTest do
       send(builder, {port, {:exit_status, 0}})
 
       assert_receive {[:builder, :build_completed], ^ref, %{}, %{pid: ^builder}}
+    end
+
+    test "stores the flake.nix and flake.lock files when they're both ready", ctx do
+      nix_message =
+        "warning: creating lock file \"/tmp/klix-build/flake.lock\": \n• Added input 'klipperConfig'"
+
+      %{ref: ref, builder: builder} = start_builder(ctx)
+      send(builder, :run)
+
+      assert_receive {[:builder, :build_started], ^ref, _empty_measurements,
+                      %{port: port, pid: ^builder}}
+
+      ctx.tmp_dir
+      |> Path.join("flake.nix")
+      |> File.write!("flake.nix file content")
+
+      ctx.tmp_dir
+      |> Path.join("flake.lock")
+      |> File.write!("flake.lock file content")
+
+      send(builder, {port, {:data, nix_message}})
+      assert_receive {[:builder, :build_log], ^ref, _measurements, %{pid: ^builder}}
+
+      %{builds: [build]} = ctx.image
+
+      build = Klix.Repo.reload!(build)
+
+      assert build.flake_nix == "flake.nix file content"
+      assert build.flake_lock == "flake.lock file content"
+    end
+
+    test "stores the output path when available", ctx do
+      nix_message =
+        "[{\"drvPath\":\"/nix/store/j2hvqq83fhr8p6jpwkbhsjidh6dvcm1j-nixos-image-sd-card-25.11.20250831.e6cb50b-aarch64-linux.img.zst.drv\",\"outputs\":{\"out\":\"/nix/store/6rwl2k7a7ad0prmjsacz2d3lw9s3z0dh-nixos-image-sd-card-25.11.20250831.e6cb50b-aarch64-linux.img.zst\"}}]\n"
+
+      %{ref: ref, builder: builder} = start_builder(ctx)
+      send(builder, :run)
+
+      assert_receive {[:builder, :build_started], ^ref, _empty_measurements,
+                      %{port: port, pid: ^builder}}
+
+      send(builder, {port, {:data, nix_message}})
+      assert_receive {[:builder, :build_log], ^ref, _measurements, %{pid: ^builder}}
+
+      %{builds: [build]} = ctx.image
+
+      build = Klix.Repo.reload!(build)
+
+      assert build.output_path ==
+               "/nix/store/6rwl2k7a7ad0prmjsacz2d3lw9s3z0dh-nixos-image-sd-card-25.11.20250831.e6cb50b-aarch64-linux.img.zst"
     end
 
     test "emits log messages as telemetry", ctx do

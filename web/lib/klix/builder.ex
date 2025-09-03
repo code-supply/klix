@@ -20,8 +20,9 @@ defmodule Klix.Builder do
   def init(opts) do
     state =
       Enum.into(opts, %{
+        build: nil,
         build_dir: "/tmp/klix-build",
-        cmd: "nix build --print-build-logs .#packages.aarch64-linux.image",
+        cmd: "nix build --json --no-pretty .#packages.aarch64-linux.image",
         telemetry_meta: %{}
       })
 
@@ -45,7 +46,8 @@ defmodule Klix.Builder do
 
         state = %{
           state
-          | telemetry_meta: %{
+          | build: build,
+            telemetry_meta: %{
               image_id: build.image_id,
               build_id: build.id,
               port: nil
@@ -72,6 +74,39 @@ defmodule Klix.Builder do
     state = put_in(state.telemetry_meta.port, port)
     emit(state, :build_started)
     {:noreply, state}
+  end
+
+  def handle_info(
+        {port, {:data, <<"warning: creating lock file", _rest::binary>> = output}},
+        state
+      )
+      when is_port(port) do
+    {:ok, flake_nix} =
+      state.build_dir
+      |> Path.join("flake.nix")
+      |> File.read()
+
+    {:ok, flake_lock} =
+      state.build_dir
+      |> Path.join("flake.lock")
+      |> File.read()
+
+    {:ok, build} = Klix.Images.set_build_flake_files(state.build, flake_nix, flake_lock)
+
+    emit(state, :build_log, %{content: output})
+    {:noreply, %{state | build: build}}
+  end
+
+  def handle_info(
+        {port, {:data, <<"[{\"drvPath", _rest::binary>> = output}},
+        state
+      )
+      when is_port(port) do
+    {:ok, [%{"outputs" => %{"out" => output_path}}]} = JSON.decode(output)
+    {:ok, build} = Klix.Images.set_build_output_path(state.build, output_path)
+
+    emit(state, :build_log, %{content: output})
+    {:noreply, %{state | build: build}}
   end
 
   def handle_info({port, {:data, output}}, state) when is_port(port) do
