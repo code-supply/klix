@@ -47,7 +47,8 @@ defmodule Klix.Builder do
           state
           | telemetry_meta: %{
               image_id: build.image_id,
-              build_id: build.id
+              build_id: build.id,
+              port: nil
             }
         }
 
@@ -68,7 +69,8 @@ defmodule Klix.Builder do
         ]
       )
 
-    emit(state, :build_started, %{port: port})
+    state = put_in(state.telemetry_meta.port, port)
+    emit(state, :build_started)
     {:noreply, state}
   end
 

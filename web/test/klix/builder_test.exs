@@ -34,7 +34,8 @@ defmodule Klix.BuilderTest do
 
       send(builder, :run)
 
-      assert_receive {[:builder, :build_started], ^ref, %{port: port}, %{pid: ^builder}}
+      assert_receive {[:builder, :build_started], ^ref, _empty_measurements,
+                      %{port: port, pid: ^builder}}
 
       assert Port.info(port)
 
