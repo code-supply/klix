@@ -1,6 +1,17 @@
 defmodule Klix.Builder do
   use GenServer
 
+  def telemetry_events do
+    [
+      [:builder, :build_completed],
+      [:builder, :build_log],
+      [:builder, :build_setup_complete],
+      [:builder, :build_started],
+      [:builder, :idle],
+      [:builder, :no_builds]
+    ]
+  end
+
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts)
   end

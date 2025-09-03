@@ -60,14 +60,7 @@ defmodule Klix.BuilderTest do
   end
 
   defp subscribe do
-    :telemetry_test.attach_event_handlers(self(), [
-      [:builder, :build_completed],
-      [:builder, :build_log],
-      [:builder, :build_setup_complete],
-      [:builder, :build_started],
-      [:builder, :idle],
-      [:builder, :no_builds]
-    ])
+    :telemetry_test.attach_event_handlers(self(), Klix.Builder.telemetry_events())
   end
 
   defp start_builder(%{tmp_dir: tmp_dir}) do
