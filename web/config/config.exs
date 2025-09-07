@@ -9,7 +9,8 @@ import Config
 
 config :klix,
   ecto_repos: [Klix.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  run_builder: false
 
 # Configures the endpoint
 config :klix, KlixWeb.Endpoint,

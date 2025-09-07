@@ -14,7 +14,7 @@ defmodule Klix.BuilderTest do
       expected_id = ctx.image.id
       [%{id: expected_build_id}] = ctx.image.builds
 
-      assert_receive {[:builder, :build_setup_complete], ^ref, _empty_measurements,
+      assert_receive {[:builder, :setup_complete], ^ref, _empty_measurements,
                       %{image_id: ^expected_id, build_id: ^expected_build_id, pid: ^builder}}
     end
 
@@ -26,7 +26,7 @@ defmodule Klix.BuilderTest do
 
       %{ref: ref} = start_builder(ctx)
 
-      assert_receive {[:builder, :build_setup_complete], ^ref, _empty_measurements, _metadata}
+      assert_receive {[:builder, :setup_complete], ^ref, _empty_measurements, _metadata}
 
       assert File.read!(flake_nix) != "hi there"
       refute File.exists?(flake_lock)
@@ -35,7 +35,7 @@ defmodule Klix.BuilderTest do
     test "writes the image's flake", ctx do
       %{ref: ref, builder: builder} = start_builder(ctx)
 
-      assert_receive {[:builder, :build_setup_complete], ^ref, _measurements, %{pid: ^builder}}
+      assert_receive {[:builder, :setup_complete], ^ref, _measurements, %{pid: ^builder}}
 
       assert ctx.tmp_dir |> Path.join("flake.nix") |> File.read() ==
                {:ok, Klix.Images.to_flake(ctx.image)}
@@ -44,7 +44,7 @@ defmodule Klix.BuilderTest do
     test "runs the build", ctx do
       %{ref: ref, builder: builder} = start_builder(ctx)
 
-      assert_receive {[:builder, :build_setup_complete], ^ref, _measurements, %{pid: ^builder}}
+      assert_receive {[:builder, :setup_complete], ^ref, _measurements, %{pid: ^builder}}
 
       send(builder, :run)
 
@@ -55,7 +55,7 @@ defmodule Klix.BuilderTest do
 
       send(builder, {port, {:exit_status, 0}})
 
-      assert_receive {[:builder, :build_completed], ^ref, %{}, %{pid: ^builder}}
+      assert_receive {[:builder, :run_complete], ^ref, %{}, %{pid: ^builder}}
     end
 
     test "stores the flake.nix and flake.lock files when they're both ready", ctx do
@@ -120,7 +120,7 @@ defmodule Klix.BuilderTest do
   describe "when there's nothing to do" do
     test "emits an event", ctx do
       %{ref: ref, builder: builder} = start_builder(ctx)
-      assert_receive {[:builder, :no_builds], ^ref, _empty_measurements, %{pid: ^builder}}
+      assert_receive {[:builder, :nothing_to_do], ^ref, _empty_measurements, %{pid: ^builder}}
     end
   end
 

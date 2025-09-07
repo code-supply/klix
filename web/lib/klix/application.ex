@@ -8,8 +8,18 @@ defmodule Klix.Application do
       Klix.Repo,
       {DNSCluster, query: Application.get_env(:klix, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Klix.PubSub},
-      KlixWeb.Endpoint
+      KlixWeb.Endpoint,
+      Klix.Builder
     ]
+
+    if Application.fetch_env!(:klix, :run_builder) do
+      :telemetry.attach_many(
+        :build_scheduler,
+        Klix.Scheduler.events_for(:builder),
+        &Klix.Scheduler.handle/4,
+        []
+      )
+    end
 
     :telemetry.attach_many(
       :build_telemetry_handler,

@@ -3,12 +3,9 @@ defmodule Klix.Builder do
 
   def telemetry_events do
     [
-      [:builder, :build_completed],
       [:builder, :build_log],
-      [:builder, :build_setup_complete],
-      [:builder, :build_started],
-      [:builder, :idle],
-      [:builder, :no_builds]
+      [:builder, :build_started]
+      | Klix.Scheduler.events_for(:builder)
     ]
   end
 
@@ -29,7 +26,7 @@ defmodule Klix.Builder do
           --no-link 
           --no-pretty 
           .#packages.aarch64-linux.image
-        ),
+        ) |> Enum.join(" "),
         telemetry_meta: %{}
       })
 
@@ -42,7 +39,7 @@ defmodule Klix.Builder do
     case Klix.Images.next_build() do
       nil ->
         state = %{state | telemetry_meta: %{}}
-        emit(state, :no_builds)
+        emit(state, :nothing_to_do)
         {:noreply, state}
 
       build ->
@@ -65,7 +62,7 @@ defmodule Klix.Builder do
             }
         }
 
-        emit(state, :build_setup_complete)
+        emit(state, :setup_complete)
         {:noreply, state}
     end
   end
@@ -127,7 +124,7 @@ defmodule Klix.Builder do
 
   def handle_info({port, {:exit_status, 0}}, state) when is_port(port) do
     send(port, {self(), :close})
-    emit(state, :build_completed)
+    emit(state, :run_complete)
     {:noreply, state}
   end
 
