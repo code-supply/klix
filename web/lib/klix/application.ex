@@ -17,7 +17,7 @@ defmodule Klix.Application do
         :build_scheduler,
         Klix.Scheduler.events_for(:builder),
         &Klix.Scheduler.handle/4,
-        []
+        sleep_time: 2000
       )
     end
 
