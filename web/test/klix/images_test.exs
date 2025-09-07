@@ -19,6 +19,16 @@ defmodule Klix.ImagesTest do
       assert Klix.Images.next_build() == nil
     end
 
+    test "nil when all builds have output paths" do
+      {:ok, %{builds: [build]}} =
+        Klix.Factory.params(:image)
+        |> Klix.Images.create()
+
+      Klix.Images.set_build_output_path(build, "/some/path")
+
+      assert Klix.Images.next_build() == nil
+    end
+
     test "preloaded with image when available" do
       {:ok, %{builds: [initial_build]} = image} =
         Klix.Factory.params(:image)
