@@ -19,6 +19,7 @@ defmodule KlixWeb.Router do
 
     live "/", CustomiseImageLive
     live "/images/:id", ImageLive
+    get "/images/:image_id/builds/:build_id/content", ImageController, :download
   end
 
   # Other scopes may use custom stacks.

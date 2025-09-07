@@ -15,6 +15,10 @@ defmodule Klix.Images do
     |> Klix.Repo.preload(:builds)
   end
 
+  def find_build(image_id, build_id) do
+    Klix.Repo.get_by(Build, image_id: image_id, id: build_id)
+  end
+
   def create(attrs) do
     %Image{builds: [[]]}
     |> Klix.Images.Image.changeset(attrs)

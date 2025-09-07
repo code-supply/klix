@@ -15,7 +15,8 @@ defmodule KlixWeb.CustomiseImageTest do
     assert html =~ "being prepared"
   end
 
-  test "shows download link when image is built", %{conn: conn} do
+  @tag :tmp_dir
+  test "shows download link when image is built", %{conn: conn, tmp_dir: tmp_dir} do
     {:ok, view, _html} = live(conn, ~p"/")
 
     {:error, {:live_redirect, %{kind: :push, to: <<"/images/", image_id::binary>>}}} =
@@ -29,12 +30,19 @@ defmodule KlixWeb.CustomiseImageTest do
 
     %{builds: [build]} = Klix.Images.find!(image_id)
 
-    Klix.Images.set_build_output_path(build, "some/path")
+    top_dir = write_image(tmp_dir, "the image contents")
+    Klix.Images.set_build_output_path(build, top_dir)
 
-    assert view
-           |> has_element?(
-             "#download[download][href='#{~p"/images/#{image_id}/builds/#{build.id}/content'"}]"
-           )
+    link_selector =
+      "#download[download][href='#{~p"/images/#{image_id}/builds/#{build.id}/content'"}]"
+
+    {:ok, conn} =
+      view
+      |> element(link_selector)
+      |> render_click()
+      |> follow_redirect(conn)
+
+    assert response(conn, :ok)
   end
 
   test "shows validation errors", %{conn: conn} do
