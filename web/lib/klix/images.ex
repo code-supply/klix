@@ -2,8 +2,17 @@ defmodule Klix.Images do
   alias __MODULE__.Build
   alias __MODULE__.Image
 
+  def subscribe(image_id) when is_integer(image_id) do
+    Phoenix.PubSub.subscribe(Klix.PubSub, "image:#{image_id}")
+  end
+
+  def broadcast(image_id, message) when is_integer(image_id) do
+    Phoenix.PubSub.broadcast(Klix.PubSub, "image:#{image_id}", message)
+  end
+
   def find!(id) do
     Klix.Repo.get!(Image, id)
+    |> Klix.Repo.preload(:builds)
   end
 
   def create(attrs) do
@@ -26,6 +35,9 @@ defmodule Klix.Images do
     build
     |> Ecto.Changeset.change(output_path: output_path)
     |> Klix.Repo.update()
+    |> tap(fn {:ok, build} ->
+      broadcast(build.image_id, build_ready: build)
+    end)
   end
 
   def to_flake(%Image{} = image) do
