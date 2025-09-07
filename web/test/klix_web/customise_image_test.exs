@@ -34,7 +34,7 @@ defmodule KlixWeb.CustomiseImageTest do
     Klix.Images.set_build_output_path(build, top_dir)
 
     link_selector =
-      "#download[download][href='#{~p"/images/#{image_id}/builds/#{build.id}/content'"}]"
+      "#download[download][href='#{~p"/images/#{image_id}/builds/#{build.id}/klix.img.zst'"}]"
 
     {:ok, conn} =
       view

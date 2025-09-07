@@ -9,12 +9,13 @@ defmodule KlixWeb.ImageControllerTest do
 
     {:ok, _build} = Klix.Images.set_build_output_path(build, top_dir)
 
-    assert get(conn, ~p"/images/#{image.id}/builds/#{build.id}/content").resp_body == "an image"
+    assert get(conn, ~p"/images/#{image.id}/builds/#{build.id}/klix.img.zst").resp_body ==
+             "an image"
   end
 
   test "404s if there's no matching image and build", %{conn: conn} do
     assert conn
-           |> get(~p"/images/1/builds/1/content")
+           |> get(~p"/images/1/builds/1/klix.img.zst")
            |> response(:not_found)
   end
 end

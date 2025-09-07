@@ -16,7 +16,11 @@ defmodule KlixWeb.ImageLive do
             <:loading>
               <div class="mt-4 loading loading-bars loading-xl" />
             </:loading>
-            <.link id="download" href={~p"/images/#{@image.id}/builds/#{build.id}/content"} download>
+            <.link
+              id="download"
+              href={~p"/images/#{@image.id}/builds/#{build.id}/klix.img.zst"}
+              download
+            >
               Download
             </.link>
           </.async_result>
