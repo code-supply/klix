@@ -44,6 +44,12 @@ defmodule Klix.Images do
     end)
   end
 
+  def sd_file_path(%Build{} = build) do
+    sd_dir = Path.join(build.output_path, "sd-image")
+    {:ok, [sd_file]} = File.ls(sd_dir)
+    Path.join(sd_dir, sd_file)
+  end
+
   def to_flake(%Image{} = image) do
     """
     {
