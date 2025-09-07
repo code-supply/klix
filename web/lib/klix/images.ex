@@ -2,6 +2,8 @@ defmodule Klix.Images do
   alias __MODULE__.Build
   alias __MODULE__.Image
 
+  import Klix.ToNix
+
   def subscribe(image_id) when is_integer(image_id) do
     Phoenix.PubSub.subscribe(Klix.PubSub, "image:#{image_id}")
   end
@@ -55,7 +57,7 @@ defmodule Klix.Images do
     {
       inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/e6cb50b7edb109d393856d19b797ba6b6e71a4fc";
-        klipperConfig.url = "github:code-supply/code-supply";
+        klipperConfig = #{image.klipper_config |> to_nix() |> Klix.indent(from: 1) |> Klix.indent(from: 1)};
         klix = {
           url = "github:code-supply/klix";
           inputs.nixpkgs.follows = "nixpkgs";

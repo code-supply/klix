@@ -62,6 +62,11 @@ defmodule Klix.ImagesTest do
     {:ok, image} =
       Klix.Factory.params(
         :image,
+        klipper_config: [
+          type: :github,
+          owner: "mr-print",
+          repo: "my-klipper-config"
+        ],
         hostname: "some-printer",
         timezone: "Europe/Madrid",
         klipperscreen_enabled: false,
@@ -76,7 +81,11 @@ defmodule Klix.ImagesTest do
              {
                inputs = {
                  nixpkgs.url = "github:NixOS/nixpkgs/e6cb50b7edb109d393856d19b797ba6b6e71a4fc";
-                 klipperConfig.url = "github:code-supply/code-supply";
+                 klipperConfig = {
+                   type = "github";
+                   owner = "mr-print";
+                   repo = "my-klipper-config";
+                 };
                  klix = {
                    url = "github:code-supply/klix";
                    inputs.nixpkgs.follows = "nixpkgs";
@@ -185,6 +194,13 @@ defmodule Klix.ImagesTest do
 
       assert {"must be a valid timezone", [{:validation, :inclusion} | _]} =
                image.errors[:timezone]
+    end
+  end
+
+  describe "Klipper config" do
+    test "must be present" do
+      {:error, changeset} = Klix.Images.create(%{})
+      assert changeset.errors[:klipper_config] == {"can't be blank", [validation: :required]}
     end
   end
 end

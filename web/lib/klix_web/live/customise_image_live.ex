@@ -39,6 +39,21 @@ defmodule KlixWeb.CustomiseImageLive do
         />
       </fieldset>
 
+      <.inputs_for :let={klipper_config} field={@image[:klipper_config]}>
+        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+          <legend class="fieldset-legend">Klipper Config Source</legend>
+
+          <.input
+            label="Repo type"
+            field={klipper_config[:type]}
+            type="select"
+            options={Klix.Images.KlipperConfig.type_options()}
+          />
+          <.input label="Repo owner" field={klipper_config[:owner]} />
+          <.input label="Repo name" field={klipper_config[:repo]} />
+        </fieldset>
+      </.inputs_for>
+
       <div class="col-span-2">
         <button id="download" class="btn btn-primary float-right">
           <.icon name="hero-arrow-down-tray" /> Download Raspberry Pi Image

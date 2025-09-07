@@ -11,6 +11,7 @@ defmodule Klix.Images.Image do
     field :public_key, :string
 
     has_many :builds, Klix.Images.Build
+    embeds_one :klipper_config, Klix.Images.KlipperConfig
 
     timestamps(type: :utc_datetime)
   end
@@ -28,11 +29,12 @@ defmodule Klix.Images.Image do
       :public_key,
       :timezone
     ])
+    |> cast_embed(:klipper_config)
     |> validate_format(:hostname, ~r/^[^-].*$/, message: "must not start with a hyphen")
     |> validate_format(:hostname, ~r/^.*[^-]$/, message: "must not end with a hyphen")
     |> validate_format(:hostname, ~r/^[a-zA-Z0-9-]+$/, message: "must be A-Za-z0-9 or hyphen")
     |> validate_length(:hostname, max: 253)
-    |> validate_required([:hostname, :public_key])
+    |> validate_required([:hostname, :klipper_config, :public_key])
     |> validate_change(:public_key, &errors_for/2)
     |> validate_inclusion(:timezone, Tzdata.zone_list(), message: "must be a valid timezone")
   end
