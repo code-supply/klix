@@ -51,6 +51,7 @@ defmodule KlixWeb.CustomiseImageLive do
           />
           <.input label="Repo owner" field={klipper_config[:owner]} />
           <.input label="Repo name" field={klipper_config[:repo]} />
+          <.input label="Path to config dir (optional)" field={klipper_config[:path]} />
         </fieldset>
       </.inputs_for>
 

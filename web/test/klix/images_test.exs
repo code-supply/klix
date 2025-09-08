@@ -65,7 +65,8 @@ defmodule Klix.ImagesTest do
         klipper_config: [
           type: :github,
           owner: "mr-print",
-          repo: "my-klipper-config"
+          repo: "my-klipper-config",
+          path: "my/lovely/klipper"
         ],
         hostname: "some-printer",
         timezone: "Europe/Madrid",
@@ -85,6 +86,7 @@ defmodule Klix.ImagesTest do
                    type = "github";
                    owner = "mr-print";
                    repo = "my-klipper-config";
+                   flake = false;
                  };
                  klix = {
                    url = "github:code-supply/klix";
@@ -111,7 +113,7 @@ defmodule Klix.ImagesTest do
                          users.users.klix.openssh.authorizedKeys.keys = [
                            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
                          ];
-                         services.klix.configDir = "${klipperConfig}/boxes/ketchup-king/klipper";
+                         services.klix.configDir = "${klipperConfig}/my/lovely/klipper";
                          services.klipper = {
                            plugins = {
                              kamp.enable = true;

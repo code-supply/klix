@@ -13,6 +13,7 @@ defmodule Klix.Images.KlipperConfigTest do
              type = "github";
              owner = "code-supply";
              repo = "klix";
+             flake = false;
            }\
            """
   end

@@ -83,7 +83,7 @@ defmodule Klix.Images do
                 users.users.klix.openssh.authorizedKeys.keys = [
                   "#{image.public_key}"
                 ];
-                services.klix.configDir = "${klipperConfig}/boxes/ketchup-king/klipper";
+                services.klix.configDir = "${klipperConfig}/#{image.klipper_config.path}";
                 services.klipper = {
                   plugins = {
                     kamp.enable = #{image.plugin_kamp_enabled};
