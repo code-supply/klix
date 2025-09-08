@@ -2,6 +2,7 @@ defmodule Klix.Images.KlipperConfig do
   use Ecto.Schema
 
   @types [github: "GitHub", gitlab: "GitLab"]
+  @owner_repo_regex ~r/^[\w\.\-]+$/
 
   def type_options, do: for({k, v} <- @types, do: {v, k})
 
@@ -18,6 +19,9 @@ defmodule Klix.Images.KlipperConfig do
     config
     |> cast(params, [:type, :owner, :path, :repo])
     |> validate_required([:type, :owner, :repo])
+    |> validate_format(:owner, @owner_repo_regex)
+    |> validate_format(:repo, @owner_repo_regex)
+    |> validate_format(:path, ~r/^[^";]*$/)
   end
 
   defimpl Klix.ToNix do
