@@ -67,7 +67,8 @@ defmodule Klix.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:tzdata, "~> 1.1"},
-      {:stream_data, "~> 1.2", only: :test}
+      {:stream_data, "~> 1.2", only: :test},
+      {:deps_nix, ">= 0.0.0", only: :dev}
     ]
   end
 
@@ -79,6 +80,8 @@ defmodule Klix.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
+      "deps.get": ["deps.get", "deps.nix"],
+      "deps.update": ["deps.update", "deps.nix"],
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],

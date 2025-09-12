@@ -86,5 +86,14 @@
           default = pkgs.callPackage ./shell.nix { };
         }
       );
+
+      packages = forAllSystems (
+        { pkgs, ... }:
+        {
+          default = pkgs.callPackage ./web {
+            version = if self ? rev then "0.0.0-${self.rev}" else "0.0.0-dev";
+          };
+        }
+      );
     };
 }
