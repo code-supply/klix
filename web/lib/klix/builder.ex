@@ -22,7 +22,8 @@ defmodule Klix.Builder do
         cmd: ~w(
           nix
           build 
-          --json 
+          --log-format internal-json
+          --verbose
           --no-link 
           --no-pretty 
           .#packages.aarch64-linux.image
