@@ -1,14 +1,14 @@
-defmodule Klix.Builder.TelemetryHandlerTest do
+defmodule Klix.Builder.LoggerTest do
   use Klix.DataCase, async: false
 
   import ExUnit.CaptureLog
 
   setup do
-    initial_level = Logger.get_module_level(Klix.Builder.TelemetryHandler)
-    Logger.put_module_level(Klix.Builder.TelemetryHandler, :info)
+    initial_level = Logger.get_module_level(Klix.Builder.Logger)
+    Logger.put_module_level(Klix.Builder.Logger, :info)
 
     on_exit(fn ->
-      Logger.put_module_level(Klix.Builder.TelemetryHandler, initial_level)
+      Logger.put_module_level(Klix.Builder.Logger, initial_level)
     end)
   end
 
@@ -18,7 +18,7 @@ defmodule Klix.Builder.TelemetryHandlerTest do
       [:builder, :nothing_to_do] = event ->
         log =
           capture_log(fn ->
-            Klix.Builder.TelemetryHandler.handle(event, %{}, %{my: :metadata}, [])
+            Klix.Builder.Logger.handle(event, %{}, %{my: :metadata}, [])
           end)
 
         assert log == ""
@@ -26,7 +26,7 @@ defmodule Klix.Builder.TelemetryHandlerTest do
       event ->
         log =
           capture_log(fn ->
-            Klix.Builder.TelemetryHandler.handle(event, %{}, %{my: :metadata}, [])
+            Klix.Builder.Logger.handle(event, %{}, %{my: :metadata}, [])
           end)
 
         assert log =~ inspect(event)

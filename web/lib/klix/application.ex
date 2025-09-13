@@ -24,7 +24,7 @@ defmodule Klix.Application do
     :telemetry.attach_many(
       :build_telemetry_handler,
       Klix.Builder.telemetry_events(),
-      &Klix.Builder.TelemetryHandler.handle/4,
+      &Klix.Builder.Logger.handle/4,
       []
     )
 

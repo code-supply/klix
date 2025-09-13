@@ -1,4 +1,4 @@
-defmodule Klix.Builder.TelemetryHandler do
+defmodule Klix.Builder.Logger do
   require Logger
 
   def handle([_server, :nothing_to_do], _measurements, _metadata, _config) do
