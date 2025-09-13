@@ -18,5 +18,7 @@ config :logger, level: :info
 
 config :klix, run_builder: true
 
+config :tzdata, :data_dir, "/tmp/elixir-tzdata-data"
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
