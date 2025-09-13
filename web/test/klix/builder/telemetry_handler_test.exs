@@ -13,13 +13,23 @@ defmodule Klix.Builder.TelemetryHandlerTest do
   end
 
   test "logs events" do
-    for event <- Klix.Builder.telemetry_events() do
-      log =
-        capture_log(fn ->
-          Klix.Builder.TelemetryHandler.handle(event, %{}, %{my: :metadata}, [])
-        end)
+    Klix.Builder.telemetry_events()
+    |> Enum.each(fn
+      [:builder, :nothing_to_do] = event ->
+        log =
+          capture_log(fn ->
+            Klix.Builder.TelemetryHandler.handle(event, %{}, %{my: :metadata}, [])
+          end)
 
-      assert log =~ inspect(event)
-    end
+        assert log == ""
+
+      event ->
+        log =
+          capture_log(fn ->
+            Klix.Builder.TelemetryHandler.handle(event, %{}, %{my: :metadata}, [])
+          end)
+
+        assert log =~ inspect(event)
+    end)
   end
 end
