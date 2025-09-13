@@ -15,6 +15,15 @@ defmodule KlixWeb.CustomiseImageTest do
     assert html =~ "being prepared"
   end
 
+  test "images that are already built are downloadable", %{conn: conn} do
+    {:ok, %{builds: [build]} = image} = Klix.Factory.params(:image) |> Klix.Images.create()
+    {:ok, _build} = Klix.Images.set_build_output_path(build, "some/path")
+
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+    assert view |> has_element?("#download")
+  end
+
   @tag :tmp_dir
   test "shows download link when image is built", %{conn: conn, tmp_dir: tmp_dir} do
     {:ok, view, _html} = live(conn, ~p"/")
@@ -52,7 +61,7 @@ defmodule KlixWeb.CustomiseImageTest do
              "must not start with a hyphen"
   end
 
-  test "has a download button", %{conn: conn} do
+  test "has a submit button", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/")
 
     assert view |> has_element?("#download")

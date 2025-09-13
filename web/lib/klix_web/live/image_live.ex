@@ -31,7 +31,7 @@ defmodule KlixWeb.ImageLive do
   end
 
   def mount(%{"id" => id}, _session, socket) do
-    image = Klix.Images.find!(id)
+    %{builds: [latest_build | _rest]} = image = Klix.Images.find!(id)
     Klix.Images.subscribe(image.id)
 
     {
@@ -40,7 +40,12 @@ defmodule KlixWeb.ImageLive do
       |> assign(
         page_title: "#{image.hostname} image",
         image: image,
-        build: AsyncResult.loading()
+        build:
+          if(
+            Klix.Images.build_ready?(latest_build),
+            do: AsyncResult.ok(latest_build),
+            else: AsyncResult.loading()
+          )
       )
     }
   end
