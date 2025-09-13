@@ -20,6 +20,9 @@ if System.get_env("PHX_SERVER") do
   config :klix, KlixWeb.Endpoint, server: true
 end
 
+config :klix,
+  build_dir: "/tmp/klix-build" |> tap(&File.mkdir_p!/1)
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
@@ -54,8 +57,7 @@ if config_env() == :prod do
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :klix,
-    dns_cluster_query: System.get_env("DNS_CLUSTER_QUERY"),
-    build_dir: "/tmp/klix-build" |> tap(&File.mkdir_p!/1)
+    dns_cluster_query: System.get_env("DNS_CLUSTER_QUERY")
 
   config :klix, KlixWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
