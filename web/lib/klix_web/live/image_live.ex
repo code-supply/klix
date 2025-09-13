@@ -9,11 +9,11 @@ defmodule KlixWeb.ImageLive do
       <div class="hero-content text-center bg-info rounded">
         <div>
           <h2 class="mb-4 text-3xl">"{@image.hostname}" image</h2>
-          <p>
-            Your image is being prepared.
-          </p>
           <.async_result :let={build} assign={@build}>
             <:loading>
+              <p>
+                Your image is being prepared.
+              </p>
               <div class="mt-4 loading loading-bars loading-xl" />
             </:loading>
             <.link
