@@ -9,8 +9,8 @@ defmodule Klix.Application do
       {DNSCluster, query: Application.get_env(:klix, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Klix.PubSub},
       KlixWeb.Endpoint,
-      {Klix.Builder, build_dir: Application.fetch_env!(:klix, :build_dir)}
-      # {Klix.Builder.Tracker, name: Klix.Builder.Tracker}
+      {Klix.Builder, build_dir: Application.fetch_env!(:klix, :build_dir)},
+      {Klix.Builder.Tracker, name: Klix.Builder.Tracker}
     ]
 
     if Application.fetch_env!(:klix, :run_builder) do
@@ -22,19 +22,19 @@ defmodule Klix.Application do
       )
     end
 
-    :telemetry.attach_many(
-      :build_telemetry_handler,
-      Klix.Builder.telemetry_events(),
-      &Klix.Builder.Logger.handle/4,
-      []
-    )
-
-    # :telemetry.attach(
+    # :telemetry.attach_many(
     #   :build_telemetry_handler,
-    #   [:builder, :build_log],
-    #   &Klix.Builder.Tracker.handle/4,
-    #   tracker: Klix.Builder.Tracker
+    #   Klix.Builder.telemetry_events(),
+    #   &Klix.Builder.Logger.handle/4,
+    #   []
     # )
+
+    :telemetry.attach(
+      :build_telemetry_handler,
+      [:builder, :build_log],
+      &Klix.Builder.Tracker.handle/4,
+      tracker: Klix.Builder.Tracker
+    )
 
     opts = [strategy: :one_for_one, name: Klix.Supervisor]
     Supervisor.start_link(children, opts)

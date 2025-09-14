@@ -113,7 +113,7 @@ defmodule Klix.BuilderTest do
       send(builder, :run)
       assert_receive {[:builder, :build_log], ^ref, %{content: content}, %{pid: ^builder}}
       # output of 'yes'
-      assert content =~ "y\ny\ny\n"
+      assert content =~ "@nix {}\n"
     end
   end
 
@@ -134,7 +134,7 @@ defmodule Klix.BuilderTest do
     builder =
       start_link_supervised!({
         Klix.Builder,
-        build_dir: tmp_dir, cmd: "yes"
+        build_dir: tmp_dir, cmd: "yes @nix {}"
       })
 
     assert_receive {[:builder, :idle], ^ref, _empty_measurements, %{pid: ^builder}}

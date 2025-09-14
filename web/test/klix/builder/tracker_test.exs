@@ -90,6 +90,23 @@ defmodule Klix.Builder.TrackerTest do
              |> Tracker.jobs()
   end
 
+  test "ignores unsuccessful JSON parses" do
+    tracker =
+      start_link_supervised!(Tracker)
+      |> handle(%{"action" => "start", "id" => 1})
+
+    Tracker.handle(
+      [:builder, :build_log],
+      %{content: ~s(poop)},
+      %{},
+      tracker: tracker
+    )
+
+    assert %{
+             1 => %Tracker.Job{state: :started}
+           } = Tracker.jobs(tracker)
+  end
+
   test "records messages" do
     tracker = start_link_supervised!(Tracker)
 

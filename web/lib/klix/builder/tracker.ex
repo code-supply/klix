@@ -116,4 +116,5 @@ defmodule Klix.Builder.Tracker do
   end
 
   defp handle_decoded({:ok, _event}, state), do: state
+  defp handle_decoded({:error, _term}, state), do: state
 end
