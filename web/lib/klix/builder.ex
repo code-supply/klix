@@ -26,7 +26,6 @@ defmodule Klix.Builder do
           --verbose
           --no-link 
           --no-pretty 
-          --cores 15
           .#packages.aarch64-linux.image
         ) |> Enum.join(" "),
         telemetry_meta: %{}
