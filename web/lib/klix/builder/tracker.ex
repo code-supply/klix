@@ -34,8 +34,8 @@ defmodule Klix.Builder.Tracker do
     config[:tracker]
   end
 
-  def jobs(tracker), do: GenServer.call(tracker, :jobs)
-  def messages(tracker), do: GenServer.call(tracker, :messages)
+  def jobs(tracker \\ __MODULE__), do: GenServer.call(tracker, :jobs)
+  def messages(tracker \\ __MODULE__), do: GenServer.call(tracker, :messages)
 
   @impl true
   def init(_init_arg) do
