@@ -22,7 +22,6 @@ defmodule Klix.Builder do
         cmd: ~w(
           nix
           build 
-          --log-format internal-json
           --verbose
           --no-link 
           --no-pretty 

@@ -15,22 +15,22 @@ defmodule Klix.Application do
 
     if Application.fetch_env!(:klix, :run_builder) do
       :telemetry.attach_many(
-        :build_scheduler,
+        :scheduler,
         Klix.Scheduler.events_for(:builder),
         &Klix.Scheduler.handle/4,
         sleep_time: 2000
       )
     end
 
-    # :telemetry.attach_many(
-    #   :build_telemetry_handler,
-    #   Klix.Builder.telemetry_events(),
-    #   &Klix.Builder.Logger.handle/4,
-    #   []
-    # )
+    :telemetry.attach_many(
+      :logger,
+      Klix.Builder.telemetry_events(),
+      &Klix.Builder.Logger.handle/4,
+      []
+    )
 
     :telemetry.attach(
-      :build_telemetry_handler,
+      :tracker,
       [:builder, :build_log],
       &Klix.Builder.Tracker.handle/4,
       tracker: Klix.Builder.Tracker
