@@ -22,7 +22,7 @@ defmodule Klix.Builder do
         cmd: ~w(
           nix
           build 
-          --verbose
+          --json
           --no-link 
           --no-pretty 
           .#packages.aarch64-linux.image
