@@ -44,7 +44,27 @@
       {@inner_content}
     </section>
     <footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
-      <nav></nav>
+      <nav>
+        <ul class="menu menu-horizontal w-full relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
+          <%= if @current_scope do %>
+            <li>
+              {@current_scope.user.email}
+            </li>
+            <li>
+              <.link href={~p"/users/settings"}>Settings</.link>
+            </li>
+            <li>
+              <.link href={~p"/users/log-out"} method="delete">Log out</.link>
+            </li>
+          <% else %>
+            <li>
+              <.link href={~p"/users/register"}>Register</.link>
+            </li>
+            <li>
+              <.link href={~p"/users/log-in"}>Log in</.link>
+            </li>
+          <% end %>
+        </ul></nav>
       <nav>
         <h6 class="footer-title">Developers</h6>
         <a class="link link-hover">Code Supply</a>

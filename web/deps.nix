@@ -170,6 +170,28 @@ let
         in
         drv;
 
+      bcrypt_elixir =
+        let
+          version = "3.3.2";
+          drv = buildMix {
+            inherit version;
+            name = "bcrypt_elixir";
+            appConfigPath = ./config;
+
+            src = fetchHex {
+              inherit version;
+              pkg = "bcrypt_elixir";
+              sha256 = "471be5151874ae7931911057d1467d908955f93554f7a6cd1b7d804cac8cef53";
+            };
+
+            beamDeps = [
+              comeonin
+              elixir_make
+            ];
+          };
+        in
+        drv;
+
       certifi =
         let
           version = "2.15.0";
@@ -181,6 +203,23 @@ let
               inherit version;
               pkg = "certifi";
               sha256 = "b147ed22ce71d72eafdad94f055165c1c182f61a2ff49df28bcc71d1d5b94a60";
+            };
+          };
+        in
+        drv;
+
+      comeonin =
+        let
+          version = "5.5.1";
+          drv = buildMix {
+            inherit version;
+            name = "comeonin";
+            appConfigPath = ./config;
+
+            src = fetchHex {
+              inherit version;
+              pkg = "comeonin";
+              sha256 = "65aac8f19938145377cee73973f192c5645873dcf550a8a6b18187d17c13ccdb";
             };
           };
         in
@@ -284,6 +323,23 @@ let
               postgrex
               telemetry
             ];
+          };
+        in
+        drv;
+
+      elixir_make =
+        let
+          version = "0.9.0";
+          drv = buildMix {
+            inherit version;
+            name = "elixir_make";
+            appConfigPath = ./config;
+
+            src = fetchHex {
+              inherit version;
+              pkg = "elixir_make";
+              sha256 = "db23d4fd8b757462ad02f8aa73431a426fe6671c80b200d9710caf3d1dd0ffdb";
+            };
           };
         in
         drv;
