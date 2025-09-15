@@ -52,7 +52,7 @@ defmodule Klix.Images do
     end)
   end
 
-  def build_ready?(%Build{} = build), do: !!build.output_path
+  def build_ready?(%Build{} = build), do: !!build.completed_at
 
   def sd_file_path(%Build{} = build) do
     sd_dir = Path.join(build.output_path, "sd-image")

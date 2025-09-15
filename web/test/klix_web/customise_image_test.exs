@@ -17,7 +17,7 @@ defmodule KlixWeb.CustomiseImageTest do
 
   test "images that are already built are downloadable", %{conn: conn} do
     {:ok, %{builds: [build]} = image} = Klix.Factory.params(:image) |> Klix.Images.create()
-    {:ok, _build} = Klix.Images.set_build_output_path(build, "some/path")
+    {:ok, _build} = Klix.Images.build_completed(build)
 
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 

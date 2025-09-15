@@ -62,10 +62,14 @@ defmodule Klix.BuilderTest do
 
       assert_receive {[:builder, :run_complete], ^ref, %{}, %{pid: ^builder}}
 
-      assert DateTime.compare(Klix.Repo.reload!(build).completed_at, DateTime.utc_now()) in [
+      build = Klix.Repo.reload!(build)
+
+      assert DateTime.compare(build.completed_at, DateTime.utc_now()) in [
                :lt,
                :eq
              ]
+
+      assert Klix.Images.build_ready?(build)
     end
 
     test "stores the flake.nix and flake.lock files when they're both ready", ctx do

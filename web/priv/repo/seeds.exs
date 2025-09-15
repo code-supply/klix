@@ -1,11 +1,11 @@
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     Klix.Repo.insert!(%Klix.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+{:ok, %Klix.Images.Image{builds: [build]}} =
+  :image
+  |> Klix.Factory.params()
+  |> Klix.Images.create()
+
+{:ok, %Klix.Images.Image{builds: [build]}} =
+  :image
+  |> Klix.Factory.params()
+  |> Klix.Images.create()
+
+Klix.Images.build_completed(build)
