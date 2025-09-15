@@ -9,7 +9,7 @@ defmodule KlixWeb.UserSessionController do
   end
 
   def create(conn, params) do
-    create(conn, params, "Welcome back!")
+    create(conn, params, nil)
   end
 
   # magic link login

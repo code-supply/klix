@@ -1,7 +1,12 @@
 defmodule KlixWeb.CustomiseImageTest do
   use KlixWeb.ConnCase, async: true
 
+  import Klix.AccountsFixtures
   import Phoenix.LiveViewTest
+
+  setup %{conn: conn} do
+    %{conn: log_in_user(conn, user_fixture())}
+  end
 
   test "shows a message when download requested", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/")

@@ -1,6 +1,12 @@
 defmodule KlixWeb.ImageControllerTest do
   use KlixWeb.ConnCase, async: true
 
+  import Klix.AccountsFixtures
+
+  setup %{conn: conn} do
+    %{conn: log_in_user(conn, user_fixture())}
+  end
+
   @tag :tmp_dir
   test "sends the SD image from inside the build's output path", %{conn: conn, tmp_dir: tmp_dir} do
     {:ok, %{builds: [build]} = image} = Klix.Factory.params(:image) |> Klix.Images.create()

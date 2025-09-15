@@ -19,10 +19,6 @@ defmodule KlixWeb.Router do
 
   scope "/", KlixWeb do
     pipe_through :browser
-
-    live "/", CustomiseImageLive
-    live "/images/:id", ImageLive
-    get "/images/:image_id/builds/:build_id/klix.img.zst", ImageController, :download
   end
 
   # Other scopes may use custom stacks.
@@ -56,6 +52,10 @@ defmodule KlixWeb.Router do
       on_mount: [{KlixWeb.UserAuth, :require_authenticated}] do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+
+      live "/", CustomiseImageLive
+      live "/images/:id", ImageLive
+      get "/images/:image_id/builds/:build_id/klix.img.zst", ImageController, :download
     end
 
     post "/users/update-password", UserSessionController, :update_password

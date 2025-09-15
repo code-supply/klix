@@ -5,62 +5,64 @@ defmodule KlixWeb.CustomiseImageLive do
 
   def render(assigns) do
     ~H"""
-    <h2 class="mt-6 mb-4 text-3xl">Customise your image</h2>
+    <Layouts.app flash={@flash} current_scope={@current_scope}>
+      <h2 class="mt-6 mb-4 text-3xl">Customise your image</h2>
 
-    <.form for={@image} id="image" phx-submit="download" class="grid gap-3">
-      <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
-        <legend class="fieldset-legend">Base OS Options</legend>
-
-        <.input label="Hostname" placeholder="printy-mc-printface" field={@image[:hostname]} />
-        <.input
-          label="Time Zone"
-          placeholder="Europe/London"
-          field={@image[:timezone]}
-          type="select"
-          options={Tzdata.zone_list()}
-        />
-        <.input label="Public SSH key" field={@image[:public_key]} type="textarea" />
-        <.input
-          label="Enable KlipperScreen"
-          field={@image[:klipperscreen_enabled]}
-          type="checkbox"
-        />
-      </fieldset>
-
-      <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
-        <legend class="fieldset-legend">Plugins</legend>
-
-        <.input label="KAMP" field={@image[:plugin_kamp_enabled]} type="checkbox" />
-        <.input label="Shaketune" field={@image[:plugin_shaketune_enabled]} type="checkbox" />
-        <.input
-          label="Z Calibration"
-          field={@image[:plugin_z_calibration_enabled]}
-          type="checkbox"
-        />
-      </fieldset>
-
-      <.inputs_for :let={klipper_config} field={@image[:klipper_config]}>
+      <.form for={@image} id="image" phx-submit="download" class="grid gap-3">
         <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
-          <legend class="fieldset-legend">Klipper Config Source</legend>
+          <legend class="fieldset-legend">Base OS Options</legend>
 
+          <.input label="Hostname" placeholder="printy-mc-printface" field={@image[:hostname]} />
           <.input
-            label="Repo type"
-            field={klipper_config[:type]}
+            label="Time Zone"
+            placeholder="Europe/London"
+            field={@image[:timezone]}
             type="select"
-            options={Klix.Images.KlipperConfig.type_options()}
+            options={Tzdata.zone_list()}
           />
-          <.input label="Repo owner" field={klipper_config[:owner]} />
-          <.input label="Repo name" field={klipper_config[:repo]} />
-          <.input label="Path to config dir (optional)" field={klipper_config[:path]} />
+          <.input label="Public SSH key" field={@image[:public_key]} type="textarea" />
+          <.input
+            label="Enable KlipperScreen"
+            field={@image[:klipperscreen_enabled]}
+            type="checkbox"
+          />
         </fieldset>
-      </.inputs_for>
 
-      <div class="col-span-2">
-        <button id="download" class="btn btn-primary float-right">
-          <.icon name="hero-arrow-down-tray" /> Download Raspberry Pi Image
-        </button>
-      </div>
-    </.form>
+        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+          <legend class="fieldset-legend">Plugins</legend>
+
+          <.input label="KAMP" field={@image[:plugin_kamp_enabled]} type="checkbox" />
+          <.input label="Shaketune" field={@image[:plugin_shaketune_enabled]} type="checkbox" />
+          <.input
+            label="Z Calibration"
+            field={@image[:plugin_z_calibration_enabled]}
+            type="checkbox"
+          />
+        </fieldset>
+
+        <.inputs_for :let={klipper_config} field={@image[:klipper_config]}>
+          <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+            <legend class="fieldset-legend">Klipper Config Source</legend>
+
+            <.input
+              label="Repo type"
+              field={klipper_config[:type]}
+              type="select"
+              options={Klix.Images.KlipperConfig.type_options()}
+            />
+            <.input label="Repo owner" field={klipper_config[:owner]} />
+            <.input label="Repo name" field={klipper_config[:repo]} />
+            <.input label="Path to config dir (optional)" field={klipper_config[:path]} />
+          </fieldset>
+        </.inputs_for>
+
+        <div class="col-span-2">
+          <button id="download" class="btn btn-primary float-right">
+            <.icon name="hero-arrow-down-tray" /> Download Raspberry Pi Image
+          </button>
+        </div>
+      </.form>
+    </Layouts.app>
     """
   end
 
