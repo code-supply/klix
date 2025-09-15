@@ -41,6 +41,12 @@ defmodule Klix.Images do
     build
     |> Ecto.Changeset.change(output_path: output_path)
     |> Klix.Repo.update()
+  end
+
+  def build_completed(%Build{} = build) do
+    build
+    |> Ecto.Changeset.change(completed_at: DateTime.utc_now(:second))
+    |> Klix.Repo.update()
     |> tap(fn {:ok, build} ->
       broadcast(build.image_id, build_ready: build)
     end)

@@ -40,7 +40,9 @@ defmodule KlixWeb.CustomiseImageTest do
     %{builds: [build]} = Klix.Images.find!(image_id)
 
     top_dir = write_image(tmp_dir, "the image contents")
+
     Klix.Images.set_build_output_path(build, top_dir)
+    Klix.Images.build_completed(build)
 
     link_selector =
       "#download[download][href='#{~p"/images/#{image_id}/builds/#{build.id}/klix.img.zst'"}]"

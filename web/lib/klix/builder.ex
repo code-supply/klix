@@ -124,6 +124,7 @@ defmodule Klix.Builder do
 
   def handle_info({port, {:exit_status, 0}}, state) when is_port(port) do
     send(port, {self(), :close})
+    {:ok, _build} = Klix.Images.build_completed(state.build)
     emit(state, :run_complete)
     {:noreply, state}
   end

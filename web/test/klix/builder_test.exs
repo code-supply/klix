@@ -41,7 +41,10 @@ defmodule Klix.BuilderTest do
                {:ok, Klix.Images.to_flake(ctx.image)}
     end
 
-    test "runs the build", ctx do
+    test "runs the build and stores completion time", ctx do
+      %{builds: [build]} = ctx.image
+      build_id = build.id
+
       %{ref: ref, builder: builder} = start_builder(ctx)
 
       assert_receive {[:builder, :setup_complete], ^ref, _measurements, %{pid: ^builder}}
@@ -53,9 +56,16 @@ defmodule Klix.BuilderTest do
 
       assert Port.info(port)
 
+      Klix.Images.subscribe(ctx.image.id)
       send(builder, {port, {:exit_status, 0}})
+      assert_receive build_ready: %Klix.Images.Build{id: ^build_id}
 
       assert_receive {[:builder, :run_complete], ^ref, %{}, %{pid: ^builder}}
+
+      assert DateTime.compare(Klix.Repo.reload!(build).completed_at, DateTime.utc_now()) in [
+               :lt,
+               :eq
+             ]
     end
 
     test "stores the flake.nix and flake.lock files when they're both ready", ctx do

@@ -2,16 +2,14 @@ defmodule Klix.ImagesTest do
   use Klix.DataCase, async: true
   use ExUnitProperties
 
-  test "setting the output path broadcasts the path" do
-    {:ok, %{builds: [build]} = image} =
+  test "can set output path" do
+    {:ok, %{builds: [build]}} =
       Klix.Factory.params(:image)
       |> Klix.Images.create()
 
-    Klix.Images.subscribe(image.id)
-
     {:ok, build} = Klix.Images.set_build_output_path(build, "/nix/store/blah")
 
-    assert_receive build_ready: ^build
+    assert Klix.Repo.reload!(build).output_path == "/nix/store/blah"
   end
 
   describe "getting the next build" do
