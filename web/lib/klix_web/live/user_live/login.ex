@@ -8,22 +8,20 @@ defmodule KlixWeb.UserLive.Login do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="mx-auto max-w-sm space-y-4">
-        <div class="text-center">
-          <.header>
-            <p>Log in</p>
-            <:subtitle>
-              <%= if @current_scope do %>
-                You need to reauthenticate to perform sensitive actions on your account.
-              <% else %>
-                Don't have an account? <.link
-                  navigate={~p"/users/register"}
-                  class="font-semibold text-brand hover:underline"
-                  phx-no-format
-                >Sign up</.link> for an account now.
-              <% end %>
-            </:subtitle>
-          </.header>
-        </div>
+        <.header>
+          <p>Log in</p>
+          <:subtitle>
+            <%= if @current_scope do %>
+              You need to reauthenticate to perform sensitive actions on your account.
+            <% else %>
+              Don't have an account? <.link
+                navigate={~p"/users/register"}
+                class="font-semibold text-brand hover:underline"
+                phx-no-format
+              >Sign up</.link> for an account now.
+            <% end %>
+          </:subtitle>
+        </.header>
 
         <div :if={local_mail_adapter?()} class="alert alert-info">
           <.icon name="hero-information-circle" class="size-6 shrink-0" />

@@ -8,9 +8,7 @@ defmodule KlixWeb.UserLive.Confirmation do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="mx-auto max-w-sm">
-        <div class="text-center">
-          <.header>Welcome {@user.email}</.header>
-        </div>
+        <.header>Welcome {@user.email}</.header>
 
         <.form
           :if={!@user.confirmed_at}
