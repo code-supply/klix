@@ -9,7 +9,7 @@ defmodule Klix.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"Klix", "contact@example.com"})
+      |> from({"Klix", "klix@code.supply"})
       |> subject(subject)
       |> text_body(body)
 
