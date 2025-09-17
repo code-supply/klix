@@ -48,11 +48,17 @@ defmodule KlixWeb.Layouts do
         <div>
           <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
         </div>
-        <div class="dropdown">
-          <div tabindex="0" role="button" class="btn mx-3 my-2">Account</div>
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn mx-3 my-2 overflow-hidden">
+            <%= if @current_scope do %>
+              {@current_scope.user.email}
+            <% else %>
+              Account
+            <% end %>
+          </div>
           <ul
             tabindex="0"
-            class="dropdown-content menu bg-base-100 rounded-box z-1 w-26 p-2 shadow-sm"
+            class="dropdown-content menu bg-base-200 rounded-box z-1 shadow-sm w-40 mt-1 mr-4"
           >
             <%= if @current_scope do %>
               <li><.link href={~p"/users/settings"}>Settings</.link></li>
