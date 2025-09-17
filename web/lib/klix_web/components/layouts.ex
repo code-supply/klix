@@ -44,7 +44,7 @@ defmodule KlixWeb.Layouts do
         </div>
       </div>
 
-      <div class="bg-base-200 w-full fixed top-0 flex justify-between z-1 shadow">
+      <div class="bg-base-200 w-full fixed top-0 flex justify-between z-50 shadow">
         <div>
           <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
         </div>
