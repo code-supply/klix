@@ -6,7 +6,7 @@ defmodule KlixWeb.ImageLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mt-6 hero">
+      <div class="hero">
         <div class="hero-content text-center">
           <div>
             <h2 class="mb-4 text-3xl">"{@image.hostname}" image</h2>

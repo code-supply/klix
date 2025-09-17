@@ -35,12 +35,33 @@ defmodule KlixWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="hero bg-base-200">
+    <header class="hero bg-base-300">
       <div class="hero-content">
         <div>
-          <h1 class="mt-6 text-5xl font-bold"><.link href={~p"/"}>Klix</.link></h1>
+          <h1 class="mt-14 text-5xl font-bold"><.link href={~p"/"}>Klix</.link></h1>
           <h2>Klipper + NixOS</h2>
-          <p class="py-6">A parametric operating system for 3D printers.</p>
+          <p class="pt-6 pb-3">A parametric operating system for 3D printers.</p>
+        </div>
+      </div>
+
+      <div class="bg-base-200 w-full fixed top-0 flex justify-between z-1 shadow">
+        <div>
+          <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
+        </div>
+        <div class="dropdown">
+          <div tabindex="0" role="button" class="btn mx-3 my-2">Account</div>
+          <ul
+            tabindex="0"
+            class="dropdown-content menu bg-base-100 rounded-box z-1 w-26 p-2 shadow-sm"
+          >
+            <%= if @current_scope do %>
+              <li><.link href={~p"/users/settings"}>Settings</.link></li>
+              <li><.link href={~p"/users/log-out"} method="delete">Log out</.link></li>
+            <% else %>
+              <li><.link href={~p"/users/register"}>Register</.link></li>
+              <li><.link href={~p"/users/log-in"}>Log in</.link></li>
+            <% end %>
+          </ul>
         </div>
       </div>
     </header>
@@ -52,19 +73,7 @@ defmodule KlixWeb.Layouts do
     <.flash_group flash={@flash} />
 
     <footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
-      <nav>
-        <h6 class="footer-title">Account</h6>
-        <%= if @current_scope do %>
-          <p>
-            {@current_scope.user.email}
-          </p>
-          <.link href={~p"/users/settings"}>Settings</.link>
-          <.link href={~p"/users/log-out"} method="delete">Log out</.link>
-        <% else %>
-          <.link href={~p"/users/register"}>Register</.link>
-          <.link href={~p"/users/log-in"}>Log in</.link>
-        <% end %>
-      </nav>
+      <div></div>
       <nav>
         <h6 class="footer-title">Developers</h6>
         <a class="link link-hover">Code Supply</a>
