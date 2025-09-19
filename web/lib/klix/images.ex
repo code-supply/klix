@@ -21,6 +21,7 @@ defmodule Klix.Images do
   def list(%Scope{} = scope) do
     Image.Query.for_scope(scope)
     |> Klix.Repo.all()
+    |> Klix.Repo.preload(:builds)
   end
 
   def find!(%Scope{} = scope, id) do
