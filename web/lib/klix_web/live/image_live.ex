@@ -37,7 +37,9 @@ defmodule KlixWeb.ImageLive do
   end
 
   def mount(%{"id" => id}, _session, socket) do
-    %{builds: [latest_build | _rest]} = image = Klix.Images.find!(id)
+    %{builds: [latest_build | _rest]} =
+      image = Klix.Images.find!(socket.assigns.current_scope, id)
+
     Klix.Images.subscribe(image.id)
 
     {

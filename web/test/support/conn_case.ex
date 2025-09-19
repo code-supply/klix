@@ -24,10 +24,14 @@ defmodule KlixWeb.ConnCase do
 
       use KlixWeb, :verified_routes
 
-      # Import conveniences for testing with connections
+      alias Klix.Accounts.Scope
+      alias Klix.Images
+
       import Plug.Conn
       import Phoenix.ConnTest
       import KlixWeb.ConnCase
+      import Phoenix.LiveViewTest
+      import Klix.AccountsFixtures
     end
   end
 

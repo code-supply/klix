@@ -5,7 +5,7 @@ defmodule KlixWeb.ImageControllerTest do
 
   setup %{conn: conn} do
     user = user_fixture()
-    scope = Klix.AccountsFixtures.user_fixture() |> Klix.Accounts.Scope.for_user()
+    scope = Klix.Accounts.Scope.for_user(user)
     %{conn: log_in_user(conn, user), scope: scope}
   end
 

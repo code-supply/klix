@@ -18,12 +18,15 @@ defmodule Klix.DataCase do
 
   using do
     quote do
+      alias Klix.Accounts.Scope
+      alias Klix.Images
       alias Klix.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import Klix.DataCase
+      import Klix.AccountsFixtures
     end
   end
 

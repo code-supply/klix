@@ -23,13 +23,15 @@ defmodule Klix.Images do
     |> Klix.Repo.all()
   end
 
-  def find!(id) do
-    Klix.Repo.get!(Image, id)
+  def find!(%Scope{} = scope, id) do
+    Image.Query.for_scope(scope)
+    |> Klix.Repo.get!(id)
     |> Klix.Repo.preload(:builds)
   end
 
-  def find_build(image_id, build_id) do
-    Klix.Repo.get_by(Build, image_id: image_id, id: build_id)
+  def find_build(%Scope{} = scope, image_id, build_id) do
+    Build.Query.for_scope(scope)
+    |> Klix.Repo.get_by(image_id: image_id, id: build_id)
   end
 
   def create(%Scope{} = scope, attrs) do

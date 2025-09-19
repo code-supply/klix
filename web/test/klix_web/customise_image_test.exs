@@ -10,6 +10,17 @@ defmodule KlixWeb.CustomiseImageTest do
     %{conn: log_in_user(conn, user), scope: scope}
   end
 
+  test "can't go to another user's image", %{conn: conn} do
+    different_user = user_fixture()
+    different_scope = Klix.Accounts.Scope.for_user(different_user)
+
+    {:ok, image} = Klix.Images.create(different_scope, Klix.Factory.params(:image))
+
+    assert_raise Ecto.NoResultsError, fn ->
+      live(conn, ~p"/images/#{image.id}")
+    end
+  end
+
   test "shows a message when download requested", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/images/new")
 
@@ -32,7 +43,7 @@ defmodule KlixWeb.CustomiseImageTest do
   end
 
   @tag :tmp_dir
-  test "shows download link when image is built", %{conn: conn, tmp_dir: tmp_dir} do
+  test "shows download link when image is built", %{scope: scope, conn: conn, tmp_dir: tmp_dir} do
     {:ok, view, _html} = live(conn, ~p"/images/new")
 
     {:error, {:live_redirect, %{kind: :push, to: <<"/images/", image_id::binary>>}}} =
@@ -44,7 +55,7 @@ defmodule KlixWeb.CustomiseImageTest do
     {:ok, view, _html} =
       follow_redirect(response, conn)
 
-    %{builds: [build]} = Klix.Images.find!(image_id)
+    %{builds: [build]} = Klix.Images.find!(scope, image_id)
 
     top_dir = write_image(tmp_dir, "the image contents")
 

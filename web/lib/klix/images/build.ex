@@ -21,6 +21,11 @@ defmodule Klix.Images.Build do
       from(Build, as: :builds)
     end
 
+    def for_scope(query \\ base(), scope) do
+      image = from i in Klix.Images.Image, where: i.user_id == ^scope.user.id
+      join(query, :inner, [builds: b], i in ^image, on: i.id == b.image_id)
+    end
+
     def next(query \\ base()) do
       query
       |> where([builds: b], is_nil(b.output_path))

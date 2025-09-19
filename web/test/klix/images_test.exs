@@ -2,23 +2,19 @@ defmodule Klix.ImagesTest do
   use Klix.DataCase, async: true
   use ExUnitProperties
 
-  alias Klix.Accounts.Scope
-  alias Klix.Images
-
-  import Klix.AccountsFixtures
-
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
-  describe "listing" do
+  describe "listing and finding" do
     setup do
       user_1 = user_fixture()
       user_2 = user_fixture()
       scope_1 = Scope.for_user(user_1)
       scope_2 = Scope.for_user(user_2)
 
-      {:ok, %{id: id_1}} = Images.create(scope_1, Klix.Factory.params(:image))
+      {:ok, %{id: id_1, builds: [%{id: build_id_1}]}} =
+        Images.create(scope_1, Klix.Factory.params(:image))
 
-      %{id_1: id_1, scope_1: scope_1, scope_2: scope_2}
+      %{id_1: id_1, scope_1: scope_1, scope_2: scope_2, build_id_1: build_id_1}
     end
 
     test "can list all images, for admin purposes", %{id_1: id_1, scope_2: scope_2} do
@@ -31,6 +27,20 @@ defmodule Klix.ImagesTest do
       assert [%{id: ^id}] = Images.list(scope_1)
       assert [] = Images.list(scope_2)
     end
+
+    test "can't find another user's image", %{scope_2: scope_2, id_1: id_1} do
+      assert_raise Ecto.NoResultsError, fn ->
+        Images.find!(scope_2, id_1)
+      end
+    end
+
+    test "can find own build", %{scope_1: scope, id_1: id, build_id_1: build_id} do
+      assert Images.find_build(scope, id, build_id)
+    end
+
+    test "can't find another user's build", %{scope_2: scope_2, id_1: id, build_id_1: build_id} do
+      refute Images.find_build(scope_2, id, build_id)
+    end
   end
 
   test "can set output path", %{scope: scope} do
@@ -39,7 +49,7 @@ defmodule Klix.ImagesTest do
 
     {:ok, build} = Images.set_build_output_path(build, "/nix/store/blah")
 
-    assert Klix.Repo.reload!(build).output_path == "/nix/store/blah"
+    assert Repo.reload!(build).output_path == "/nix/store/blah"
   end
 
   describe "getting the next build" do
@@ -71,14 +81,14 @@ defmodule Klix.ImagesTest do
           Images.Build,
           Klix.Factory.params(:build, inserted_at: ~U[3000-01-01 00:00:00Z])
         )
-        |> Klix.Repo.insert!()
+        |> Repo.insert!()
 
       old =
         struct!(
           Images.Build,
           Klix.Factory.params(:build, inserted_at: ~U[2000-01-01 00:00:00Z])
         )
-        |> Klix.Repo.insert!()
+        |> Repo.insert!()
 
       assert Images.next_build().id == old.id
     end
