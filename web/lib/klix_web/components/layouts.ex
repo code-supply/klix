@@ -35,50 +35,40 @@ defmodule KlixWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="hero bg-base-300">
-      <div class="hero-content">
-        <div>
-          <h1 class="mt-14 text-5xl font-bold"><.link href={~p"/"}>Klix</.link></h1>
-          <h2>Klipper + NixOS</h2>
-          <p class="pt-6 pb-3">A parametric operating system for 3D printers.</p>
-        </div>
+    <header class="w-full fixed top-0 bg-base-200 h-13 z-50 shadow flex justify-between">
+      <div>
+        <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
       </div>
-
-      <div class="bg-base-200 w-full fixed top-0 flex justify-between z-50 shadow">
-        <div>
-          <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
+      <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn mx-3 my-2 overflow-hidden">
+          <%= if @current_scope do %>
+            {@current_scope.user.email}
+          <% else %>
+            Account
+          <% end %>
         </div>
-        <div class="dropdown dropdown-end">
-          <div tabindex="0" role="button" class="btn mx-3 my-2 overflow-hidden">
-            <%= if @current_scope do %>
-              {@current_scope.user.email}
-            <% else %>
-              Account
-            <% end %>
-          </div>
-          <ul
-            tabindex="0"
-            class="dropdown-content menu bg-base-200 rounded-box z-1 shadow-sm w-40 mt-1 mr-4"
-          >
-            <%= if @current_scope do %>
-              <li><.link href={~p"/users/settings"}>Settings</.link></li>
-              <li><.link href={~p"/users/log-out"} method="delete">Log out</.link></li>
-            <% else %>
-              <li><.link href={~p"/users/register"}>Register</.link></li>
-              <li><.link href={~p"/users/log-in"}>Log in</.link></li>
-            <% end %>
-          </ul>
-        </div>
+        <ul
+          tabindex="0"
+          class="dropdown-content menu bg-base-200 rounded-box z-1 shadow-sm w-40 mt-1 mr-4"
+        >
+          <%= if @current_scope do %>
+            <li><.link href={~p"/users/settings"}>Settings</.link></li>
+            <li><.link href={~p"/users/log-out"} method="delete">Log out</.link></li>
+          <% else %>
+            <li><.link href={~p"/users/register"}>Register</.link></li>
+            <li><.link href={~p"/users/log-in"}>Log in</.link></li>
+          <% end %>
+        </ul>
       </div>
     </header>
 
-    <main class="md:w-1/2 w-3/4 m-auto py-7">
+    <main class="md:w-1/2 w-3/4 m-auto pb-7 pt-20">
       {render_slot(@inner_block)}
     </main>
 
     <.flash_group flash={@flash} />
 
-    <footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
+    <footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10 pb-14">
       <div></div>
       <nav>
         <h6 class="footer-title">Developers</h6>

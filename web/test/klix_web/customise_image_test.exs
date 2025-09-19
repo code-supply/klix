@@ -9,7 +9,7 @@ defmodule KlixWeb.CustomiseImageTest do
   end
 
   test "shows a message when download requested", %{conn: conn} do
-    {:ok, view, _html} = live(conn, ~p"/")
+    {:ok, view, _html} = live(conn, ~p"/images/new")
 
     {:ok, _view, html} =
       view
@@ -31,7 +31,7 @@ defmodule KlixWeb.CustomiseImageTest do
 
   @tag :tmp_dir
   test "shows download link when image is built", %{conn: conn, tmp_dir: tmp_dir} do
-    {:ok, view, _html} = live(conn, ~p"/")
+    {:ok, view, _html} = live(conn, ~p"/images/new")
 
     {:error, {:live_redirect, %{kind: :push, to: <<"/images/", image_id::binary>>}}} =
       response =
@@ -62,14 +62,14 @@ defmodule KlixWeb.CustomiseImageTest do
   end
 
   test "shows validation errors", %{conn: conn} do
-    {:ok, view, _html} = live(conn, ~p"/")
+    {:ok, view, _html} = live(conn, ~p"/images/new")
 
     assert view |> form("#image", image: %{hostname: "-"}) |> render_submit() =~
              "must not start with a hyphen"
   end
 
   test "has a submit button", %{conn: conn} do
-    {:ok, view, _html} = live(conn, ~p"/")
+    {:ok, view, _html} = live(conn, ~p"/images/new")
 
     assert view |> has_element?("#download")
   end
