@@ -4,12 +4,18 @@ defmodule KlixWeb.ImageControllerTest do
   import Klix.AccountsFixtures
 
   setup %{conn: conn} do
-    %{conn: log_in_user(conn, user_fixture())}
+    user = user_fixture()
+    scope = Klix.AccountsFixtures.user_fixture() |> Klix.Accounts.Scope.for_user()
+    %{conn: log_in_user(conn, user), scope: scope}
   end
 
   @tag :tmp_dir
-  test "sends the SD image from inside the build's output path", %{conn: conn, tmp_dir: tmp_dir} do
-    {:ok, %{builds: [build]} = image} = Klix.Factory.params(:image) |> Klix.Images.create()
+  test "sends the SD image from inside the build's output path", %{
+    conn: conn,
+    scope: scope,
+    tmp_dir: tmp_dir
+  } do
+    {:ok, %{builds: [build]} = image} = Klix.Images.create(scope, Klix.Factory.params(:image))
 
     top_dir = write_image(tmp_dir, "an image")
 

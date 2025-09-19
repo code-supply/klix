@@ -78,7 +78,7 @@ defmodule KlixWeb.CustomiseImageLive do
   end
 
   def handle_event("download", %{"image" => image_params}, socket) do
-    case Klix.Images.create(image_params) do
+    case Klix.Images.create(socket.assigns.current_scope, image_params) do
       {:ok, image} ->
         {:noreply, push_navigate(socket, to: ~p"/images/#{image.id}")}
 

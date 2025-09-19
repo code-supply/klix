@@ -2,37 +2,65 @@ defmodule Klix.ImagesTest do
   use Klix.DataCase, async: true
   use ExUnitProperties
 
-  test "can set output path" do
-    {:ok, %{builds: [build]}} =
-      Klix.Factory.params(:image)
-      |> Klix.Images.create()
+  alias Klix.Accounts.Scope
+  alias Klix.Images
 
-    {:ok, build} = Klix.Images.set_build_output_path(build, "/nix/store/blah")
+  import Klix.AccountsFixtures
+
+  setup do: %{scope: user_fixture() |> Scope.for_user()}
+
+  describe "listing" do
+    setup do
+      user_1 = user_fixture()
+      user_2 = user_fixture()
+      scope_1 = Scope.for_user(user_1)
+      scope_2 = Scope.for_user(user_2)
+
+      {:ok, %{id: id_1}} = Images.create(scope_1, Klix.Factory.params(:image))
+
+      %{id_1: id_1, scope_1: scope_1, scope_2: scope_2}
+    end
+
+    test "can list all images, for admin purposes", %{id_1: id_1, scope_2: scope_2} do
+      assert [%{id: ^id_1}] = Images.list()
+      {:ok, %{id: id_2}} = Images.create(scope_2, Klix.Factory.params(:image))
+      assert [%{id: ^id_2}, %{id: ^id_1}] = Images.list()
+    end
+
+    test "can be listed for a given scope", %{id_1: id, scope_1: scope_1, scope_2: scope_2} do
+      assert [%{id: ^id}] = Images.list(scope_1)
+      assert [] = Images.list(scope_2)
+    end
+  end
+
+  test "can set output path", %{scope: scope} do
+    {:ok, %{builds: [build]}} =
+      Images.create(scope, Klix.Factory.params(:image))
+
+    {:ok, build} = Images.set_build_output_path(build, "/nix/store/blah")
 
     assert Klix.Repo.reload!(build).output_path == "/nix/store/blah"
   end
 
   describe "getting the next build" do
     test "nil when there's no build" do
-      assert Klix.Images.next_build() == nil
+      assert Images.next_build() == nil
     end
 
-    test "nil when all builds have output paths" do
+    test "nil when all builds have output paths", %{scope: scope} do
       {:ok, %{builds: [build]}} =
-        Klix.Factory.params(:image)
-        |> Klix.Images.create()
+        Images.create(scope, Klix.Factory.params(:image))
 
-      Klix.Images.set_build_output_path(build, "/some/path")
+      Images.set_build_output_path(build, "/some/path")
 
-      assert Klix.Images.next_build() == nil
+      assert Images.next_build() == nil
     end
 
-    test "preloaded with image when available" do
+    test "preloaded with image when available", %{scope: scope} do
       {:ok, %{builds: [initial_build]} = image} =
-        Klix.Factory.params(:image)
-        |> Klix.Images.create()
+        Images.create(scope, Klix.Factory.params(:image))
 
-      build = Klix.Images.next_build()
+      build = Images.next_build()
       assert build.id == initial_build.id
       assert build.image_id == image.id
     end
@@ -40,42 +68,44 @@ defmodule Klix.ImagesTest do
     test "chooses the oldest build" do
       _new =
         struct!(
-          Klix.Images.Build,
+          Images.Build,
           Klix.Factory.params(:build, inserted_at: ~U[3000-01-01 00:00:00Z])
         )
         |> Klix.Repo.insert!()
 
       old =
         struct!(
-          Klix.Images.Build,
+          Images.Build,
           Klix.Factory.params(:build, inserted_at: ~U[2000-01-01 00:00:00Z])
         )
         |> Klix.Repo.insert!()
 
-      assert Klix.Images.next_build().id == old.id
+      assert Images.next_build().id == old.id
     end
   end
 
-  test "converts to a Nix flake" do
+  test "converts to a Nix flake", %{scope: scope} do
     {:ok, image} =
-      Klix.Factory.params(
-        :image,
-        klipper_config: [
-          type: :github,
-          owner: "mr-print",
-          repo: "my-klipper-config",
-          path: "my/lovely/klipper"
-        ],
-        hostname: "some-printer",
-        timezone: "Europe/Madrid",
-        klipperscreen_enabled: false,
-        plugin_kamp_enabled: true,
-        plugin_shaketune_enabled: false,
-        plugin_z_calibration_enabled: true
+      Images.create(
+        scope,
+        Klix.Factory.params(
+          :image,
+          klipper_config: [
+            type: :github,
+            owner: "mr-print",
+            repo: "my-klipper-config",
+            path: "my/lovely/klipper"
+          ],
+          hostname: "some-printer",
+          timezone: "Europe/Madrid",
+          klipperscreen_enabled: false,
+          plugin_kamp_enabled: true,
+          plugin_shaketune_enabled: false,
+          plugin_z_calibration_enabled: true
+        )
       )
-      |> Klix.Images.create()
 
-    assert Klix.Images.to_flake(image) ==
+    assert Images.to_flake(image) ==
              """
              {
                inputs = {
@@ -130,13 +160,13 @@ defmodule Klix.ImagesTest do
   end
 
   describe "SSH key" do
-    test "must be present" do
-      {:error, changeset} = Klix.Images.create(%{})
+    test "must be present", %{scope: scope} do
+      {:error, changeset} = Images.create(scope, %{})
       assert changeset.errors[:public_key] == {"can't be blank", [validation: :required]}
     end
 
-    test "must be a valid key" do
-      {:error, changeset} = Klix.Images.create(%{"public_key" => "invalid key"})
+    test "must be a valid key", %{scope: scope} do
+      {:error, changeset} = Images.create(scope, %{"public_key" => "invalid key"})
 
       assert changeset.errors[:public_key] ==
                {"not a valid key", [validation: :key_decode_failed]}
@@ -144,20 +174,21 @@ defmodule Klix.ImagesTest do
   end
 
   describe "hostname" do
-    test "must be present" do
-      {:error, changeset} = Klix.Images.create(%{})
+    test "must be present", %{scope: scope} do
+      {:error, changeset} = Images.create(scope, %{})
       assert changeset.errors[:hostname] == {"can't be blank", [validation: :required]}
     end
 
-    property "valid when string of a-zA-Z 0-9 or hyphen" do
+    property "valid when string of a-zA-Z 0-9 or hyphen", %{scope: scope} do
       check all hostname <- Klix.Hostname.generator() do
-        assert {:ok, _} = Klix.Factory.params(:image, hostname: hostname) |> Klix.Images.create()
+        assert {:ok, _} =
+                 Images.create(scope, Klix.Factory.params(:image, hostname: hostname))
       end
     end
 
-    property "invalid if longer than 253 characters" do
+    property "invalid if longer than 253 characters", %{scope: scope} do
       check all hostname <- string(:ascii, min_length: 254) do
-        {:error, changeset} = Klix.Images.create(%{"hostname" => hostname})
+        {:error, changeset} = Images.create(scope, %{"hostname" => hostname})
 
         assert changeset.errors[:hostname] ==
                  {"should be at most %{count} character(s)",
@@ -165,9 +196,9 @@ defmodule Klix.ImagesTest do
       end
     end
 
-    test "hostname may not start or end with a hyphen" do
-      {:error, starts_with_hyphen} = Klix.Images.create(%{"hostname" => "-foo"})
-      {:error, ends_with_hyphen} = Klix.Images.create(%{"hostname" => "foo-"})
+    test "hostname may not start or end with a hyphen", %{scope: scope} do
+      {:error, starts_with_hyphen} = Images.create(scope, %{"hostname" => "-foo"})
+      {:error, ends_with_hyphen} = Images.create(scope, %{"hostname" => "foo-"})
 
       assert starts_with_hyphen.errors[:hostname] ==
                {"must not start with a hyphen", validation: :format}
@@ -176,9 +207,9 @@ defmodule Klix.ImagesTest do
                {"must not end with a hyphen", validation: :format}
     end
 
-    test "hostname can't have dodgy characters" do
-      {:error, backtick} = Klix.Images.create(%{"hostname" => "`"})
-      {:error, dot} = Klix.Images.create(%{"hostname" => "a.b"})
+    test "hostname can't have dodgy characters", %{scope: scope} do
+      {:error, backtick} = Images.create(scope, %{"hostname" => "`"})
+      {:error, dot} = Images.create(scope, %{"hostname" => "a.b"})
 
       assert backtick.errors[:hostname] ==
                {"must be A-Za-z0-9 or hyphen", validation: :format}
@@ -189,8 +220,8 @@ defmodule Klix.ImagesTest do
   end
 
   describe "timezone" do
-    test "must be in the list" do
-      {:error, image} = Klix.Images.create(%{"timezone" => "Not/AZone"})
+    test "must be in the list", %{scope: scope} do
+      {:error, image} = Images.create(scope, %{"timezone" => "Not/AZone"})
 
       assert {"must be a valid timezone", [{:validation, :inclusion} | _]} =
                image.errors[:timezone]
@@ -198,8 +229,8 @@ defmodule Klix.ImagesTest do
   end
 
   describe "Klipper config" do
-    test "must be present" do
-      {:error, changeset} = Klix.Images.create(%{})
+    test "must be present", %{scope: scope} do
+      {:error, changeset} = Images.create(scope, %{})
       assert changeset.errors[:klipper_config] == {"can't be blank", [validation: :required]}
     end
   end

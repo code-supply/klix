@@ -5,7 +5,8 @@ defmodule Klix.BuilderTest do
 
   describe "when an incomplete build is found" do
     setup do
-      {:ok, image} = Klix.Factory.params(:image) |> Klix.Images.create()
+      scope = Klix.AccountsFixtures.user_fixture() |> Klix.Accounts.Scope.for_user()
+      {:ok, image} = Klix.Images.create(scope, Klix.Factory.params(:image))
       %{image: image}
     end
 

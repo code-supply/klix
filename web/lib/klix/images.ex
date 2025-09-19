@@ -1,6 +1,7 @@
 defmodule Klix.Images do
   alias __MODULE__.Build
   alias __MODULE__.Image
+  alias Klix.Accounts.Scope
 
   import Klix.ToNix
 
@@ -12,6 +13,16 @@ defmodule Klix.Images do
     Phoenix.PubSub.broadcast(Klix.PubSub, "image:#{image_id}", message)
   end
 
+  def list() do
+    Image.Query.base()
+    |> Klix.Repo.all()
+  end
+
+  def list(%Scope{} = scope) do
+    Image.Query.for_scope(scope)
+    |> Klix.Repo.all()
+  end
+
   def find!(id) do
     Klix.Repo.get!(Image, id)
     |> Klix.Repo.preload(:builds)
@@ -21,8 +32,8 @@ defmodule Klix.Images do
     Klix.Repo.get_by(Build, image_id: image_id, id: build_id)
   end
 
-  def create(attrs) do
-    %Image{builds: [[]]}
+  def create(%Scope{} = scope, attrs) do
+    %Image{user: scope.user, builds: [[]]}
     |> Klix.Images.Image.changeset(attrs)
     |> Klix.Repo.insert()
   end

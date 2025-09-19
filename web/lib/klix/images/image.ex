@@ -10,6 +10,7 @@ defmodule Klix.Images.Image do
     field :plugin_z_calibration_enabled, :boolean, default: true
     field :public_key, :string
 
+    belongs_to :user, Klix.Accounts.User
     has_many :builds, Klix.Images.Build
     embeds_one :klipper_config, Klix.Images.KlipperConfig
 
@@ -45,6 +46,21 @@ defmodule Klix.Images.Image do
     case :ssh_file.decode(key, :public_key) do
       {:error, type} -> [public_key: {"not a valid key", validation: type}]
       _ -> []
+    end
+  end
+
+  defmodule Query do
+    alias Klix.Images.Image
+
+    import Ecto.Query
+
+    def base do
+      from(Image, as: :images)
+      |> order_by([images: i], desc: i.id)
+    end
+
+    def for_scope(query \\ base(), scope) do
+      where(query, [images: i], i.user_id == ^scope.user.id)
     end
   end
 end

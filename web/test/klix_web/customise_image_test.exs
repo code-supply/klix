@@ -5,7 +5,9 @@ defmodule KlixWeb.CustomiseImageTest do
   import Phoenix.LiveViewTest
 
   setup %{conn: conn} do
-    %{conn: log_in_user(conn, user_fixture())}
+    user = user_fixture()
+    scope = Klix.Accounts.Scope.for_user(user)
+    %{conn: log_in_user(conn, user), scope: scope}
   end
 
   test "shows a message when download requested", %{conn: conn} do
@@ -20,8 +22,8 @@ defmodule KlixWeb.CustomiseImageTest do
     assert html =~ "being prepared"
   end
 
-  test "images that are already built are downloadable", %{conn: conn} do
-    {:ok, %{builds: [build]} = image} = Klix.Factory.params(:image) |> Klix.Images.create()
+  test "images that are already built are downloadable", %{conn: conn, scope: scope} do
+    {:ok, %{builds: [build]} = image} = Klix.Images.create(scope, Klix.Factory.params(:image))
     {:ok, _build} = Klix.Images.build_completed(build)
 
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
