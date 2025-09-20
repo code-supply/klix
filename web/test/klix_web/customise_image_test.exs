@@ -39,7 +39,7 @@ defmodule KlixWeb.CustomiseImageTest do
 
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 
-    assert view |> has_element?("#download")
+    assert view |> has_element?("[download]")
   end
 
   @tag :tmp_dir
@@ -63,7 +63,7 @@ defmodule KlixWeb.CustomiseImageTest do
     Klix.Images.build_completed(build)
 
     link_selector =
-      "#download[download][href='#{~p"/images/#{image_id}/builds/#{build.id}/klix.img.zst'"}]"
+      "[download][href='#{~p"/images/#{image_id}/builds/#{build.id}/klix.img.zst'"}]"
 
     {:ok, conn} =
       view

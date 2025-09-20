@@ -68,6 +68,14 @@ defmodule Klix.Images do
 
   def build_ready?(%Build{} = build), do: !!build.completed_at
 
+  def build_duration(%Build{completed_at: nil}), do: nil
+
+  def build_duration(%Build{} = build) do
+    build.completed_at
+    |> DateTime.diff(build.inserted_at)
+    |> Time.from_seconds_after_midnight()
+  end
+
   def sd_file_path(%Build{} = build) do
     sd_dir = Path.join(build.output_path, "sd-image")
     {:ok, [sd_file]} = File.ls(sd_dir)

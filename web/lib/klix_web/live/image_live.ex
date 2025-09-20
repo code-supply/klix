@@ -1,83 +1,47 @@
 defmodule KlixWeb.ImageLive do
   use KlixWeb, :live_view
 
-  alias Phoenix.LiveView.AsyncResult
-
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <.header>Your Images</.header>
-      <ul id="images" class="md:flex gap-5">
-        <li :for={image <- @images} class="mb-4 py-4 pr-4 rounded-xl bg-base-200 max-w-100">
-          <h2 class="pl-6 font-bold text-2xl">{image.hostname}</h2>
-          <div class="flex gap-6">
-            <figure class="flex-none w-20 py-4 px-6">
-              <svg
-                class="fill-neutral-content w-20"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
-                viewBox="0 0 512 512"
-                xml:space="preserve"
-              >
-                <g>
-                  <path
-                    class="st0"
-                    d="M459.772,147.559V34.37c0-18.985-15.393-34.37-34.37-34.37H157.397c-9.112,0-17.854,3.617-24.3,10.07
-    L62.291,80.869c-6.446,6.446-10.063,15.188-10.063,24.308v372.461c0,18.976,15.385,34.362,34.362,34.362h338.813
-    c18.977,0,34.37-15.386,34.37-34.362v-259.65h-33.541v-70.429H459.772z M299.281,38.438h32.557v77.4h-32.557V38.438z
-    M238.905,38.438h32.566v77.4h-32.566V38.438z M178.539,38.438h32.566v77.4h-32.566V38.438z M118.172,63.721h32.566v77.409h-32.566
-    V63.721z M388.219,428.162H123.273V382.86h264.947V428.162z M392.205,115.838h-32.566v-77.4h32.566V115.838z"
-                  />
-                </g>
-              </svg>
-            </figure>
-            <div class="pl-5 flex-grow">
-              <dl class="grid grid-cols-2 pt-3">
-                <dt class="font-bold">Created</dt>
-                <dd class="text-right">
-                  {image.inserted_at
-                  |> DateTime.shift_zone!(image.timezone, Tzdata.TimeZoneDatabase)
-                  |> Calendar.strftime("%x %X %p")}
-                </dd>
-                <dt class="font-bold">Timezone</dt>
-                <dd class="text-right">{image.timezone}</dd>
-                <dt class="font-bold">Builds</dt>
-                <dd class="text-right">{length(image.builds)}</dd>
-              </dl>
+      <.header>{@image.hostname}</.header>
 
-              <div class="pt-4 text-right">
-                <.link class="btn btn-primary btn-lg font-bold" patch={~p"/images/#{image.id}"}>
-                  Details <.icon name="hero-arrow-right" class="size-6 shrink-0" />
-                </.link>
-              </div>
-            </div>
-          </div>
-        </li>
-      </ul>
-      <div :if={assigns[:image]} class="hero">
+      <div class="hero">
         <div class="hero-content text-center">
           <div>
-            <h2 class="mb-4 text-3xl">"{@image.hostname}" image</h2>
-            <.async_result :let={build} assign={@build}>
-              <:loading>
-                <p class="py-4">
-                  Your image is being prepared.
-                </p>
-                <div class="loading loading-bars loading-xl" />
-              </:loading>
-              <p class="py-4">
-                Image is ready for download.
-              </p>
-              <.link
-                id="download"
-                class="btn btn-primary"
-                href={~p"/images/#{@image.id}/builds/#{build.id}/klix.img.zst"}
-                download
-              >
-                Download
-              </.link>
-            </.async_result>
+            <section class="mt-9 bg-base-300 text-left p-3 rounded-xl">
+              <h2 class="text-2xl pb-4">Builds</h2>
+              <table id="builds">
+                <thead>
+                  <tr>
+                    <th class="py-2 px-4">Started</th>
+                    <th class="py-2 px-4">Completed</th>
+                    <th class="py-2 px-4">Duration (inc. queue)</th>
+                    <th class="py-2 px-4"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr :for={build <- @image.builds}>
+                    <td class="p-4">{build.inserted_at}</td>
+                    <td class="p-4">{build.completed_at}</td>
+                    <td class="p-4 text-right">{Klix.Images.build_duration(build)}</td>
+                    <td class="p-4">
+                      <%= if Klix.Images.build_ready?(build) do %>
+                        <.link
+                          class="btn btn-primary"
+                          href={~p"/images/#{@image.id}/builds/#{build.id}/klix.img.zst"}
+                          download
+                        >
+                          Download
+                        </.link>
+                      <% else %>
+                        <div class="loading loading-bars loading-xl">being prepared</div>
+                      <% end %>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
           </div>
         </div>
       </div>
@@ -90,8 +54,7 @@ defmodule KlixWeb.ImageLive do
   end
 
   def handle_params(%{"id" => id}, _uri, socket) do
-    %{builds: [latest_build | _rest]} =
-      image = Klix.Images.find!(socket.assigns.current_scope, id)
+    image = Klix.Images.find!(socket.assigns.current_scope, id)
 
     Klix.Images.subscribe(image.id)
 
@@ -101,13 +64,7 @@ defmodule KlixWeb.ImageLive do
       |> assign(
         page_title: "#{image.hostname} image",
         image: image,
-        images: Klix.Images.list(socket.assigns.current_scope),
-        build:
-          if(
-            Klix.Images.build_ready?(latest_build),
-            do: AsyncResult.ok(latest_build),
-            else: AsyncResult.loading()
-          )
+        images: Klix.Images.list(socket.assigns.current_scope)
       )
     }
   end
@@ -123,7 +80,14 @@ defmodule KlixWeb.ImageLive do
     }
   end
 
-  def handle_info([build_ready: build], socket) do
-    {:noreply, assign(socket, :build, AsyncResult.ok(build))}
+  def handle_info([build_ready: updated_build], socket) do
+    import Access
+
+    {
+      :noreply,
+      update(socket, :image, fn image ->
+        put_in(image, [key!(:builds), find(&(&1.id == updated_build.id))], updated_build)
+      end)
+    }
   end
 end

@@ -53,9 +53,9 @@ defmodule KlixWeb.Router do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
 
-      live "/images", ImageLive, :index
+      live "/images", ImagesLive
       live "/images/new", CustomiseImageLive
-      live "/images/:id", ImageLive, :show
+      live "/images/:id", ImageLive
       get "/images/:image_id/builds/:build_id/klix.img.zst", ImageController, :download
     end
 

@@ -17,7 +17,7 @@ defmodule KlixWeb.HomeLive do
 
       <main class="md:px-20 md:text-2xl/11 text-lg py-7">
         <p class="py-4">
-          Klix lets you create a custom Raspberry Pi image for your Klipper
+          Klix lets you create custom Raspberry Pi images for your Klipper
           3D printer without needing to configure Linux yourself.
         </p>
         <p class="py-4">

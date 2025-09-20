@@ -4,6 +4,21 @@ defmodule Klix.ImagesTest do
 
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
+  test "can get duration of builds" do
+    one_minute = %Images.Build{
+      inserted_at: ~U[2000-01-01 00:00:00Z],
+      completed_at: ~U[2000-01-01 00:01:00Z]
+    }
+
+    incomplete = %Images.Build{
+      inserted_at: ~U[2000-01-01 00:00:00Z],
+      completed_at: nil
+    }
+
+    assert Images.build_duration(one_minute) == ~T[00:01:00]
+    assert Images.build_duration(incomplete) == nil
+  end
+
   describe "listing and finding" do
     setup do
       user_1 = user_fixture()
