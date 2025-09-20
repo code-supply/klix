@@ -69,8 +69,8 @@ defmodule KlixWeb.Layouts do
       <div></div>
       <nav>
         <h6 class="footer-title">Developers</h6>
-        <a class="link link-hover">Code Supply</a>
-        <a class="link link-hover">Andrew Bruce</a>
+        <a class="link link-hover" href="https://code.supply/">Code Supply</a>
+        <a class="link link-hover" href="https://www.andrewbruce.net/">Andrew Bruce</a>
       </nav>
       <nav>
         <h6 class="footer-title">Source</h6>
