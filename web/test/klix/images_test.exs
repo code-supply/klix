@@ -16,7 +16,7 @@ defmodule Klix.ImagesTest do
     }
 
     assert Images.build_duration(one_minute) == ~T[00:01:00]
-    assert Images.build_duration(incomplete) == nil
+    assert Images.build_duration(incomplete, ~U[2000-01-01 00:00:01Z]) == ~T[00:00:01]
   end
 
   describe "listing and finding" do

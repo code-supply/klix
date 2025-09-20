@@ -24,7 +24,7 @@ defmodule KlixWeb.ImageLive do
                   <tr :for={build <- @image.builds}>
                     <td class="p-4">{build.inserted_at}</td>
                     <td class="p-4">{build.completed_at}</td>
-                    <td class="p-4 text-right">{Klix.Images.build_duration(build)}</td>
+                    <td class="duration p-4 text-right">{Klix.Images.build_duration(build, @now)}</td>
                     <td class="p-4">
                       <%= if Klix.Images.build_ready?(build) do %>
                         <.link
@@ -58,24 +58,16 @@ defmodule KlixWeb.ImageLive do
 
     Klix.Images.subscribe(image.id)
 
+    now = tick_clock()
+
     {
       :noreply,
       socket
       |> assign(
         page_title: "#{image.hostname} image",
         image: image,
-        images: Klix.Images.list(socket.assigns.current_scope)
-      )
-    }
-  end
-
-  def handle_params(_params, _uri, socket) do
-    {
-      :noreply,
-      socket
-      |> assign(
-        page_title: "Images",
-        images: Klix.Images.list(socket.assigns.current_scope)
+        images: Klix.Images.list(socket.assigns.current_scope),
+        now: now
       )
     }
   end
@@ -89,5 +81,20 @@ defmodule KlixWeb.ImageLive do
         put_in(image, [key!(:builds), find(&(&1.id == updated_build.id))], updated_build)
       end)
     }
+  end
+
+  def handle_info({:tick, now}, socket) do
+    tick_clock()
+    {:noreply, assign(socket, now: now)}
+  end
+
+  defp tick_clock() do
+    interval = :timer.seconds(1)
+    now = DateTime.utc_now()
+    next_tick = now |> DateTime.add(interval, :millisecond)
+
+    Process.send_after(self(), {:tick, next_tick}, interval)
+
+    now
   end
 end

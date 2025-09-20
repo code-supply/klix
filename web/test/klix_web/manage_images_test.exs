@@ -7,6 +7,22 @@ defmodule KlixWeb.ManageImagesTest do
     %{conn: log_in_user(conn, user), scope: scope}
   end
 
+  test "shows an updating duration", %{conn: conn, scope: scope} do
+    {:ok, image} =
+      Images.create(scope, Klix.Factory.params(:image, hostname: "machineA"))
+
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+    initial_duration = view |> element(".duration") |> render()
+
+    send(view.pid, {:tick, DateTime.utc_now() |> DateTime.add(3, :second)})
+
+    new_duration = view |> element(".duration") |> render()
+
+    # lexical comparison should be sufficient here
+    assert new_duration > initial_duration
+  end
+
   test "shows download links, but only for completed builds", %{conn: conn, scope: scope} do
     {:ok, %{builds: [build]} = image} =
       Images.create(scope, Klix.Factory.params(:image, hostname: "machineA"))

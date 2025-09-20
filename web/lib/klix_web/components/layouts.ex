@@ -35,80 +35,51 @@ defmodule KlixWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <div class="drawer">
-      <input id="main-nav" type="checkbox" class="drawer-toggle" />
-      <div class="drawer-content">
-        <header class="navbar fixed top-0 bg-base-200 h-13 z-40 shadow flex justify-between">
-          <div class="flex-none">
-            <label for="main-nav" class="btn btn-ghost btn-circle drawer-button">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="inline-block h-5 w-5 stroke-current"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                >
-                </path>
-              </svg>
-            </label>
-          </div>
-          <div class="flex-1">
-            <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
-          </div>
-          <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn my-2 overflow-hidden">
-              <.icon name="hero-user-circle" class="size-9" />
-            </div>
-            <ul
-              tabindex="0"
-              class="dropdown-content menu bg-base-200 rounded-box z-1 shadow-sm w-40 mt-1 mr-4"
-            >
-              <%= if @current_scope do %>
-                <li><.link href={~p"/users/settings"}>Settings</.link></li>
-                <li><.link href={~p"/users/log-out"} method="delete">Log out</.link></li>
-              <% else %>
-                <li><.link href={~p"/users/register"}>Register</.link></li>
-                <li><.link href={~p"/users/log-in"}>Log in</.link></li>
-              <% end %>
-            </ul>
-          </div>
-        </header>
-
-        <main class="lg:w-1/2 w-12/13 m-auto pb-7 pt-20">
-          {render_slot(@inner_block)}
-        </main>
-
-        <.flash_group flash={@flash} />
-
-        <footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10 pb-14">
-          <div></div>
-          <nav>
-            <h6 class="footer-title">Developers</h6>
-            <a class="link link-hover">Code Supply</a>
-            <a class="link link-hover">Andrew Bruce</a>
-          </nav>
-          <nav>
-            <h6 class="footer-title">Source</h6>
-            <a class="link link-hover" href="https://github.com/code-supply/klix">GitHub</a>
-            <a class="link link-hover" href="https://github.com/code-supply/klix/blob/main/LICENSE">
-              License
-            </a>
-          </nav>
-        </footer>
+    <header class="navbar fixed top-0 bg-base-200 h-13 z-40 shadow flex justify-between">
+      <div class="flex-1">
+        <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
       </div>
-
-      <div class="drawer-side z-50">
-        <label for="main-nav" aria-label="close sidebar" class="drawer-overlay"></label>
-        <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-          <li><.link navigate={~p"/images"}>Images</.link></li>
+      <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn my-2 overflow-hidden">
+          <.icon name="hero-user-circle" class="size-9" />
+        </div>
+        <ul
+          tabindex="0"
+          class="dropdown-content menu bg-base-200 rounded-box z-1 shadow-sm w-40 mt-1 mr-4"
+        >
+          <%= if @current_scope do %>
+            <li><.link href={~p"/images"}>My Images</.link></li>
+            <li><.link href={~p"/users/settings"}>Settings</.link></li>
+            <li><.link href={~p"/users/log-out"} method="delete">Log out</.link></li>
+          <% else %>
+            <li><.link href={~p"/users/register"}>Register</.link></li>
+            <li><.link href={~p"/users/log-in"}>Log in</.link></li>
+          <% end %>
         </ul>
       </div>
-    </div>
+    </header>
+
+    <main class="lg:w-1/2 w-12/13 m-auto pb-7 pt-20">
+      {render_slot(@inner_block)}
+    </main>
+
+    <.flash_group flash={@flash} />
+
+    <footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10 pb-14">
+      <div></div>
+      <nav>
+        <h6 class="footer-title">Developers</h6>
+        <a class="link link-hover">Code Supply</a>
+        <a class="link link-hover">Andrew Bruce</a>
+      </nav>
+      <nav>
+        <h6 class="footer-title">Source</h6>
+        <a class="link link-hover" href="https://github.com/code-supply/klix">GitHub</a>
+        <a class="link link-hover" href="https://github.com/code-supply/klix/blob/main/LICENSE">
+          License
+        </a>
+      </nav>
+    </footer>
     """
   end
 

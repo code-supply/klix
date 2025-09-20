@@ -68,9 +68,15 @@ defmodule Klix.Images do
 
   def build_ready?(%Build{} = build), do: !!build.completed_at
 
-  def build_duration(%Build{completed_at: nil}), do: nil
+  def build_duration(build, now \\ DateTime.utc_now())
 
-  def build_duration(%Build{} = build) do
+  def build_duration(%Build{completed_at: nil} = build, now) do
+    now
+    |> DateTime.diff(build.inserted_at)
+    |> Time.from_seconds_after_midnight()
+  end
+
+  def build_duration(%Build{} = build, _now) do
     build.completed_at
     |> DateTime.diff(build.inserted_at)
     |> Time.from_seconds_after_midnight()
