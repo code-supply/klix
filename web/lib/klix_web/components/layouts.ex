@@ -61,7 +61,7 @@ defmodule KlixWeb.Layouts do
             <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
           </div>
           <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn mx-3 my-2 mr-6 md:mr-0 overflow-hidden">
+            <div tabindex="0" role="button" class="btn my-2 overflow-hidden">
               <.icon name="hero-user-circle" class="size-9" />
             </div>
             <ul
