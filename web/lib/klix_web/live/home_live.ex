@@ -4,30 +4,27 @@ defmodule KlixWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <header class="hero bg-base-300 h-70 rounded-xl">
+      <header class="hero min-h-fit pb-7 bg-base-300 rounded-xl">
         <div class="hero-content text-center">
-          <div class="max-w-md">
-            <h1 class="text-4xl font-bold">
-              Spend time printing,<br />not fixing your printer's&nbsp;software.
+          <div>
+            <h1 class="md:text-5xl/16 text-3xl/10 font-bold">
+              <span class="text-7xl/28">Klix</span>
+              <br /> Spend time printing,<br />not fixing your<br />printer's&nbsp;software.
             </h1>
-            <p class="pt-4">
-              Choose the Klipper plugins you need and download a tested image you can
-              always upgrade or rebuild.
-            </p>
           </div>
         </div>
       </header>
 
-      <main class="px-20 py-4">
-        <p class="py-2">
-          Klix helps you create a custom Raspberry Pi image for your Klipper
-          setup without needing to configure Linux yourself.
+      <main class="md:px-20 md:text-2xl/11 text-lg py-7">
+        <p class="py-4">
+          Klix lets you create a custom Raspberry Pi image for your Klipper
+          3D printer without needing to configure Linux yourself.
         </p>
-        <p class="py-2">
-          You pick the features you want, and Klix assembles a fresh, tested
-          image with ready-to-go plugins.
+        <p class="py-4">
+          Choose Klipper plugins, KlipperScreen and network config so they're correct on first boot.
+          Reconfigure, upgrade and rebuild your image any time.
         </p>
-        <p class="py-2 text-right">
+        <p class="py-4 text-right">
           <.link id="begin" navigate={~p"/images/new"} class="btn btn-lg btn-primary font-bold">
             Build My Image <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </.link>
