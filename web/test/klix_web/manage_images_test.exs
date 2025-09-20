@@ -7,6 +7,24 @@ defmodule KlixWeb.ManageImagesTest do
     %{conn: log_in_user(conn, user), scope: scope}
   end
 
+  test "shows a list of plugins that're enabled", %{conn: conn, scope: scope} do
+    {:ok, image} =
+      Images.create(
+        scope,
+        Klix.Factory.params(:image,
+          plugin_kamp_enabled: true,
+          plugin_shaketune_enabled: false,
+          plugin_z_calibration_enabled: true
+        )
+      )
+
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+    assert view |> has_element?("#plugins li", "KAMP")
+    refute view |> has_element?("#plugins li", "Shaketune")
+    assert view |> has_element?("#plugins li", "Z Calibration")
+  end
+
   test "shows an updating duration", %{conn: conn, scope: scope} do
     {:ok, image} =
       Images.create(scope, Klix.Factory.params(:image, hostname: "machineA"))

@@ -45,6 +45,17 @@ defmodule Klix.Images do
     Klix.Images.Build.Query.next() |> Klix.Repo.one()
   end
 
+  def plugins(%Image{} = image) do
+    [
+      plugin_kamp_enabled: "KAMP",
+      plugin_shaketune_enabled: "Shaketune",
+      plugin_z_calibration_enabled: "Z Calibration"
+    ]
+    |> Enum.filter(fn {flag, _name} ->
+      Map.fetch!(image, flag)
+    end)
+  end
+
   def set_build_flake_files(%Build{} = build, flake_nix, flake_lock) do
     build
     |> Ecto.Changeset.change(flake_nix: flake_nix, flake_lock: flake_lock)

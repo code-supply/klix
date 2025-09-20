@@ -5,11 +5,14 @@ defmodule KlixWeb.ImagesLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <.header>Your Images</.header>
-      <ul id="images" class="md:flex gap-5">
-        <li :for={image <- @images} class="mb-4 py-4 pr-4 rounded-xl bg-base-200 max-w-100">
-          <h2 class="pl-6 font-bold text-2xl">{image.hostname}</h2>
+      <ul id="images" class="md:flex flex-wrap gap-5">
+        <li
+          :for={image <- @images}
+          class="mb-4 py-4 pr-4 rounded-xl bg-neutral text-neutral-content w-full md:w-48/100"
+        >
+          <h2 class="pl-6 pb-5 font-bold text-2xl">{image.hostname}</h2>
           <div class="flex gap-6">
-            <figure class="flex-none w-20 py-4 px-6">
+            <figure class="flex-none w-20 px-6">
               <svg
                 class="fill-accent w-20"
                 version="1.1"
@@ -31,20 +34,20 @@ defmodule KlixWeb.ImagesLive do
               </svg>
             </figure>
             <div class="pl-5 flex-grow">
-              <dl class="grid grid-cols-2 pt-3">
-                <dt class="font-bold">Created</dt>
-                <dd class="text-right">
+              <dl class="grid grid-cols-3 gap-3">
+                <dt class="font-bold text-right">Created</dt>
+                <dd class="col-span-2">
                   {image.inserted_at
                   |> DateTime.shift_zone!(image.timezone, Tzdata.TimeZoneDatabase)
                   |> Calendar.strftime("%x %X %p")}
                 </dd>
-                <dt class="font-bold">Timezone</dt>
-                <dd class="text-right">{image.timezone}</dd>
-                <dt class="font-bold">Builds</dt>
-                <dd class="text-right">{length(image.builds)}</dd>
+                <dt class="font-bold text-right">Timezone</dt>
+                <dd class="col-span-2">{image.timezone}</dd>
+                <dt class="font-bold text-right">Builds</dt>
+                <dd class="col-span-2">{length(image.builds)}</dd>
               </dl>
 
-              <div class="pt-4 text-right">
+              <div class="text-right">
                 <.link class="btn btn-primary btn-lg font-bold" navigate={~p"/images/#{image.id}"}>
                   Details <.icon name="hero-arrow-right" class="size-6 shrink-0" />
                 </.link>

@@ -59,7 +59,7 @@ defmodule KlixWeb.Layouts do
       </div>
     </header>
 
-    <main class="lg:w-1/2 w-12/13 m-auto pb-7 pt-20">
+    <main class="2xl:w-1/2 xl:w-2/3 w-12/13 m-auto pb-7 pt-20">
       {render_slot(@inner_block)}
     </main>
 

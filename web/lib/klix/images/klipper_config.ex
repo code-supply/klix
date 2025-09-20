@@ -4,14 +4,15 @@ defmodule Klix.Images.KlipperConfig do
   @types [github: "GitHub", gitlab: "GitLab"]
   @owner_repo_regex ~r/^[\w\.\-]+$/
 
-  def type_options, do: for({k, v} <- @types, do: {v, k})
-
   embedded_schema do
     field :type, Ecto.Enum, values: Keyword.keys(@types)
     field :owner, :string
     field :repo, :string
     field :path, :string
   end
+
+  def type_options, do: for({k, v} <- @types, do: {v, k})
+  def type_name(%__MODULE__{type: type}), do: @types[type]
 
   def changeset(config, params) do
     import Ecto.Changeset

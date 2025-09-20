@@ -56,8 +56,8 @@ defmodule KlixWeb.CustomiseImageLive do
           </fieldset>
         </.inputs_for>
 
-        <div class="col-span-2">
-          <button id="download" class="btn btn-primary float-right">
+        <div class="col-span-2 text-center pt-4">
+          <button id="download" class="btn btn-lg btn-primary">
             <.icon name="hero-arrow-down-tray" /> Download Raspberry Pi Image
           </button>
         </div>
