@@ -11,7 +11,7 @@ defmodule KlixWeb.ImagesLive do
           <div class="flex gap-6">
             <figure class="flex-none w-20 py-4 px-6">
               <svg
-                class="fill-neutral-content w-20"
+                class="fill-accent w-20"
                 version="1.1"
                 xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink"
