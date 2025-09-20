@@ -7,8 +7,8 @@ defmodule KlixWeb.ImageLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <.header>Your Images</.header>
-      <ul id="images">
-        <li :for={image <- @images} class="mb-4 py-4 pr-4 rounded-xl bg-base-200 min-w-100">
+      <ul id="images" class="md:flex gap-5">
+        <li :for={image <- @images} class="mb-4 py-4 pr-4 rounded-xl bg-base-200 max-w-100">
           <h2 class="pl-6 font-bold text-2xl">{image.hostname}</h2>
           <div class="flex gap-6">
             <figure class="flex-none w-20 py-4 px-6">

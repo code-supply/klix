@@ -61,12 +61,8 @@ defmodule KlixWeb.Layouts do
             <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
           </div>
           <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn mx-3 my-2 overflow-hidden">
-              <%= if @current_scope do %>
-                {@current_scope.user.email}
-              <% else %>
-                Account
-              <% end %>
+            <div tabindex="0" role="button" class="btn mx-3 my-2 mr-6 md:mr-0 overflow-hidden">
+              <.icon name="hero-user-circle" class="size-9" />
             </div>
             <ul
               tabindex="0"
@@ -83,7 +79,7 @@ defmodule KlixWeb.Layouts do
           </div>
         </header>
 
-        <main class="md:w-1/2 w-12/13 m-auto pb-7 pt-20">
+        <main class="lg:w-1/2 w-12/13 m-auto pb-7 pt-20">
           {render_slot(@inner_block)}
         </main>
 
