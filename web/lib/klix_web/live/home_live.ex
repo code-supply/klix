@@ -4,14 +4,12 @@ defmodule KlixWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <header class="hero min-h-fit pb-7 bg-base-300 rounded-xl">
-        <div class="hero-content text-center">
-          <div>
-            <h1 class="md:text-5xl/16 text-3xl/10 font-bold">
-              <span class="text-7xl/28">Klix</span>
-              <br /> Spend time printing,<br />not fixing your<br />printer's&nbsp;software.
-            </h1>
-          </div>
+      <header class="hero min-h-fit rounded-xl bg-repeat bg-auto bg-[url(/images/printer-pattern.png)] shadow-xl">
+        <div class="hero-content px-9 text-center backdrop-blur-xs bg-white/80 rounded-xl">
+          <h1 class="md:text-5xl/16 text-3xl/10 font-bold text-black">
+            <span class="text-7xl/24">Klix</span>
+            <br /> Spend time printing,<br />not fixing your<br />printer's&nbsp;software.
+          </h1>
         </div>
       </header>
 
