@@ -12,9 +12,9 @@ defmodule KlixWeb.ImagesLive do
         >
           <h2 class="pl-6 pb-5 font-bold text-2xl">{image.hostname}</h2>
           <div class="flex gap-6">
-            <figure class="flex-none w-20 px-6">
+            <figure class="flex-none w-10 md:w-20 px-6">
               <svg
-                class="fill-accent w-20"
+                class="fill-accent w-13 md:w-20"
                 version="1.1"
                 xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -39,7 +39,7 @@ defmodule KlixWeb.ImagesLive do
                 <dd class="col-span-2">
                   {image.inserted_at
                   |> DateTime.shift_zone!(image.timezone, Tzdata.TimeZoneDatabase)
-                  |> Calendar.strftime("%x %X %p")}
+                  |> format_datetime()}
                 </dd>
                 <dt class="font-bold text-right">Timezone</dt>
                 <dd class="col-span-2">{image.timezone}</dd>

@@ -7,14 +7,14 @@ defmodule KlixWeb.ImageLive do
       <.header>
         {@image.hostname}
         <:subtitle>
-          <.link navigate={~p"/images"}>
+          <.link class="link" navigate={~p"/images"}>
             <.icon name="hero-arrow-left" class="size-6 shrink-0" /> Back to Images
           </.link>
         </:subtitle>
       </.header>
 
-      <main class="bg-neutral text-neutral-content p-4">
-        <dl class="grid grid-cols-2 gap-4 text-xl">
+      <main class="card card-border border-base-300">
+        <dl class="card-body grid grid-cols-2 gap-4 text-xl">
           <dt class="font-bold text-right">Hostname</dt>
           <dd>{@image.hostname}</dd>
 
@@ -31,7 +31,7 @@ defmodule KlixWeb.ImageLive do
 
           <dt class="font-bold text-right">Plugins</dt>
           <dd>
-            <ul id="plugins" class="flex gap-2">
+            <ul id="plugins" class="flex flex-wrap gap-2">
               <li
                 :for={{flag, name} <- Klix.Images.plugins(@image)}
                 class="badge badge-info mt-1"
@@ -53,38 +53,43 @@ defmodule KlixWeb.ImageLive do
         </dl>
       </main>
 
-      <section class="mt-4 bg-secondary text-left p-4 rounded-xl">
-        <h2 class="text-2xl pb-4">Builds</h2>
-        <table id="builds" class="rounded-xl bg-base-300 w-full">
-          <thead>
-            <tr>
-              <th class="py-2 px-4">Started</th>
-              <th class="py-2 px-4">Completed</th>
-              <th class="py-2 px-4 text-right">Duration (inc. queue)</th>
-              <th class="py-2 px-4"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr :for={build <- @image.builds}>
-              <td class="p-4">{build.inserted_at}</td>
-              <td class="p-4">{build.completed_at}</td>
-              <td class="duration p-4 text-right">{Klix.Images.build_duration(build, @now)}</td>
-              <td class="p-4">
-                <%= if Klix.Images.build_ready?(build) do %>
-                  <.link
-                    class="btn btn-primary w-full"
-                    href={~p"/images/#{@image.id}/builds/#{build.id}/klix.img.zst"}
-                    download
-                  >
-                    <.icon name="hero-arrow-down-tray" /> Download
-                  </.link>
-                <% else %>
-                  <div class="loading loading-bars loading-xl">being prepared</div>
-                <% end %>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <section class="mt-4">
+        <div>
+          <h2 class="text-2xl pb-4">Builds</h2>
+          <ol id="builds" class="list w-full">
+            <li
+              :for={{build, idx} <- Enum.with_index(@image.builds)}
+              class="card card-border border-base-300"
+            >
+              <div class="card-body">
+                <h3 class="text-2xl">{"##{length(@image.builds) - idx}"}</h3>
+                <dl class="grid grid-cols-3">
+                  <dt class="font-bold">Started</dt>
+                  <dd class="col-span-2">{build.inserted_at |> format_datetime()}</dd>
+                  <dt :if={Klix.Images.build_ready?(build)} class="font-bold">Completed</dt>
+                  <dd :if={Klix.Images.build_ready?(build)} class="col-span-2">
+                    {build.completed_at |> format_datetime()}
+                  </dd>
+                  <dt class="font-bold">Duration</dt>
+                  <dd class="duration cols-span-2">{Klix.Images.build_duration(build, @now)}</dd>
+                </dl>
+                <div class="p-4">
+                  <%= if Klix.Images.build_ready?(build) do %>
+                    <.link
+                      class="btn btn-primary float-right"
+                      href={~p"/images/#{@image.id}/builds/#{build.id}/klix.img.zst"}
+                      download
+                    >
+                      <.icon name="hero-arrow-down-tray" /> Download
+                    </.link>
+                  <% else %>
+                    <div class="float-right loading loading-bars loading-xl">being prepared</div>
+                  <% end %>
+                </div>
+              </div>
+            </li>
+          </ol>
+        </div>
       </section>
     </Layouts.app>
     """

@@ -35,7 +35,7 @@ defmodule KlixWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="navbar fixed top-0 bg-base-200 h-13 z-40 shadow flex justify-between">
+    <header class="navbar fixed top-0 bg-base-300 h-13 z-40 shadow flex justify-between">
       <div class="flex-1">
         <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
       </div>
@@ -66,7 +66,9 @@ defmodule KlixWeb.Layouts do
     <.flash_group flash={@flash} />
 
     <footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10 pb-14">
-      <div></div>
+      <div>
+        <.theme_toggle />
+      </div>
       <nav>
         <h6 class="footer-title">Developers</h6>
         <a class="link link-hover" href="https://code.supply/">Code Supply</a>
@@ -126,15 +128,10 @@ defmodule KlixWeb.Layouts do
     """
   end
 
-  @doc """
-  Provides dark vs light theme toggle based on themes defined in app.css.
-
-  See <head> in root.html.heex which applies the theme before page load.
-  """
   def theme_toggle(assigns) do
     ~H"""
     <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full">
-      <div class="absolute w-1/3 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left]" />
+      <div class="absolute w-1/3 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=emerald]_&]:left-1/3 [[data-theme=dracula]_&]:left-2/3 transition-[left]" />
 
       <button
         class="flex p-2 cursor-pointer w-1/3"
@@ -147,7 +144,7 @@ defmodule KlixWeb.Layouts do
       <button
         class="flex p-2 cursor-pointer w-1/3"
         phx-click={JS.dispatch("phx:set-theme")}
-        data-phx-theme="light"
+        data-phx-theme="emerald"
       >
         <.icon name="hero-sun-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
@@ -155,7 +152,7 @@ defmodule KlixWeb.Layouts do
       <button
         class="flex p-2 cursor-pointer w-1/3"
         phx-click={JS.dispatch("phx:set-theme")}
-        data-phx-theme="dark"
+        data-phx-theme="dracula"
       >
         <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>

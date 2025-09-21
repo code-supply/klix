@@ -9,7 +9,7 @@ defmodule KlixWeb.CustomiseImageLive do
       <.header>Build your image</.header>
 
       <.form for={@image} id="image" phx-submit="download" class="grid gap-3">
-        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4 text-2xl">
           <legend class="fieldset-legend">Base OS Options</legend>
 
           <.input label="Hostname" placeholder="printy-mc-printface" field={@image[:hostname]} />
@@ -28,7 +28,7 @@ defmodule KlixWeb.CustomiseImageLive do
           />
         </fieldset>
 
-        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4 text-2xl">
           <legend class="fieldset-legend">Plugins</legend>
 
           <.input label="KAMP" field={@image[:plugin_kamp_enabled]} type="checkbox" />
@@ -41,7 +41,7 @@ defmodule KlixWeb.CustomiseImageLive do
         </fieldset>
 
         <.inputs_for :let={klipper_config} field={@image[:klipper_config]}>
-          <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+          <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4 text-2xl">
             <legend class="fieldset-legend">Klipper Config Source</legend>
 
             <.input

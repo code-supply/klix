@@ -82,6 +82,6 @@ defmodule KlixWeb.ManageImagesTest do
 
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 
-    assert view |> has_element?("table#builds tbody tr")
+    assert view |> has_element?("#builds li")
   end
 end
