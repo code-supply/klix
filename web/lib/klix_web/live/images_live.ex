@@ -48,7 +48,7 @@ defmodule KlixWeb.ImagesLive do
               </dl>
 
               <div class="text-right">
-                <.link class="btn btn-primary btn-lg font-bold" navigate={~p"/images/#{image.id}"}>
+                <.link class="btn btn-secondary btn-lg font-bold" navigate={~p"/images/#{image.id}"}>
                   Details <.icon name="hero-arrow-right" class="size-6 shrink-0" />
                 </.link>
               </div>
@@ -56,6 +56,12 @@ defmodule KlixWeb.ImagesLive do
           </div>
         </li>
       </ul>
+
+      <div class="text-right pt-6 pr-4">
+        <.link id="begin" navigate={~p"/images/new"} class="btn btn-lg btn-primary font-bold">
+          Build New Image <.icon name="hero-arrow-right" class="size-6 shrink-0" />
+        </.link>
+      </div>
     </Layouts.app>
     """
   end
