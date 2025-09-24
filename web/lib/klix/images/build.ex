@@ -41,7 +41,7 @@ defmodule Klix.Images.Build do
 
     def next(query \\ base()) do
       query
-      |> where([builds: b], is_nil(b.output_path))
+      |> where([builds: b], is_nil(b.completed_at))
       |> order_by([builds: b], asc: b.inserted_at, asc: b.id)
       |> limit(1)
       |> preload([:image])

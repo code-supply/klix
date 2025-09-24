@@ -132,7 +132,7 @@ defmodule Klix.Builder do
   def handle_info({port, {:exit_status, code}}, state) when is_port(port) do
     send(port, {self(), :close})
     {:ok, _build} = Klix.Images.build_failed(state.build, "nonzero exit code: #{code}")
-    emit(state, :run_failure)
+    emit(state, :run_complete)
     {:noreply, state}
   end
 

@@ -112,11 +112,11 @@ defmodule Klix.ImagesTest do
       assert Images.next_build() == nil
     end
 
-    test "nil when all builds have output paths", %{scope: scope} do
+    test "nil when all builds have completion dates", %{scope: scope} do
       {:ok, %{builds: [build]}} =
         Images.create(scope, Klix.Factory.params(:image))
 
-      Images.set_build_output_path(build, "/some/path")
+      Images.build_completed(build)
 
       assert Images.next_build() == nil
     end

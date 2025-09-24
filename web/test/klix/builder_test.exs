@@ -131,11 +131,11 @@ defmodule Klix.BuilderTest do
       assert content =~ "@nix {}\n"
     end
 
-    test "on failure, emits error and records failed state",
+    test "on failure, emits completion and records failed state",
          %{image: %{builds: [build]}} = ctx do
       %{ref: ref, builder: builder} = start_builder(ctx, "false")
       send(builder, :run)
-      assert_receive {[:builder, :run_failure], ^ref, _empty_measurements, %{pid: ^builder}}
+      assert_receive {[:builder, :run_complete], ^ref, _empty_measurements, %{pid: ^builder}}
 
       build = Klix.Repo.reload!(build)
 
