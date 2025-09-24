@@ -1,6 +1,6 @@
 defmodule Klix.Scheduler do
   def events_for(server) do
-    for event <- [:idle, :nothing_to_do, :setup_complete, :run_complete] do
+    for event <- [:idle, :nothing_to_do, :setup_complete, :run_complete, :run_failure] do
       [server, event]
     end
   end

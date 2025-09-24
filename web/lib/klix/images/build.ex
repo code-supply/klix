@@ -1,15 +1,28 @@
 defmodule Klix.Images.Build do
   use Ecto.Schema
 
+  import Ecto.Changeset
+
   schema "builds" do
     field :flake_nix, :string
     field :flake_lock, :string
     field :output_path, :string
     field :completed_at, :utc_datetime
+    field :error, :string
 
     belongs_to :image, Klix.Images.Image
 
     timestamps(type: :utc_datetime)
+  end
+
+  def success_changeset(build) do
+    change(build, completed_at: DateTime.utc_now(:second))
+  end
+
+  def failure_changeset(build, error) do
+    build
+    |> success_changeset()
+    |> change(error: error)
   end
 
   defmodule Query do

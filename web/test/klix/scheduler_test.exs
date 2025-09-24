@@ -33,7 +33,8 @@ defmodule Klix.SchedulerTest do
              [:builder, :idle],
              [:builder, :nothing_to_do],
              [:builder, :setup_complete],
-             [:builder, :run_complete]
+             [:builder, :run_complete],
+             [:builder, :run_failure]
            ]
   end
 end

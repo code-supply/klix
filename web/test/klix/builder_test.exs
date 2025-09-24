@@ -130,6 +130,18 @@ defmodule Klix.BuilderTest do
       # output of 'yes'
       assert content =~ "@nix {}\n"
     end
+
+    test "on failure, emits error and records failed state",
+         %{image: %{builds: [build]}} = ctx do
+      %{ref: ref, builder: builder} = start_builder(ctx, "false")
+      send(builder, :run)
+      assert_receive {[:builder, :run_failure], ^ref, _empty_measurements, %{pid: ^builder}}
+
+      build = Klix.Repo.reload!(build)
+
+      assert %DateTime{} = build.completed_at
+      assert build.error == "nonzero exit code: 1"
+    end
   end
 
   describe "when there's nothing to do" do
@@ -143,13 +155,13 @@ defmodule Klix.BuilderTest do
     :telemetry_test.attach_event_handlers(self(), Klix.Builder.telemetry_events())
   end
 
-  defp start_builder(%{tmp_dir: tmp_dir}) do
+  defp start_builder(%{tmp_dir: tmp_dir}, cmd \\ "yes @nix {}") do
     ref = subscribe()
 
     builder =
       start_link_supervised!({
         Klix.Builder,
-        build_dir: tmp_dir, cmd: "yes @nix {}"
+        build_dir: tmp_dir, cmd: cmd
       })
 
     assert_receive {[:builder, :idle], ^ref, _empty_measurements, %{pid: ^builder}}

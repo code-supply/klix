@@ -4,6 +4,46 @@ defmodule Klix.ImagesTest do
 
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
+  describe "completing with success" do
+    setup %{scope: scope} do
+      {:ok, %{builds: [build]} = image} = Images.create(scope, Klix.Factory.params(:image))
+      Images.subscribe(image.id)
+      {:ok, build} = Images.build_completed(build)
+
+      %{build: build}
+    end
+
+    test "sets completion time", %{build: build} do
+      assert Enum.min([build.completed_at, DateTime.utc_now()]) == build.completed_at
+    end
+
+    test "broadcasts", %{build: build} do
+      assert_receive build_ready: ^build
+    end
+  end
+
+  describe "completing with error" do
+    setup %{scope: scope} do
+      {:ok, %{builds: [build]} = image} = Images.create(scope, Klix.Factory.params(:image))
+      Images.subscribe(image.id)
+      {:ok, build} = Images.build_failed(build, "some error")
+
+      %{build: build}
+    end
+
+    test "sets completion time", %{build: build} do
+      assert Enum.min([build.completed_at, DateTime.utc_now()]) == build.completed_at
+    end
+
+    test "sets error text", %{build: build} do
+      assert build.error == "some error"
+    end
+
+    test "broadcasts", %{build: build} do
+      assert_receive build_ready: ^build
+    end
+  end
+
   test "can get duration of builds" do
     one_minute = %Images.Build{
       inserted_at: ~U[2000-01-01 00:00:00Z],

@@ -70,11 +70,16 @@ defmodule Klix.Images do
 
   def build_completed(%Build{} = build) do
     build
-    |> Ecto.Changeset.change(completed_at: DateTime.utc_now(:second))
+    |> Build.success_changeset()
     |> Klix.Repo.update()
-    |> tap(fn {:ok, build} ->
-      broadcast(build.image_id, build_ready: build)
-    end)
+    |> tap(&broadcast_ready/1)
+  end
+
+  def build_failed(%Build{} = build, error) do
+    build
+    |> Build.failure_changeset(error)
+    |> Klix.Repo.update()
+    |> tap(&broadcast_ready/1)
   end
 
   def build_ready?(%Build{} = build), do: !!build.completed_at
@@ -146,5 +151,9 @@ defmodule Klix.Images do
         };
     }
     """
+  end
+
+  defp broadcast_ready({:ok, build}) do
+    broadcast(build.image_id, build_ready: build)
   end
 end
