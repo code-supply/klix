@@ -73,7 +73,7 @@ defmodule KlixWeb.Router do
       live "/users/log-in/:token", UserLive.Confirmation, :new
     end
 
-    get "/images/:image_id/config.tar.gz", TarballsController, :download
+    get "/images/:uuid/config.tar.gz", TarballsController, :download
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
   end

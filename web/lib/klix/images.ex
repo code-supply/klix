@@ -24,10 +24,9 @@ defmodule Klix.Images do
     |> Klix.Repo.preload(:builds)
   end
 
-  def find!(id) do
+  def find!(uuid) when is_binary(uuid) do
     Image
-    |> Klix.Repo.get!(id)
-    |> Klix.Repo.preload(:builds)
+    |> Klix.Repo.get_by!(uri_id: uuid)
   end
 
   def find!(%Scope{} = scope, id) do

@@ -9,8 +9,8 @@ defmodule Klix.Factory do
       klipper_config: [
         type: first_type,
         owner: "code-supply",
-        repo: "my-config",
-        path: "where/my/config/is"
+        repo: "code-supply",
+        path: "boxes/ketchup-king/klipper"
       ],
       timezone: "Europe/Madrid",
       public_key:

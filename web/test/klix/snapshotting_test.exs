@@ -4,19 +4,7 @@ defmodule Klix.SnapshottingTest do
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
   test "writes a flake.nix and flake.lock", %{scope: scope} do
-    {:ok, image} =
-      Images.create(
-        scope,
-        Klix.Factory.params(:image,
-          klipper_config: [
-            type: :github,
-            owner: "code-supply",
-            repo: "code-supply",
-            path: "boxes/ketchup-king/klipper"
-          ]
-        )
-      )
-
+    {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
     {:ok, snapshot, _tarball} = Images.snapshot(image)
 
     assert snapshot.flake_nix == Images.to_flake(image)

@@ -2,6 +2,7 @@ defmodule Klix.Images.Image do
   use Ecto.Schema
 
   schema "images" do
+    field :uri_id, Ecto.UUID, autogenerate: true
     field :hostname, :string
     field :timezone, :string, default: "Europe/London"
     field :klipperscreen_enabled, :boolean, default: true

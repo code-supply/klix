@@ -15,20 +15,9 @@ defmodule KlixWeb.TarballsControllerTest do
     scope: scope,
     tmp_dir: tmp_dir
   } do
-    {:ok, image} =
-      Klix.Images.create(
-        scope,
-        Klix.Factory.params(:image,
-          klipper_config: [
-            type: :github,
-            owner: "code-supply",
-            repo: "code-supply",
-            path: "boxes/ketchup-king/klipper"
-          ]
-        )
-      )
+    {:ok, image} = Klix.Images.create(scope, Klix.Factory.params(:image))
 
-    conn = get(conn, ~p"/images/#{image.id}/config.tar.gz")
+    conn = get(conn, ~p"/images/#{image.uri_id}/config.tar.gz")
     assert response(conn, :ok)
     body = conn.resp_body
 
