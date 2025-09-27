@@ -73,6 +73,7 @@ defmodule KlixWeb.Layouts do
         <h6 class="footer-title">Developers</h6>
         <a class="link link-hover" href="https://code.supply/">Code Supply</a>
         <a class="link link-hover" href="https://www.andrewbruce.net/">Andrew Bruce</a>
+        Copyright © {Date.utc_today().year} Andrew Bruce
       </nav>
       <nav>
         <h6 class="footer-title">Source</h6>
