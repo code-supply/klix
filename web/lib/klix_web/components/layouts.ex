@@ -48,12 +48,12 @@ defmodule KlixWeb.Layouts do
           class="dropdown-content menu bg-base-100 rounded-box z-1 shadow-sm w-40 mt-1 mr-4"
         >
           <%= if @current_scope do %>
-            <li><.link href={~p"/images"}>My Images</.link></li>
+            <li><.link href={~p"/images"}>Your Images</.link></li>
             <li><.link href={~p"/users/settings"}>Settings</.link></li>
-            <li><.link href={~p"/users/log-out"} method="delete">Log out</.link></li>
+            <li><.link href={~p"/users/log-out"} method="delete">Log Out</.link></li>
           <% else %>
             <li><.link href={~p"/users/register"}>Register</.link></li>
-            <li><.link href={~p"/users/log-in"}>Log in</.link></li>
+            <li><.link href={~p"/users/log-in"}>Log In</.link></li>
           <% end %>
         </ul>
       </div>

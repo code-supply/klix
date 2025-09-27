@@ -11,7 +11,16 @@ defmodule KlixWeb.UserLive.Settings do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <.header>
         Account Settings
-        <:subtitle>Manage your account email address and password settings</:subtitle>
+        <:subtitle>
+          <div class="breadcrumbs text-sm">
+            <ol>
+              <li>
+                <.link class="link" navigate={~p"/"}>Home</.link>
+              </li>
+              <li>Settings</li>
+            </ol>
+          </div>
+        </:subtitle>
       </.header>
 
       <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">

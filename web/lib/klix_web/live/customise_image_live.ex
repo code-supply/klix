@@ -6,7 +6,22 @@ defmodule KlixWeb.CustomiseImageLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <.header>Build your image</.header>
+      <.header>
+        Build New Image
+        <:subtitle>
+          <div class="breadcrumbs text-sm">
+            <ol>
+              <li>
+                <.link class="link" navigate={~p"/"}>Home</.link>
+              </li>
+              <li>
+                <.link class="link" navigate={~p"/images"}>Your Images</.link>
+              </li>
+              <li>Build New Image</li>
+            </ol>
+          </div>
+        </:subtitle>
+      </.header>
 
       <.form for={@image} id="image" phx-submit="download" class="flex flex-col gap-10">
         <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 text-2xl">

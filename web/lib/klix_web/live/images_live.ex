@@ -4,7 +4,19 @@ defmodule KlixWeb.ImagesLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <.header>Your Images</.header>
+      <.header>
+        Your Images
+        <:subtitle>
+          <div class="breadcrumbs text-sm">
+            <ol>
+              <li>
+                <.link class="link" navigate={~p"/"}>Home</.link>
+              </li>
+              <li>Your Images</li>
+            </ol>
+          </div>
+        </:subtitle>
+      </.header>
       <ul id="images" class="md:flex flex-wrap gap-5">
         <li
           :for={image <- @images}
@@ -57,7 +69,7 @@ defmodule KlixWeb.ImagesLive do
       </ul>
 
       <div class="text-right pt-6 pr-4">
-        <.link id="begin" navigate={~p"/images/new"} class="btn btn-lg btn-primary font-bold">
+        <.link id="begin" navigate={~p"/images/new"} class="btn btn-lg btn-primary">
           Build New Image <.icon name="hero-arrow-right" class="size-6 shrink-0" />
         </.link>
       </div>

@@ -17,6 +17,6 @@ defmodule KlixWeb.HomeTest do
 
     {:ok, view, _html} = view |> element("#begin") |> render_click() |> follow_redirect(conn)
 
-    assert view |> has_element?("*", "Build your image")
+    assert view |> has_element?("*", "Build New Image")
   end
 end

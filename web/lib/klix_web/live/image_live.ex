@@ -7,9 +7,17 @@ defmodule KlixWeb.ImageLive do
       <.header>
         {@image.hostname}
         <:subtitle>
-          <.link class="link" navigate={~p"/images"}>
-            <.icon name="hero-arrow-left" class="size-6 shrink-0" /> Back to Images
-          </.link>
+          <div class="breadcrumbs text-sm">
+            <ol>
+              <li>
+                <.link class="link" navigate={~p"/"}>Home</.link>
+              </li>
+              <li>
+                <.link class="link" navigate={~p"/images"}>Your Images</.link>
+              </li>
+              <li>{@image.hostname}</li>
+            </ol>
+          </div>
         </:subtitle>
       </.header>
 

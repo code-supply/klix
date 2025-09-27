@@ -9,7 +9,7 @@ defmodule KlixWeb.UserLive.Login do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="mx-auto max-w-sm space-y-4">
         <.header>
-          <p>Log in</p>
+          Log In
           <:subtitle>
             <%= if @current_scope do %>
               You need to reauthenticate to perform sensitive actions on your account.
