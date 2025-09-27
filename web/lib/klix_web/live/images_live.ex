@@ -20,7 +20,7 @@ defmodule KlixWeb.ImagesLive do
       <ul id="images" class="md:flex flex-wrap gap-5">
         <li
           :for={image <- @images}
-          class="card card-side card-border border-base-300 card-md bg-base-100"
+          class="card card-side card-border border-base-300 card-md bg-base-100 mb-3"
         >
           <figure class="w-24 pl-5">
             <svg

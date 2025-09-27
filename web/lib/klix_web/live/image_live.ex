@@ -21,7 +21,7 @@ defmodule KlixWeb.ImageLive do
         </:subtitle>
       </.header>
 
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid md:grid-cols-2 gap-4">
         <section class="bg-base-100 card card-border border-base-300">
           <div class="card-body">
             <h3 class="card-title">
