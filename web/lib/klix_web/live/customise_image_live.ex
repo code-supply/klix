@@ -92,7 +92,7 @@ defmodule KlixWeb.CustomiseImageLive do
 
         <div class="col-span-2 text-center pt-4">
           <button id="download" class="btn btn-lg btn-primary">
-            <.icon name="hero-arrow-down-tray" /> Download Raspberry Pi Image
+            Build Raspberry Pi Image <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </button>
         </div>
       </.form>

@@ -45,7 +45,7 @@ defmodule KlixWeb.Layouts do
         </div>
         <ul
           tabindex="0"
-          class="dropdown-content menu rounded-box z-1 shadow-sm w-40 mt-1 mr-4"
+          class="dropdown-content menu bg-base-100 rounded-box z-1 shadow-sm w-40 mt-1 mr-4"
         >
           <%= if @current_scope do %>
             <li><.link href={~p"/images"}>My Images</.link></li>
