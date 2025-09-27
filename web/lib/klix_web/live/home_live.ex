@@ -23,7 +23,7 @@ defmodule KlixWeb.HomeLive do
           Reconfigure, upgrade and rebuild your image any time.
         </p>
         <p class="py-4 text-right">
-          <.link id="begin" navigate={~p"/images/new"} class="btn btn-lg btn-primary font-bold">
+          <.link id="begin" navigate={~p"/images/new"} class="btn btn-lg btn-primary">
             Build My Image <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </.link>
         </p>
