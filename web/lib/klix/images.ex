@@ -24,6 +24,12 @@ defmodule Klix.Images do
     |> Klix.Repo.preload(:builds)
   end
 
+  def find!(id) do
+    Image
+    |> Klix.Repo.get!(id)
+    |> Klix.Repo.preload(:builds)
+  end
+
   def find!(%Scope{} = scope, id) do
     Image.Query.for_scope(scope)
     |> Klix.Repo.get!(id)
@@ -39,6 +45,17 @@ defmodule Klix.Images do
     %Image{user: scope.user, builds: [[]]}
     |> Klix.Images.Image.changeset(attrs)
     |> Klix.Repo.insert()
+  end
+
+  def snapshot(%Image{} = image) do
+    flake_nix = to_flake(image)
+
+    with {:ok, snapshot, tarball} <- Klix.Snapshotter.snapshot(flake_nix),
+         {:ok, snapshot} <- Klix.Repo.insert(snapshot) do
+      {:ok, snapshot, tarball}
+    else
+      otherwise -> otherwise
+    end
   end
 
   def next_build do

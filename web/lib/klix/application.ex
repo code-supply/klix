@@ -9,7 +9,8 @@ defmodule Klix.Application do
       {DNSCluster, query: Application.get_env(:klix, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Klix.PubSub},
       KlixWeb.Endpoint,
-      {Klix.Builder, build_dir: Application.fetch_env!(:klix, :build_dir)}
+      {Klix.Builder, build_dir: Application.fetch_env!(:klix, :build_dir)},
+      {Klix.Snapshotter, name: Klix.Snapshotter}
     ]
 
     if Application.fetch_env!(:klix, :run_builder) do
