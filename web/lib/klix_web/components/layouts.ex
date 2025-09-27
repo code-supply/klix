@@ -35,7 +35,7 @@ defmodule KlixWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="navbar fixed top-0 bg-base-300 h-13 z-40 shadow flex justify-between">
+    <header class="navbar fixed top-0 bg-base-100 h-13 z-40 shadow flex justify-between">
       <div class="flex-1">
         <.link href={~p"/"} class="text-2xl p-4 leading-12">Klix</.link>
       </div>
@@ -45,7 +45,7 @@ defmodule KlixWeb.Layouts do
         </div>
         <ul
           tabindex="0"
-          class="dropdown-content menu bg-base-200 rounded-box z-1 shadow-sm w-40 mt-1 mr-4"
+          class="dropdown-content menu rounded-box z-1 shadow-sm w-40 mt-1 mr-4"
         >
           <%= if @current_scope do %>
             <li><.link href={~p"/images"}>My Images</.link></li>

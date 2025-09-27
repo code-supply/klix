@@ -13,56 +13,64 @@ defmodule KlixWeb.ImageLive do
         </:subtitle>
       </.header>
 
-      <main class="card card-border border-base-300">
-        <dl class="card-body grid grid-cols-2 gap-4 text-xl">
-          <dt class="font-bold text-right">Hostname</dt>
-          <dd>{@image.hostname}</dd>
+      <div class="grid grid-cols-2 gap-4">
+        <section class="bg-base-100 card card-border border-base-300">
+          <div class="card-body">
+            <h3 class="card-title">
+              <.icon name="hero-tag" class="size-6" /> Printer details
+            </h3>
+            <dl class="grid grid-cols-2 gap-2 pt-1">
+              <dt class="font-bold">Hostname</dt>
+              <dd>{@image.hostname}</dd>
 
-          <dt class="font-bold text-right">Timezone</dt>
-          <dd>{@image.timezone}</dd>
+              <dt class="font-bold">Timezone</dt>
+              <dd>{@image.timezone}</dd>
 
-          <dt class="font-bold text-right">KlipperScreen</dt>
-          <dd>
-            <.icon
-              name={if @image.klipperscreen_enabled, do: "hero-check-circle", else: "hero-x-circle"}
-              class="size-6"
-            />
-          </dd>
+              <dt class="font-bold">KlipperScreen</dt>
+              <dd>
+                <.icon
+                  name={
+                    if @image.klipperscreen_enabled, do: "hero-check-circle", else: "hero-x-circle"
+                  }
+                  class="size-6"
+                />
+              </dd>
 
-          <dt class="font-bold text-right">Plugins</dt>
-          <dd>
-            <ul id="plugins" class="flex flex-wrap gap-2">
-              <li
-                :for={{flag, name} <- Klix.Images.plugins(@image)}
-                class="badge badge-info mt-1"
-              >
-                {name}
-              </li>
-            </ul>
-          </dd>
+              <dt class="font-bold">Plugins</dt>
+              <dd>
+                <ul id="plugins" class="flex flex-wrap gap-2">
+                  <li
+                    :for={{flag, name} <- Klix.Images.plugins(@image)}
+                    class="badge badge-info mt-1"
+                  >
+                    {name}
+                  </li>
+                </ul>
+              </dd>
 
-          <dt class="font-bold text-right">Klipper Config</dt>
-          <dd>
-            <.link
-              class="badge"
-              href={"https://#{@image.klipper_config.type}.com/#{@image.klipper_config.owner}/#{@image.klipper_config.repo}/tree/main/#{@image.klipper_config.path}"}
-            >
-              {Klix.Images.KlipperConfig.type_name(@image.klipper_config)}
-            </.link>
-          </dd>
-        </dl>
-      </main>
+              <dt class="font-bold">Klipper Config</dt>
+              <dd>
+                <.link
+                  class="badge"
+                  href={"https://#{@image.klipper_config.type}.com/#{@image.klipper_config.owner}/#{@image.klipper_config.repo}/tree/main/#{@image.klipper_config.path}"}
+                >
+                  {Klix.Images.KlipperConfig.type_name(@image.klipper_config)}
+                </.link>
+              </dd>
+            </dl>
+          </div>
+        </section>
 
-      <section class="mt-4">
-        <div>
-          <h2 class="text-2xl pb-4">Builds</h2>
-          <ol id="builds" class="list w-full">
+        <section>
+          <ol id="builds">
             <li
               :for={{build, idx} <- Enum.with_index(@image.builds)}
-              class="card card-border border-base-300"
+              class="bg-base-100 card card-border border-base-300 card-md"
             >
               <div class="card-body">
-                <h3 class="text-2xl">{"##{length(@image.builds) - idx}"}</h3>
+                <h3 class="card-title">
+                  <.icon name="hero-cube" class="size-6" /> Build {"##{length(@image.builds) - idx}"}
+                </h3>
                 <dl class="grid grid-cols-3">
                   <dt class="font-bold">Started</dt>
                   <dd class="col-span-2">{build.inserted_at |> format_datetime()}</dd>
@@ -73,10 +81,10 @@ defmodule KlixWeb.ImageLive do
                   <dt class="font-bold">Duration</dt>
                   <dd class="duration cols-span-2">{Klix.Images.build_duration(build, @now)}</dd>
                 </dl>
-                <div class="p-4">
+                <div class="card-actions justify-end">
                   <%= if Klix.Images.build_ready?(build) do %>
                     <.link
-                      class="btn btn-primary float-right"
+                      class="btn btn-secondary float-right"
                       href={~p"/images/#{@image.id}/builds/#{build.id}/klix.img.zst"}
                       download
                     >
@@ -89,8 +97,8 @@ defmodule KlixWeb.ImageLive do
               </div>
             </li>
           </ol>
-        </div>
-      </section>
+        </section>
+      </div>
     </Layouts.app>
     """
   end

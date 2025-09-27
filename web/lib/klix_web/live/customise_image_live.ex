@@ -9,7 +9,7 @@ defmodule KlixWeb.CustomiseImageLive do
       <.header>Build your image</.header>
 
       <.form for={@image} id="image" phx-submit="download" class="flex flex-col gap-10">
-        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4 text-2xl">
+        <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 text-2xl">
           <legend class="fieldset-legend">Base OS Options</legend>
 
           <div class="flex flex-wrap">
@@ -49,7 +49,7 @@ defmodule KlixWeb.CustomiseImageLive do
           </div>
         </fieldset>
 
-        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4 text-2xl">
+        <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 text-2xl">
           <legend class="fieldset-legend">Extra software and plugins</legend>
           <p class="pb-4">
             <.link class="link" href="https://www.klipper3d.org/">Klipper</.link>,
@@ -71,7 +71,7 @@ defmodule KlixWeb.CustomiseImageLive do
         </fieldset>
 
         <.inputs_for :let={klipper_config} field={@image[:klipper_config]}>
-          <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4 text-2xl">
+          <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 text-2xl">
             <legend class="fieldset-legend">Klipper Config Source</legend>
 
             <p class="bg-info text-info-content p-4 rounded-xl text-sm flex flex-col gap-3">

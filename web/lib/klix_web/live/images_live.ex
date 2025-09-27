@@ -8,50 +8,49 @@ defmodule KlixWeb.ImagesLive do
       <ul id="images" class="md:flex flex-wrap gap-5">
         <li
           :for={image <- @images}
-          class="mb-4 py-4 pr-4 rounded-xl bg-neutral text-neutral-content w-full md:w-48/100"
+          class="card card-side card-border border-base-300 card-md bg-base-100"
         >
-          <h2 class="pl-6 pb-5 font-bold text-2xl">{image.hostname}</h2>
-          <div class="flex gap-6">
-            <figure class="flex-none w-10 md:w-20 px-6">
-              <svg
-                class="fill-accent w-13 md:w-20"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
-                viewBox="0 0 512 512"
-                xml:space="preserve"
-              >
-                <g>
-                  <path
-                    class="st0"
-                    d="M459.772,147.559V34.37c0-18.985-15.393-34.37-34.37-34.37H157.397c-9.112,0-17.854,3.617-24.3,10.07
+          <figure class="w-24 pl-5">
+            <svg
+              class="fill-accent"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              viewBox="0 0 512 512"
+              xml:space="preserve"
+            >
+              <g>
+                <path
+                  class="st0"
+                  d="M459.772,147.559V34.37c0-18.985-15.393-34.37-34.37-34.37H157.397c-9.112,0-17.854,3.617-24.3,10.07
     L62.291,80.869c-6.446,6.446-10.063,15.188-10.063,24.308v372.461c0,18.976,15.385,34.362,34.362,34.362h338.813
     c18.977,0,34.37-15.386,34.37-34.362v-259.65h-33.541v-70.429H459.772z M299.281,38.438h32.557v77.4h-32.557V38.438z
     M238.905,38.438h32.566v77.4h-32.566V38.438z M178.539,38.438h32.566v77.4h-32.566V38.438z M118.172,63.721h32.566v77.409h-32.566
     V63.721z M388.219,428.162H123.273V382.86h264.947V428.162z M392.205,115.838h-32.566v-77.4h32.566V115.838z"
-                  />
-                </g>
-              </svg>
-            </figure>
-            <div class="pl-5 flex-grow">
-              <dl class="grid grid-cols-3 gap-3">
-                <dt class="font-bold text-right">Created</dt>
-                <dd class="col-span-2">
-                  {image.inserted_at
-                  |> DateTime.shift_zone!(image.timezone, Tzdata.TimeZoneDatabase)
-                  |> format_datetime()}
-                </dd>
-                <dt class="font-bold text-right">Timezone</dt>
-                <dd class="col-span-2">{image.timezone}</dd>
-                <dt class="font-bold text-right">Builds</dt>
-                <dd class="col-span-2">{length(image.builds)}</dd>
-              </dl>
-
-              <div class="text-right">
-                <.link class="btn btn-secondary btn-lg font-bold" navigate={~p"/images/#{image.id}"}>
-                  Details <.icon name="hero-arrow-right" class="size-6 shrink-0" />
-                </.link>
-              </div>
+                />
+              </g>
+            </svg>
+          </figure>
+          <div class="card-body">
+            <h2 class="card-title">
+              {image.hostname}
+            </h2>
+            <dl class="grid grid-cols-3 gap-2">
+              <dt class="font-bold">Created</dt>
+              <dd class="col-span-2">
+                {image.inserted_at
+                |> DateTime.shift_zone!(image.timezone, Tzdata.TimeZoneDatabase)
+                |> format_datetime()}
+              </dd>
+              <dt class="font-bold">Timezone</dt>
+              <dd class="col-span-2">{image.timezone}</dd>
+              <dt class="font-bold">Builds</dt>
+              <dd class="col-span-2">{length(image.builds)}</dd>
+            </dl>
+            <div class="card-actions justify-end">
+              <.link class="btn btn-secondary" navigate={~p"/images/#{image.id}"}>
+                Details <.icon name="hero-arrow-right" class="size-6 shrink-0" />
+              </.link>
             </div>
           </div>
         </li>
