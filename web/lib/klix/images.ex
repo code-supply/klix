@@ -47,7 +47,7 @@ defmodule Klix.Images do
   end
 
   def snapshot(%Image{} = image) do
-    flake_nix = to_flake(image)
+    flake_nix = to_nix(image)
 
     with {:ok, snapshot_attrs, tarball} <- Klix.Snapshotter.snapshot(flake_nix),
          snapshot <- Ecto.build_assoc(image, :snapshots, snapshot_attrs),
@@ -119,55 +119,6 @@ defmodule Klix.Images do
     sd_dir = Path.join(build.output_path, "sd-image")
     {:ok, [sd_file]} = File.ls(sd_dir)
     Path.join(sd_dir, sd_file)
-  end
-
-  def to_flake(%Image{} = image) do
-    """
-    {
-      inputs = {
-        nixpkgs.url = "github:NixOS/nixpkgs/e6cb50b7edb109d393856d19b797ba6b6e71a4fc";
-        klipperConfig = #{image.klipper_config |> to_nix() |> Klix.indent(from: 1) |> Klix.indent(from: 1)};
-        klix = {
-          url = "github:code-supply/klix";
-          inputs.nixpkgs.follows = "nixpkgs";
-        };
-      };
-
-      outputs =
-        {
-          self,
-          klipperConfig,
-          nixpkgs,
-          klix,
-        }:
-        {
-          packages.aarch64-linux.image = self.nixosConfigurations.#{image.hostname}.config.system.build.sdImage;
-          nixosConfigurations.#{image.hostname} = nixpkgs.lib.nixosSystem {
-            modules = [
-              klix.nixosModules.default
-              {
-                networking.hostName = "#{image.hostname}";
-                time.timeZone = "#{image.timezone}";
-                system.stateVersion = "25.05";
-                users.users.klix.openssh.authorizedKeys.keys = [
-                  "#{image.public_key}"
-                ];
-                services.klix.configDir = "${klipperConfig}/#{image.klipper_config.path}";
-                services.klipper = {
-                  plugins = {
-                    kamp.enable = #{image.plugin_kamp_enabled};
-                    shaketune.enable = #{image.plugin_shaketune_enabled};
-                    z_calibration.enable = #{image.plugin_z_calibration_enabled};
-                  };
-                };
-
-                services.klipperscreen.enable = #{image.klipperscreen_enabled};
-              }
-            ];
-          };
-        };
-    }
-    """
   end
 
   defp broadcast_ready({:ok, build}) do

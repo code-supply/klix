@@ -1,6 +1,8 @@
 defmodule Klix.BuilderTest do
   use Klix.DataCase, async: true
 
+  import Klix.ToNix
+
   @moduletag :tmp_dir
 
   describe "when an incomplete build is found" do
@@ -39,7 +41,7 @@ defmodule Klix.BuilderTest do
       assert_receive {[:builder, :setup_complete], ^ref, _measurements, %{pid: ^builder}}
 
       assert ctx.tmp_dir |> Path.join("flake.nix") |> File.read() ==
-               {:ok, Klix.Images.to_flake(ctx.image)}
+               {:ok, to_nix(ctx.image)}
     end
 
     test "runs the build and stores completion time", ctx do

@@ -3,11 +3,13 @@ defmodule Klix.SnapshottingTest do
 
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
+  import Klix.ToNix
+
   test "writes a flake.nix and flake.lock", %{scope: scope} do
     {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
     {:ok, snapshot, _tarball} = Images.snapshot(image)
 
-    assert snapshot.flake_nix == Images.to_flake(image)
+    assert snapshot.flake_nix == to_nix(image)
     assert snapshot.flake_lock =~ ~s({\n  "nodes": {)
 
     image = image |> Repo.reload!() |> Repo.preload(:snapshots)

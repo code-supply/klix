@@ -2,6 +2,8 @@ defmodule Klix.ImagesTest do
   use Klix.DataCase, async: true
   use ExUnitProperties
 
+  import Klix.ToNix
+
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
   describe "completing with success" do
@@ -170,7 +172,7 @@ defmodule Klix.ImagesTest do
         )
       )
 
-    assert Images.to_flake(image) ==
+    assert to_nix(image) ==
              """
              {
                inputs = {

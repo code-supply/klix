@@ -1,6 +1,8 @@
 defmodule Klix.Builder do
   use GenServer
 
+  import Klix.ToNix
+
   def telemetry_events do
     [
       [:builder, :build_log],
@@ -46,7 +48,7 @@ defmodule Klix.Builder do
         :ok =
           state
           |> flake_nix_path()
-          |> File.write(Klix.Images.to_flake(build.image))
+          |> File.write(to_nix(build.image))
 
         state
         |> flake_lock_path()
