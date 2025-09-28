@@ -238,6 +238,24 @@ defmodule Klix.ImagesTest do
       assert changeset.errors[:public_key] ==
                {"not a valid key", [validation: :key_decode_failed]}
     end
+
+    test "accidental paste of private key is detected", %{scope: scope} do
+      {:error, changeset} =
+        Images.create(scope, %{
+          "public_key" => """
+          -----BEGIN OPENSSH PRIVATE KEY-----
+          b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+          QyNTUxOQAAACBGBHCf6rEwUJTXRE/yAJS0wM6gISoQp3rv43Rq6G5TAgAAAJAPH5FdDx+R
+          XQAAAAtzc2gtZWQyNTUxOQAAACBGBHCf6rEwUJTXRE/yAJS0wM6gISoQp3rv43Rq6G5TAg
+          AAAEATZqVIx+bofrYrEGrDCVUAFA38Gvxz8nWxuX4mXrrYj0YEcJ/qsTBQlNdET/IAlLTA
+          zqAhKhCneu/jdGroblMCAAAAC2FuZHJld0BwMTRzAQI=
+          -----END OPENSSH PRIVATE KEY-----\
+          """
+        })
+
+      assert changeset.errors[:public_key] ==
+               {"looks like a private key", [validation: :format]}
+    end
   end
 
   describe "hostname" do

@@ -40,6 +40,7 @@ defmodule Klix.Images.Image do
     |> validate_format(:hostname, ~r/^[a-zA-Z0-9-]+$/, message: "must be A-Za-z0-9 or hyphen")
     |> validate_length(:hostname, max: 253)
     |> validate_required([:hostname, :klipper_config, :public_key])
+    |> validate_format(:public_key, ~r/^(?!.*private).*$/, message: "looks like a private key")
     |> validate_change(:public_key, &errors_for/2)
     |> validate_inclusion(:timezone, Tzdata.zone_list(), message: "must be a valid timezone")
   end
