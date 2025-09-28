@@ -9,6 +9,11 @@ defmodule Klix.SnapshottingTest do
 
     assert snapshot.flake_nix == Images.to_flake(image)
     assert snapshot.flake_lock =~ ~s({\n  "nodes": {)
+
+    image = image |> Repo.reload!() |> Repo.preload(:snapshots)
+
+    expected_id = snapshot.id
+    assert [%{id: ^expected_id}] = image.snapshots
   end
 
   test "returns error if repo can't be found", %{scope: scope} do

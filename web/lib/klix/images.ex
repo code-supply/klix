@@ -1,7 +1,7 @@
 defmodule Klix.Images do
-  alias __MODULE__.Build
-  alias __MODULE__.Image
+  alias __MODULE__.{Build, Image}
   alias Klix.Accounts.Scope
+  alias Klix.Repo
 
   import Klix.ToNix
 
@@ -15,42 +15,43 @@ defmodule Klix.Images do
 
   def list() do
     Image.Query.base()
-    |> Klix.Repo.all()
+    |> Repo.all()
   end
 
   def list(%Scope{} = scope) do
     Image.Query.for_scope(scope)
-    |> Klix.Repo.all()
-    |> Klix.Repo.preload(:builds)
+    |> Repo.all()
+    |> Repo.preload(:builds)
   end
 
   def find!(uuid) when is_binary(uuid) do
     Image
-    |> Klix.Repo.get_by!(uri_id: uuid)
+    |> Repo.get_by!(uri_id: uuid)
   end
 
   def find!(%Scope{} = scope, id) do
     Image.Query.for_scope(scope)
-    |> Klix.Repo.get!(id)
-    |> Klix.Repo.preload(:builds)
+    |> Repo.get!(id)
+    |> Repo.preload(:builds)
   end
 
   def find_build(%Scope{} = scope, image_id, build_id) do
     Build.Query.for_scope(scope)
-    |> Klix.Repo.get_by(image_id: image_id, id: build_id)
+    |> Repo.get_by(image_id: image_id, id: build_id)
   end
 
   def create(%Scope{} = scope, attrs) do
     %Image{user: scope.user, builds: [[]]}
     |> Klix.Images.Image.changeset(attrs)
-    |> Klix.Repo.insert()
+    |> Repo.insert()
   end
 
   def snapshot(%Image{} = image) do
     flake_nix = to_flake(image)
 
-    with {:ok, snapshot, tarball} <- Klix.Snapshotter.snapshot(flake_nix),
-         {:ok, snapshot} <- Klix.Repo.insert(snapshot) do
+    with {:ok, snapshot_attrs, tarball} <- Klix.Snapshotter.snapshot(flake_nix),
+         snapshot <- Ecto.build_assoc(image, :snapshots, snapshot_attrs),
+         {:ok, snapshot} <- Repo.insert(snapshot) do
       {:ok, snapshot, tarball}
     else
       otherwise -> otherwise
@@ -58,7 +59,7 @@ defmodule Klix.Images do
   end
 
   def next_build do
-    Klix.Images.Build.Query.next() |> Klix.Repo.one()
+    Klix.Images.Build.Query.next() |> Repo.one()
   end
 
   def plugins(%Image{} = image) do
@@ -75,26 +76,26 @@ defmodule Klix.Images do
   def set_build_flake_files(%Build{} = build, flake_nix, flake_lock) do
     build
     |> Ecto.Changeset.change(flake_nix: flake_nix, flake_lock: flake_lock)
-    |> Klix.Repo.update()
+    |> Repo.update()
   end
 
   def set_build_output_path(%Build{} = build, output_path) do
     build
     |> Ecto.Changeset.change(output_path: output_path)
-    |> Klix.Repo.update()
+    |> Repo.update()
   end
 
   def build_completed(%Build{} = build) do
     build
     |> Build.success_changeset()
-    |> Klix.Repo.update()
+    |> Repo.update()
     |> tap(&broadcast_ready/1)
   end
 
   def build_failed(%Build{} = build, error) do
     build
     |> Build.failure_changeset(error)
-    |> Klix.Repo.update()
+    |> Repo.update()
     |> tap(&broadcast_ready/1)
   end
 

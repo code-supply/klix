@@ -11,9 +11,12 @@ defmodule Klix.Images.Image do
     field :plugin_z_calibration_enabled, :boolean, default: true
     field :public_key, :string
 
-    belongs_to :user, Klix.Accounts.User
-    has_many :builds, Klix.Images.Build
     embeds_one :klipper_config, Klix.Images.KlipperConfig
+
+    belongs_to :user, Klix.Accounts.User
+
+    has_many :builds, Klix.Images.Build
+    has_many :snapshots, Klix.Images.Snapshot
 
     timestamps(type: :utc_datetime)
   end
