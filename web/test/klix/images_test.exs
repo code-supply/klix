@@ -197,8 +197,8 @@ defmodule Klix.ImagesTest do
                    klix,
                  }:
                  {
-                   packages.aarch64-linux.image = self.nixosConfigurations.some-printer.config.system.build.sdImage;
-                   nixosConfigurations.some-printer = nixpkgs.lib.nixosSystem {
+                   packages.aarch64-linux.image = self.nixosConfigurations.default.config.system.build.sdImage;
+                   nixosConfigurations.default = nixpkgs.lib.nixosSystem {
                      modules = [
                        klix.nixosModules.default
                        {

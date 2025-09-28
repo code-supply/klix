@@ -75,8 +75,8 @@ defmodule Klix.Images.Image do
             klix,
           }:
           {
-            packages.aarch64-linux.image = self.nixosConfigurations.#{image.hostname}.config.system.build.sdImage;
-            nixosConfigurations.#{image.hostname} = nixpkgs.lib.nixosSystem {
+            packages.aarch64-linux.image = self.nixosConfigurations.default.config.system.build.sdImage;
+            nixosConfigurations.default = nixpkgs.lib.nixosSystem {
               modules = [
                 klix.nixosModules.default
                 {
