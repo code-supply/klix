@@ -3,26 +3,38 @@ defmodule KlixWeb.TarballsControllerTest do
 
   import Klix.AccountsFixtures
 
-  setup %{conn: conn} do
-    user = user_fixture()
-    scope = Klix.Accounts.Scope.for_user(user)
-    %{conn: log_in_user(conn, user), scope: scope}
-  end
-
   @tag :tmp_dir
   test "sends the current flake config as a tarball", %{
     conn: conn,
-    scope: scope,
-    tmp_dir: tmp_dir
+    tmp_dir: dir
   } do
-    {:ok, image} = Klix.Images.create(scope, Klix.Factory.params(:image))
+    {:ok, image} =
+      user_fixture()
+      |> Klix.Accounts.Scope.for_user()
+      |> Klix.Images.create(Klix.Factory.params(:image))
 
-    conn = get(conn, ~p"/images/#{image.uri_id}/config.tar.gz")
+    datetime = DateTime.utc_now() |> DateTime.to_iso8601()
+    message = "#{image.uri_id}#{datetime}"
+
+    {signature, 0} =
+      System.shell("""
+      ssh-keygen -q -f "#{dir}/mykey" -N ""
+      echo -n #{message} | ssh-keygen -q -Y sign -n file -f "#{dir}/mykey"
+      """)
+
+    conn =
+      get(
+        conn,
+        ~p"/images/#{image.uri_id}/config.tar.gz?datetime=#{datetime}&sshsig=#{Base.encode64(signature)}"
+      )
+
     assert response(conn, :ok)
     body = conn.resp_body
 
-    :ok = :erl_tar.extract({:binary, body}, [{:cwd, tmp_dir}, :compressed])
+    :ok = :erl_tar.extract({:binary, body}, [{:cwd, dir}, :compressed])
 
-    assert File.ls!(tmp_dir) == ~w(flake.lock flake.nix)
+    files = File.ls!(dir)
+    assert "flake.lock" in files
+    assert "flake.nix" in files
   end
 end

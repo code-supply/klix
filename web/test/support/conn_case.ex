@@ -25,7 +25,9 @@ defmodule KlixWeb.ConnCase do
       use KlixWeb, :verified_routes
 
       alias Klix.Accounts.Scope
+      alias Klix.Factory
       alias Klix.Images
+      alias Klix.Repo
 
       import Plug.Conn
       import Phoenix.ConnTest

@@ -1,6 +1,7 @@
 defmodule KlixWeb.Router do
   use KlixWeb, :router
 
+  import KlixWeb.MachineAuth
   import KlixWeb.UserAuth
 
   pipeline :browser do
@@ -13,8 +14,8 @@ defmodule KlixWeb.Router do
     plug :fetch_current_scope_for_user
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
+  pipeline :flake do
+    plug :fetch_current_scope_for_machine
   end
 
   scope "/", KlixWeb do
@@ -73,8 +74,12 @@ defmodule KlixWeb.Router do
       live "/users/log-in/:token", UserLive.Confirmation, :new
     end
 
-    get "/images/:uuid/config.tar.gz", TarballsController, :download
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
+  end
+
+  scope "/", KlixWeb do
+    pipe_through [:flake]
+    get "/images/:uuid/config.tar.gz", TarballsController, :download
   end
 end

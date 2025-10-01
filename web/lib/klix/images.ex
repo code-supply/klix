@@ -24,6 +24,11 @@ defmodule Klix.Images do
     |> Repo.preload(:builds)
   end
 
+  def find(uuid) when is_binary(uuid) do
+    Image
+    |> Repo.get_by(uri_id: uuid)
+  end
+
   def find!(uuid) when is_binary(uuid) do
     Image
     |> Repo.get_by!(uri_id: uuid)
@@ -71,6 +76,12 @@ defmodule Klix.Images do
     |> Enum.filter(fn {flag, _name} ->
       Map.fetch!(image, flag)
     end)
+  end
+
+  def set_host_public_key(%Image{} = image, public_key) do
+    image
+    |> Ecto.Changeset.change(host_public_key: public_key)
+    |> Repo.update()
   end
 
   def set_build_flake_files(%Build{} = build, flake_nix, flake_lock) do

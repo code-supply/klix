@@ -17,8 +17,9 @@ defmodule Klix.Accounts.Scope do
   """
 
   alias Klix.Accounts.User
+  alias Klix.Images.Image
 
-  defstruct user: nil
+  defstruct user: nil, image: nil
 
   @doc """
   Creates a scope for the given user.
@@ -30,4 +31,8 @@ defmodule Klix.Accounts.Scope do
   end
 
   def for_user(nil), do: nil
+
+  def for_image(%Image{} = image) do
+    %__MODULE__{image: image}
+  end
 end

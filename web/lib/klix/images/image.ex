@@ -10,6 +10,7 @@ defmodule Klix.Images.Image do
     field :plugin_shaketune_enabled, :boolean, default: true
     field :plugin_z_calibration_enabled, :boolean, default: true
     field :public_key, :string
+    field :host_public_key, :binary
 
     embeds_one :klipper_config, Klix.Images.KlipperConfig
 

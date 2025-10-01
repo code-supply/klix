@@ -32,13 +32,8 @@ defmodule Klix.EncryptionTest do
            } = SSHSig.parse(signature)
   end
 
-  test "can verify a message signed by an ed25519 host key" do
+  test "can verify a signed message" do
     message = "sign this"
-
-    armored_public_key =
-      """
-      ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC/r5miWbkpCe7Ln8bzWmkJfdwzeFLkWraHrL9dLOloX andrew@p14s\
-      """
 
     signature =
       """
@@ -50,10 +45,9 @@ defmodule Klix.EncryptionTest do
       -----END SSH SIGNATURE-----
       """
 
-    assert Klix.Encryption.verify(
-             public_key: armored_public_key,
-             message: message,
-             signature: signature
-           )
+    parsed = Klix.Encryption.SSHSig.parse(signature)
+
+    assert Klix.Encryption.verify(parsed, message: message)
+    refute Klix.Encryption.verify(parsed, message: "something else")
   end
 end
