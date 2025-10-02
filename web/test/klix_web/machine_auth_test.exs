@@ -39,7 +39,7 @@ defmodule KlixWeb.MachineAuthTest do
         conn
         | params: %{
             "uuid" => image.uri_id,
-            "datetime" => datetime,
+            "datetime" => Base.encode64(datetime),
             "sshsig" => Base.encode64(signature)
           }
       }
@@ -63,7 +63,7 @@ defmodule KlixWeb.MachineAuthTest do
         conn
         | params: %{
             "uuid" => image.uri_id,
-            "datetime" => bad_datetime,
+            "datetime" => Base.encode64(bad_datetime),
             "sshsig" => Base.encode64(signature)
           }
       }
@@ -87,7 +87,7 @@ defmodule KlixWeb.MachineAuthTest do
         conn
         | params: %{
             "uuid" => image.uri_id,
-            "datetime" => datetime,
+            "datetime" => Base.encode64(datetime),
             "sshsig" => Base.encode64(signature)
           }
       }
@@ -110,7 +110,7 @@ defmodule KlixWeb.MachineAuthTest do
         conn
         | params: %{
             "uuid" => Ecto.UUID.generate(),
-            "datetime" => datetime,
+            "datetime" => Base.encode64(datetime),
             "sshsig" => Base.encode64(signature)
           }
       }
@@ -136,7 +136,7 @@ defmodule KlixWeb.MachineAuthTest do
         conn
         | params: %{
             "uuid" => image.uri_id,
-            "datetime" => datetime,
+            "datetime" => Base.encode64(datetime),
             "sshsig" => Base.encode64(signature)
           }
       }
@@ -162,7 +162,7 @@ defmodule KlixWeb.MachineAuthTest do
         conn
         | params: %{
             "uuid" => image.uri_id,
-            "datetime" => datetime,
+            "datetime" => Base.encode64(datetime),
             "sshsig" => Base.encode64(signature)
           }
       }

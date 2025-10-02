@@ -13,7 +13,7 @@ defmodule KlixWeb.MachineAuth do
         %{
           params: %{
             "uuid" => uuid,
-            "datetime" => datetime,
+            "datetime" => b64_datetime,
             "sshsig" => b64_ssh_sig
           }
         } = conn,
@@ -21,10 +21,11 @@ defmodule KlixWeb.MachineAuth do
       ) do
     now = DateTime.utc_now()
 
-    with {:ok, parsed_datetime, @utc_offset} <- DateTime.from_iso8601(datetime),
+    with {:ok, datetime} <- Base.decode64(b64_datetime),
+         {:ok, armoured_signature} <- Base.decode64(b64_ssh_sig),
+         {:ok, parsed_datetime, @utc_offset} <- DateTime.from_iso8601(datetime),
          diff when diff < @tolerance_mins <-
            DateTime.diff(now, parsed_datetime, :minute) |> abs(),
-         {:ok, armoured_signature} <- Base.decode64(b64_ssh_sig),
          signature <- Encryption.SSHSig.parse(armoured_signature),
          %Image{} = image <- Images.find(uuid),
          true <- image.host_public_key in [nil, signature.public_key],

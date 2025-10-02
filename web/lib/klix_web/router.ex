@@ -80,6 +80,6 @@ defmodule KlixWeb.Router do
 
   scope "/", KlixWeb do
     pipe_through [:flake]
-    get "/images/:uuid/config.tar.gz", TarballsController, :download
+    get "/images/:uuid/:datetime/:sshsig/config.tar.gz", TarballsController, :download
   end
 end

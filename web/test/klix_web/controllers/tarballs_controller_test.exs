@@ -25,7 +25,7 @@ defmodule KlixWeb.TarballsControllerTest do
     conn =
       get(
         conn,
-        ~p"/images/#{image.uri_id}/config.tar.gz?datetime=#{datetime}&sshsig=#{Base.encode64(signature)}"
+        ~p"/images/#{image.uri_id}/#{Base.encode64(datetime)}/#{Base.encode64(signature)}/config.tar.gz"
       )
 
     assert response(conn, :ok)
