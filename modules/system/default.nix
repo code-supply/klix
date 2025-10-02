@@ -1,7 +1,13 @@
+{ pkgs, ... }:
+
 {
   imports = [
     ./network.nix
     ./user.nix
+  ];
+
+  environment.systemPackages = with pkgs; [
+    tarball-url
   ];
 
   boot = {
