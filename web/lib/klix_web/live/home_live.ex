@@ -19,7 +19,7 @@ defmodule KlixWeb.HomeLive do
           3D printer without needing to configure Linux yourself.
         </p>
         <p class="py-4">
-          Choose Klipper plugins, KlipperScreen and network config so they're correct on first boot.
+          Choose Klipper plugins and KlipperScreen so they're correct on first boot.
           Reconfigure, upgrade and rebuild your image any time.
         </p>
         <p class="py-4 text-right">
