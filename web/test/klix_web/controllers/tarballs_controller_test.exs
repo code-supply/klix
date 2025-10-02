@@ -37,4 +37,9 @@ defmodule KlixWeb.TarballsControllerTest do
     assert "flake.lock" in files
     assert "flake.nix" in files
   end
+
+  test "404s when signature doesn't verify", %{conn: conn} do
+    conn = get(conn, ~p"/images/not-a-uuid/not-a-datetime/not-a-sig/config.tar.gz")
+    assert response(conn, :not_found)
+  end
 end
