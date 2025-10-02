@@ -20,7 +20,7 @@ defmodule Klix.Snapshotter do
     File.mkdir_p!(state.snapshot_dir)
     File.write!("#{state.snapshot_dir}/flake.nix", flake_nix)
 
-    {_, 0} = cmd(state, ~w(rm -f flake.lock))
+    {_, 0} = cmd(state, ~w(rm -f flake.lock config.tar.gz))
 
     case cmd(state, ~w(nix flake lock)) do
       {_, 0} ->
