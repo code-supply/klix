@@ -7,7 +7,7 @@ defmodule Klix.Encryption do
     reserved = ""
     hash = :crypto.hash(:sha512, raw_message)
 
-    message =
+    body =
       <<
         magic_preamble()::binary,
         string("file")::binary,
@@ -19,7 +19,7 @@ defmodule Klix.Encryption do
     :crypto.verify(
       :eddsa,
       :none,
-      message,
+      body,
       ssh_sig.signature,
       [public_key, :ed25519]
     )
