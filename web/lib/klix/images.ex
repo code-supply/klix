@@ -84,6 +84,12 @@ defmodule Klix.Images do
     |> Repo.update()
   end
 
+  def set_uri_id(%Image{} = image, uri_id) do
+    image
+    |> Ecto.Changeset.change(uri_id: uri_id)
+    |> Repo.update()
+  end
+
   def set_build_flake_files(%Build{} = build, flake_nix, flake_lock) do
     build
     |> Ecto.Changeset.change(flake_nix: flake_nix, flake_lock: flake_lock)

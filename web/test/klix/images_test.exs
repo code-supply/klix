@@ -172,6 +172,8 @@ defmodule Klix.ImagesTest do
         )
       )
 
+    {:ok, image} = Images.set_uri_id(image, "deadb33f-f33d-f00d-d00f-d0feef0f1355")
+
     assert to_nix(image) ==
              """
              {
@@ -201,24 +203,38 @@ defmodule Klix.ImagesTest do
                    nixosConfigurations.default = nixpkgs.lib.nixosSystem {
                      modules = [
                        klix.nixosModules.default
-                       {
-                         networking.hostName = "some-printer";
-                         time.timeZone = "Europe/Madrid";
-                         system.stateVersion = "25.05";
-                         users.users.klix.openssh.authorizedKeys.keys = [
-                           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
-                         ];
-                         services.klix.configDir = "${klipperConfig}/my/lovely/klipper";
-                         services.klipper = {
-                           plugins = {
-                             kamp.enable = true;
-                             shaketune.enable = false;
-                             z_calibration.enable = true;
+                       (
+                         { pkgs, ... }:
+                         {
+                           environment.systemPackages = [
+                             (pkgs.writeShellApplication {
+                               name = "klix-update";
+                               runtimeInputs = [
+                                 klix.packages.aarch64-linux.tarball-url
+                               ];
+                               text = ''
+                                 sudo nixos-rebuild --flake "$(klix-tarball-url deadb33f-f33d-f00d-d00f-d0feef0f1355)"
+                               '';
+                             })
+                           ];
+                           networking.hostName = "some-printer";
+                           time.timeZone = "Europe/Madrid";
+                           system.stateVersion = "25.05";
+                           users.users.klix.openssh.authorizedKeys.keys = [
+                             "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
+                           ];
+                           services.klix.configDir = "${klipperConfig}/my/lovely/klipper";
+                           services.klipper = {
+                             plugins = {
+                               kamp.enable = true;
+                               shaketune.enable = false;
+                               z_calibration.enable = true;
+                             };
                            };
-                         };
 
-                         services.klipperscreen.enable = false;
-                       }
+                           services.klipperscreen.enable = false;
+                         }
+                       )
                      ];
                    };
                  };

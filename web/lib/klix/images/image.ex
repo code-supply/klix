@@ -80,24 +80,38 @@ defmodule Klix.Images.Image do
             nixosConfigurations.default = nixpkgs.lib.nixosSystem {
               modules = [
                 klix.nixosModules.default
-                {
-                  networking.hostName = "#{image.hostname}";
-                  time.timeZone = "#{image.timezone}";
-                  system.stateVersion = "25.05";
-                  users.users.klix.openssh.authorizedKeys.keys = [
-                    "#{image.public_key}"
-                  ];
-                  services.klix.configDir = "${klipperConfig}/#{image.klipper_config.path}";
-                  services.klipper = {
-                    plugins = {
-                      kamp.enable = #{image.plugin_kamp_enabled};
-                      shaketune.enable = #{image.plugin_shaketune_enabled};
-                      z_calibration.enable = #{image.plugin_z_calibration_enabled};
+                (
+                  { pkgs, ... }:
+                  {
+                    environment.systemPackages = [
+                      (pkgs.writeShellApplication {
+                        name = "klix-update";
+                        runtimeInputs = [
+                          klix.packages.aarch64-linux.tarball-url
+                        ];
+                        text = ''
+                          sudo nixos-rebuild --flake "$(klix-tarball-url #{image.uri_id})"
+                        '';
+                      })
+                    ];
+                    networking.hostName = "#{image.hostname}";
+                    time.timeZone = "#{image.timezone}";
+                    system.stateVersion = "25.05";
+                    users.users.klix.openssh.authorizedKeys.keys = [
+                      "#{image.public_key}"
+                    ];
+                    services.klix.configDir = "${klipperConfig}/#{image.klipper_config.path}";
+                    services.klipper = {
+                      plugins = {
+                        kamp.enable = #{image.plugin_kamp_enabled};
+                        shaketune.enable = #{image.plugin_shaketune_enabled};
+                        z_calibration.enable = #{image.plugin_z_calibration_enabled};
+                      };
                     };
-                  };
 
-                  services.klipperscreen.enable = #{image.klipperscreen_enabled};
-                }
+                    services.klipperscreen.enable = #{image.klipperscreen_enabled};
+                  }
+                )
               ];
             };
           };

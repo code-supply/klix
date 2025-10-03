@@ -44,6 +44,7 @@ defmodule Klix.SnapshotterTest do
     }
     """
 
-    assert {:error, :error_updating_lock_file} = Klix.Snapshotter.snapshot(flake_nix)
+    assert {:error, :error_updating_lock_file, {_output, 1}} =
+             Klix.Snapshotter.snapshot(flake_nix)
   end
 end

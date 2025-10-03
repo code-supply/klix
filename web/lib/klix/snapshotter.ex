@@ -43,8 +43,8 @@ defmodule Klix.Snapshotter do
 
         {:reply, {:ok, snapshot, File.read!(tarball_path)}, state}
 
-      _ ->
-        {:reply, {:error, :error_updating_lock_file}, state}
+      output ->
+        {:reply, {:error, :error_updating_lock_file, output}, state}
     end
   end
 

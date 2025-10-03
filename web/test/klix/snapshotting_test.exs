@@ -32,6 +32,6 @@ defmodule Klix.SnapshottingTest do
         )
       )
 
-    assert {:error, :error_updating_lock_file} = Images.snapshot(image)
+    assert {:error, :error_updating_lock_file, {_output, 1}} = Images.snapshot(image)
   end
 end
