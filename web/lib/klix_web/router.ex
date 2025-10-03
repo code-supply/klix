@@ -14,7 +14,7 @@ defmodule KlixWeb.Router do
     plug :fetch_current_scope_for_user
   end
 
-  pipeline :flake do
+  pipeline :printer do
     plug :fetch_current_scope_for_machine
   end
 
@@ -79,7 +79,7 @@ defmodule KlixWeb.Router do
   end
 
   scope "/", KlixWeb do
-    pipe_through [:flake]
+    pipe_through [:printer]
     get "/images/:uuid/:datetime/:sshsig/config.tar.gz", TarballsController, :download
   end
 end
