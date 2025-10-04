@@ -67,6 +67,17 @@ defmodule Klix.Images do
     Klix.Images.Build.Query.next() |> Repo.one()
   end
 
+  def download_size(%Build{output_path: nil}), do: ""
+
+  def download_size(%Build{output_path: path}) do
+    path
+    |> Path.join("sd-card")
+    |> File.stat()
+    |> then(fn {:ok, stat} ->
+      "#{stat.size / 1_000_000_000} GB"
+    end)
+  end
+
   def plugins(%Image{} = image) do
     [
       plugin_kamp_enabled: "KAMP",

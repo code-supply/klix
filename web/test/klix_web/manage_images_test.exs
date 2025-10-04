@@ -41,15 +41,43 @@ defmodule KlixWeb.ManageImagesTest do
     assert new_duration > initial_duration
   end
 
-  test "shows download links, but only for completed builds", %{conn: conn, scope: scope} do
+  @tag :tmp_dir
+  test "shows download links, but only for completed builds", %{
+    conn: conn,
+    scope: scope,
+    tmp_dir: dir
+  } do
     {:ok, %{builds: [build]} = image} =
       Images.create(scope, Klix.Factory.params(:image, hostname: "machineA"))
 
+    File.write!("#{dir}/sd-card", "123456")
+
+    {:ok, build} = Images.set_build_output_path(build, dir)
     {:ok, _build} = Images.build_completed(build)
 
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 
-    assert view |> has_element?("#builds a[download]")
+    assert view |> has_element?("#builds a[download]", ~r/.+ GB/),
+           element(view, "#builds a[download]") |> render
+  end
+
+  @tag :tmp_dir
+  test "when a build completes, show download link", %{
+    conn: conn,
+    scope: scope,
+    tmp_dir: dir
+  } do
+    {:ok, %{builds: [build]} = image} =
+      Images.create(scope, Klix.Factory.params(:image, hostname: "machineA"))
+
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+    File.write!("#{dir}/sd-card", "123456")
+    {:ok, build} = Images.set_build_output_path(build, dir)
+    {:ok, _build} = Images.build_completed(build)
+
+    assert view |> has_element?("#builds a[download]", ~r/.+ GB/),
+           element(view, "#builds a[download]") |> render
   end
 
   test "lists all of the user's images", %{conn: conn, scope: scope} do

@@ -1,6 +1,8 @@
 defmodule KlixWeb.ImageLive do
   use KlixWeb, :live_view
 
+  alias Klix.Images
+
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
@@ -48,7 +50,7 @@ defmodule KlixWeb.ImageLive do
               <dd>
                 <ul id="plugins" class="flex flex-wrap gap-2">
                   <li
-                    :for={{flag, name} <- Klix.Images.plugins(@image)}
+                    :for={{flag, name} <- Images.plugins(@image)}
                     class="badge badge-info mt-1"
                   >
                     {name}
@@ -62,7 +64,7 @@ defmodule KlixWeb.ImageLive do
                   class="badge"
                   href={"https://#{@image.klipper_config.type}.com/#{@image.klipper_config.owner}/#{@image.klipper_config.repo}/tree/main/#{@image.klipper_config.path}"}
                 >
-                  {Klix.Images.KlipperConfig.type_name(@image.klipper_config)}
+                  {Images.KlipperConfig.type_name(@image.klipper_config)}
                 </.link>
               </dd>
             </dl>
@@ -82,21 +84,21 @@ defmodule KlixWeb.ImageLive do
                 <dl class="grid grid-cols-3">
                   <dt class="font-bold">Started</dt>
                   <dd class="col-span-2">{build.inserted_at |> format_datetime()}</dd>
-                  <dt :if={Klix.Images.build_ready?(build)} class="font-bold">Completed</dt>
-                  <dd :if={Klix.Images.build_ready?(build)} class="col-span-2">
+                  <dt :if={Images.build_ready?(build)} class="font-bold">Completed</dt>
+                  <dd :if={Images.build_ready?(build)} class="col-span-2">
                     {build.completed_at |> format_datetime()}
                   </dd>
                   <dt class="font-bold">Duration</dt>
-                  <dd class="duration cols-span-2">{Klix.Images.build_duration(build, @now)}</dd>
+                  <dd class="duration cols-span-2">{Images.build_duration(build, @now)}</dd>
                 </dl>
                 <div class="card-actions justify-end">
-                  <%= if Klix.Images.build_ready?(build) do %>
+                  <%= if Images.build_ready?(build) do %>
                     <.link
                       class="btn btn-secondary float-right"
                       href={~p"/images/#{@image.id}/builds/#{build.id}/klix.img.zst"}
                       download
                     >
-                      <.icon name="hero-arrow-down-tray" /> Download
+                      <.icon name="hero-arrow-down-tray" /> Download {Images.download_size(build)}
                     </.link>
                   <% else %>
                     <div class="float-right loading loading-bars loading-xl">being prepared</div>
@@ -116,9 +118,9 @@ defmodule KlixWeb.ImageLive do
   end
 
   def handle_params(%{"id" => id}, _uri, socket) do
-    image = Klix.Images.find!(socket.assigns.current_scope, id)
+    image = Images.find!(socket.assigns.current_scope, id)
 
-    Klix.Images.subscribe(image.id)
+    Images.subscribe(image.id)
 
     now = tick_clock()
 
@@ -128,13 +130,12 @@ defmodule KlixWeb.ImageLive do
       |> assign(
         page_title: "#{image.hostname} image",
         image: image,
-        images: Klix.Images.list(socket.assigns.current_scope),
         now: now
       )
     }
   end
 
-  def handle_info([build_ready: updated_build], socket) do
+  def handle_info([build_ready: %Images.Build{} = updated_build], socket) do
     import Access
 
     {
