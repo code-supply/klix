@@ -7,7 +7,8 @@ defmodule KlixWeb.ImageController do
         send_resp(conn, :not_found, "")
 
       build ->
-        send_file(conn, :ok, Klix.Images.sd_file_path(build))
+        {:ok, path} = Klix.Images.sd_file_path(build)
+        send_file(conn, :ok, path)
     end
   end
 end

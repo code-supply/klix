@@ -69,13 +69,19 @@ defmodule Klix.Images do
 
   def download_size(%Build{output_path: nil}), do: ""
 
-  def download_size(%Build{output_path: path}) do
-    path
-    |> Path.join("sd-card")
-    |> File.stat()
-    |> then(fn {:ok, stat} ->
-      "#{stat.size / 1_000_000_000} GB"
-    end)
+  def download_size(%Build{} = build) do
+    case sd_file_path(build) do
+      {:ok, path} ->
+        path
+        |> File.stat()
+        |> then(fn
+          {:ok, stat} ->
+            "#{stat.size / 1_000_000_000} GB"
+        end)
+
+      :error ->
+        ""
+    end
   end
 
   def plugins(%Image{} = image) do
@@ -145,8 +151,14 @@ defmodule Klix.Images do
 
   def sd_file_path(%Build{} = build) do
     sd_dir = Path.join(build.output_path, "sd-image")
-    {:ok, [sd_file]} = File.ls(sd_dir)
-    Path.join(sd_dir, sd_file)
+
+    case File.ls(sd_dir) do
+      {:ok, [sd_file]} ->
+        {:ok, Path.join(sd_dir, sd_file)}
+
+      _ ->
+        :error
+    end
   end
 
   defp broadcast_ready({:ok, build}) do
