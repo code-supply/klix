@@ -76,7 +76,7 @@ defmodule Klix.Images do
         |> File.stat()
         |> then(fn
           {:ok, stat} ->
-            "#{stat.size / 1_000_000_000} GB"
+            "#{Float.round(stat.size / 1_000_000_000, 2)} GB"
         end)
 
       :error ->
