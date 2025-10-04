@@ -25,6 +25,8 @@ config :klix,
   generators: [timestamp_type: :utc_datetime],
   run_builder: false
 
+config :klix, Klix.Repo, socket_dir: "/run/postgresql"
+
 # Configures the endpoint
 config :klix, KlixWeb.Endpoint,
   url: [host: "localhost"],
