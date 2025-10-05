@@ -11,7 +11,8 @@ defmodule Klix.Builder do
   def telemetry_events do
     [
       [:builder, :build_log],
-      [:builder, :build_started]
+      [:builder, :build_started],
+      [:builder, :uploading]
       | Klix.Scheduler.events_for(:builder)
     ]
   end
@@ -134,6 +135,8 @@ defmodule Klix.Builder do
 
   def handle_info({port, {:exit_status, 0}}, state) when is_port(port) do
     send(port, {self(), :close})
+
+    emit(state, :uploading)
 
     {:ok, _build} =
       case state.uploader.(state.build) do

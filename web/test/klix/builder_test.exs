@@ -67,8 +67,9 @@ defmodule Klix.BuilderTest do
 
       Images.subscribe(ctx.image.id)
       send(builder, {port, {:exit_status, 0}})
-      assert_receive build_ready: %Images.Build{id: ^build_id}
 
+      assert_receive {[:builder, :uploading], ^ref, %{}, %{pid: ^builder}}
+      assert_receive build_ready: %Images.Build{id: ^build_id}
       assert_receive {[:builder, :run_complete], ^ref, %{}, %{pid: ^builder}}
 
       build = Repo.reload!(build)
@@ -100,8 +101,9 @@ defmodule Klix.BuilderTest do
 
       Images.subscribe(ctx.image.id)
       send(builder, {port, {:exit_status, 0}})
-      assert_receive build_ready: %Images.Build{id: ^build_id}
 
+      assert_receive {[:builder, :uploading], ^ref, %{}, %{pid: ^builder}}
+      assert_receive build_ready: %Images.Build{id: ^build_id}
       assert_receive {[:builder, :run_complete], ^ref, %{}, %{pid: ^builder}}
 
       build = Repo.reload!(build)
