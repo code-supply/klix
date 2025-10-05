@@ -1,14 +1,18 @@
 defmodule Klix.BuilderTest do
   use Klix.DataCase, async: true
 
+  alias Klix.Builder
+
   import Klix.ToNix
 
   @moduletag :tmp_dir
 
+  setup do: %{uploader: fn _ -> :ok end}
+
   describe "when an incomplete build is found" do
     setup do
-      scope = Klix.AccountsFixtures.user_fixture() |> Klix.Accounts.Scope.for_user()
-      {:ok, image} = Klix.Images.create(scope, Klix.Factory.params(:image))
+      scope = user_fixture() |> Scope.for_user()
+      {:ok, image} = Images.create(scope, Factory.params(:image))
       %{image: image}
     end
 
@@ -48,6 +52,8 @@ defmodule Klix.BuilderTest do
       %{builds: [build]} = ctx.image
       build_id = build.id
 
+      ctx = %{ctx | uploader: fn %Images.Build{id: ^build_id} -> :ok end}
+
       %{ref: ref, builder: builder} = start_builder(ctx)
 
       assert_receive {[:builder, :setup_complete], ^ref, _measurements, %{pid: ^builder}}
@@ -59,20 +65,55 @@ defmodule Klix.BuilderTest do
 
       assert Port.info(port)
 
-      Klix.Images.subscribe(ctx.image.id)
+      Images.subscribe(ctx.image.id)
       send(builder, {port, {:exit_status, 0}})
-      assert_receive build_ready: %Klix.Images.Build{id: ^build_id}
+      assert_receive build_ready: %Images.Build{id: ^build_id}
 
       assert_receive {[:builder, :run_complete], ^ref, %{}, %{pid: ^builder}}
 
-      build = Klix.Repo.reload!(build)
+      build = Repo.reload!(build)
 
       assert DateTime.compare(build.completed_at, DateTime.utc_now()) in [
                :lt,
                :eq
              ]
 
-      assert Klix.Images.build_ready?(build)
+      assert Images.build_ready?(build)
+    end
+
+    test "if cloud upload fails, store error and set as completed", ctx do
+      %{builds: [build]} = ctx.image
+      build_id = build.id
+
+      ctx = %{ctx | uploader: fn %Images.Build{id: ^build_id} -> {:error, "bad stuff"} end}
+
+      %{ref: ref, builder: builder} = start_builder(ctx)
+
+      assert_receive {[:builder, :setup_complete], ^ref, _measurements, %{pid: ^builder}}
+
+      send(builder, :run)
+
+      assert_receive {[:builder, :build_started], ^ref, _empty_measurements,
+                      %{port: port, pid: ^builder}}
+
+      assert Port.info(port)
+
+      Images.subscribe(ctx.image.id)
+      send(builder, {port, {:exit_status, 0}})
+      assert_receive build_ready: %Images.Build{id: ^build_id}
+
+      assert_receive {[:builder, :run_complete], ^ref, %{}, %{pid: ^builder}}
+
+      build = Repo.reload!(build)
+
+      assert build.error == "bad stuff"
+
+      assert DateTime.compare(build.completed_at, DateTime.utc_now()) in [
+               :lt,
+               :eq
+             ]
+
+      assert Images.build_ready?(build)
     end
 
     test "stores the flake.nix and flake.lock files when they're both ready", ctx do
@@ -98,7 +139,7 @@ defmodule Klix.BuilderTest do
 
       %{builds: [build]} = ctx.image
 
-      build = Klix.Repo.reload!(build)
+      build = Repo.reload!(build)
 
       assert build.flake_nix == "flake.nix file content"
       assert build.flake_lock == "flake.lock file content"
@@ -119,7 +160,7 @@ defmodule Klix.BuilderTest do
 
       %{builds: [build]} = ctx.image
 
-      build = Klix.Repo.reload!(build)
+      build = Repo.reload!(build)
 
       assert build.output_path ==
                "/nix/store/6rwl2k7a7ad0prmjsacz2d3lw9s3z0dh-nixos-image-sd-card-25.11.20250831.e6cb50b-aarch64-linux.img.zst"
@@ -139,7 +180,7 @@ defmodule Klix.BuilderTest do
       send(builder, :run)
       assert_receive {[:builder, :run_complete], ^ref, _empty_measurements, %{pid: ^builder}}
 
-      build = Klix.Repo.reload!(build)
+      build = Repo.reload!(build)
 
       assert %DateTime{} = build.completed_at
       assert build.error == "nonzero exit code: 1"
@@ -154,20 +195,20 @@ defmodule Klix.BuilderTest do
   end
 
   defp subscribe do
-    :telemetry_test.attach_event_handlers(self(), Klix.Builder.telemetry_events())
+    :telemetry_test.attach_event_handlers(self(), Builder.telemetry_events())
   end
 
-  defp start_builder(%{tmp_dir: tmp_dir}, cmd \\ "yes @nix {}") do
+  defp start_builder(%{tmp_dir: tmp_dir, uploader: uploader}, cmd \\ "yes @nix {}") do
     ref = subscribe()
 
     builder =
       start_link_supervised!({
-        Klix.Builder,
-        build_dir: tmp_dir, cmd: cmd
+        Builder,
+        build_dir: tmp_dir, cmd: cmd, uploader: uploader
       })
 
     assert_receive {[:builder, :idle], ^ref, _empty_measurements, %{pid: ^builder}}
-    Ecto.Adapters.SQL.Sandbox.allow(Klix.Repo, self(), builder)
+    Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), builder)
     send(builder, :set_up)
     %{ref: ref, builder: builder}
   end

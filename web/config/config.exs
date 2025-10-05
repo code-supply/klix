@@ -23,7 +23,8 @@ config :klix, :scopes,
 config :klix,
   ecto_repos: [Klix.Repo],
   generators: [timestamp_type: :utc_datetime],
-  run_builder: false
+  run_builder: false,
+  build_bucket: "klix-dev"
 
 config :klix, Klix.Repo, socket_dir: "/run/postgresql"
 

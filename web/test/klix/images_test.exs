@@ -6,6 +6,12 @@ defmodule Klix.ImagesTest do
 
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
+  describe "download URL" do
+    test "uses https" do
+      assert Images.download_url(%Images.Build{id: 123}) |> String.starts_with?("https://")
+    end
+  end
+
   describe "completing with success" do
     setup %{scope: scope} do
       {:ok, %{builds: [build]} = image} = Images.create(scope, Klix.Factory.params(:image))

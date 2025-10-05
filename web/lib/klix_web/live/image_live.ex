@@ -95,7 +95,7 @@ defmodule KlixWeb.ImageLive do
                   <%= if Images.build_ready?(build) do %>
                     <.link
                       class="btn btn-secondary float-right"
-                      href={~p"/images/#{@image.id}/builds/#{build.id}/klix.img.zst"}
+                      href={Images.download_url(build)}
                       download
                     >
                       <.icon name="hero-arrow-down-tray" /> Download {Images.download_size(build)}

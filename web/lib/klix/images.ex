@@ -1,9 +1,24 @@
 defmodule Klix.Images do
   alias __MODULE__.{Build, Image}
+  alias ExAws.S3
   alias Klix.Accounts.Scope
   alias Klix.Repo
 
   import Klix.ToNix
+
+  def s3_uploader(%Build{} = build) do
+    with {:ok, path} <- sd_file_path(build),
+         {:ok, _} <-
+           path
+           |> S3.Upload.stream_file()
+           |> S3.upload(
+             Application.fetch_env!(:klix, :build_bucket),
+             "builds/#{build.id}.img.zst"
+           )
+           |> ExAws.request() do
+      :ok
+    end
+  end
 
   def subscribe(image_id) when is_integer(image_id) do
     Phoenix.PubSub.subscribe(Klix.PubSub, "image:#{image_id}")
@@ -79,9 +94,22 @@ defmodule Klix.Images do
             "#{Float.round(stat.size / 1_000_000_000, 2)} GB"
         end)
 
-      :error ->
+      {:error, :sd_dir_not_found} ->
         ""
     end
+  end
+
+  def download_url(%Build{} = build) do
+    {:ok, url} =
+      ExAws.Config.new(:s3)
+      |> S3.presigned_url(
+        :get,
+        Application.fetch_env!(:klix, :build_bucket),
+        "builds/#{build.id}.img.zst",
+        expires_in: :timer.minutes(10)
+      )
+
+    url
   end
 
   def plugins(%Image{} = image) do
@@ -157,7 +185,7 @@ defmodule Klix.Images do
         {:ok, Path.join(sd_dir, sd_file)}
 
       _ ->
-        :error
+        {:error, :sd_dir_not_found}
     end
   end
 

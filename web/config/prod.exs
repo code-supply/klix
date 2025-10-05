@@ -16,7 +16,7 @@ config :swoosh, local: false
 # Do not print debug messages in production
 config :logger, level: :info
 
-config :klix, run_builder: true
+config :klix, run_builder: true, build_bucket: "klix"
 
 config :tzdata, :data_dir, "/tmp/elixir-tzdata-data"
 

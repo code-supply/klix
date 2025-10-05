@@ -3,6 +3,11 @@ defmodule Klix.Builder do
 
   import Klix.ToNix
 
+  defmodule State do
+    @enforce_keys [:build, :build_dir, :cmd, :telemetry_meta, :uploader]
+    defstruct [:build, :build_dir, :cmd, :telemetry_meta, :uploader]
+  end
+
   def telemetry_events do
     [
       [:builder, :build_log],
@@ -18,10 +23,12 @@ defmodule Klix.Builder do
   @impl true
   def init(opts) do
     state =
-      Enum.into(opts, %{
-        build: nil,
-        build_dir: "/tmp/klix-build",
-        cmd: ~w(
+      struct!(
+        State,
+        Enum.into(opts, %{
+          build: nil,
+          build_dir: "/tmp/klix-build",
+          cmd: ~w(
           nix
           build 
           --json
@@ -29,8 +36,9 @@ defmodule Klix.Builder do
           --no-pretty 
           .#packages.aarch64-linux.image
         ) |> Enum.join(" "),
-        telemetry_meta: %{}
-      })
+          telemetry_meta: %{}
+        })
+      )
 
     emit(state, :idle)
     {:ok, state}
@@ -126,7 +134,16 @@ defmodule Klix.Builder do
 
   def handle_info({port, {:exit_status, 0}}, state) when is_port(port) do
     send(port, {self(), :close})
-    {:ok, _build} = Klix.Images.build_completed(state.build)
+
+    {:ok, _build} =
+      case state.uploader.(state.build) do
+        :ok ->
+          Klix.Images.build_completed(state.build)
+
+        {:error, msg} ->
+          Klix.Images.build_failed(state.build, msg)
+      end
+
     emit(state, :run_complete)
     {:noreply, state}
   end

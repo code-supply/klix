@@ -21,7 +21,8 @@ if System.get_env("PHX_SERVER") do
 end
 
 config :klix,
-  build_dir: "/tmp/klix-build" |> tap(&File.mkdir_p!/1)
+  build_dir: "/tmp/klix-build" |> tap(&File.mkdir_p!/1),
+  run_builder: System.get_env("KLIX_RUN_BUILDER", "true") == "true"
 
 config :ex_aws,
   http_client: ExAws.Request.Req,

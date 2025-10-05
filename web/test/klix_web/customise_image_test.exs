@@ -62,16 +62,8 @@ defmodule KlixWeb.CustomiseImageTest do
     Klix.Images.set_build_output_path(build, top_dir)
     Klix.Images.build_completed(build)
 
-    link_selector =
-      "[download][href='#{~p"/images/#{image_id}/builds/#{build.id}/klix.img.zst'"}]"
-
-    {:ok, conn} =
-      view
-      |> element(link_selector)
-      |> render_click()
-      |> follow_redirect(conn)
-
-    assert response(conn, :ok)
+    expected_host = Application.fetch_env!(:ex_aws, :s3)[:host]
+    assert view |> has_element?("[download][href*='https://#{expected_host}']")
   end
 
   test "shows validation errors", %{conn: conn} do
