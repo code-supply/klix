@@ -89,7 +89,7 @@ defmodule KlixWeb.ImageLive do
                     {build.completed_at |> format_datetime()}
                   </dd>
                   <dt class="font-bold">Duration</dt>
-                  <dd class="duration cols-span-2">{Images.build_duration(build, @now)}</dd>
+                  <dd class="duration cols-span-2">{build.duration}</dd>
                 </dl>
                 <div class="card-actions justify-end">
                   <%= if Images.build_ready?(build) do %>
@@ -123,17 +123,22 @@ defmodule KlixWeb.ImageLive do
 
     Images.subscribe(image.id)
 
-    now = tick_clock()
-
     {
       :noreply,
       socket
       |> assign(
         page_title: "#{image.hostname} image",
-        image: image,
-        now: now
+        image: with_durations(image, tick_clock())
       )
     }
+  end
+
+  defp with_durations(image, now) do
+    update_in(image.builds, fn builds ->
+      Enum.map(builds, fn build ->
+        %{build | duration: Images.build_duration(build, now)}
+      end)
+    end)
   end
 
   def handle_info([build_ready: %Images.Build{} = updated_build], socket) do
@@ -149,7 +154,13 @@ defmodule KlixWeb.ImageLive do
 
   def handle_info({:tick, now}, socket) do
     tick_clock()
-    {:noreply, assign(socket, now: now)}
+
+    {
+      :noreply,
+      update(socket, :image, fn image ->
+        with_durations(image, now)
+      end)
+    }
   end
 
   defp tick_clock() do

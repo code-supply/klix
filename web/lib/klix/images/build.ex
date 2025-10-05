@@ -9,6 +9,7 @@ defmodule Klix.Images.Build do
     field :completed_at, :utc_datetime
     field :error, :string
     field :byte_size, :integer
+    field :duration, :string, virtual: true
 
     belongs_to :image, Klix.Images.Image
 
