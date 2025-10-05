@@ -94,14 +94,15 @@ defmodule KlixWeb.ImageLive do
                 <div class="card-actions justify-end">
                   <%= if Images.build_ready?(build) do %>
                     <.link
-                      class="btn btn-secondary float-right"
+                      class="btn btn-secondary"
                       href={Images.download_url(build)}
                       download
+                      target="_blank"
                     >
                       <.icon name="hero-arrow-down-tray" /> Download {Images.download_size(build)}
                     </.link>
                   <% else %>
-                    <div class="float-right loading loading-bars loading-xl">being prepared</div>
+                    <div class="loading loading-bars loading-xl">being prepared</div>
                   <% end %>
                 </div>
               </div>

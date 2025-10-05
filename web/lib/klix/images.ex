@@ -93,7 +93,8 @@ defmodule Klix.Images do
         :get,
         Application.fetch_env!(:klix, :build_bucket),
         "builds/#{build.id}.img.zst",
-        expires_in: :timer.minutes(10)
+        expires_in: :timer.minutes(10),
+        query_params: %{"response-content-disposition" => "attachment; filename=\"klix.img.zst\""}
       )
 
     url
