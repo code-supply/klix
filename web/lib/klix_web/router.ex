@@ -57,7 +57,6 @@ defmodule KlixWeb.Router do
       live "/images", ImagesLive
       live "/images/new", CustomiseImageLive
       live "/images/:id", ImageLive
-      get "/images/:image_id/builds/:build_id/klix.img.zst", ImageController, :download
     end
 
     post "/users/update-password", UserSessionController, :update_password
