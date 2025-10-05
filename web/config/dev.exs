@@ -62,9 +62,7 @@ config :klix, KlixWeb.Endpoint,
     ]
   ]
 
-config :klix,
-  dev_routes: true,
-  run_builder: false
+config :klix, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :default_formatter, format: "[$level] $message\n"
