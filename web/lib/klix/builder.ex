@@ -1,11 +1,26 @@
 defmodule Klix.Builder do
   use GenServer
 
+  alias Klix.Images
+
   import Klix.ToNix
 
   defmodule State do
-    @enforce_keys [:build, :build_dir, :cmd, :telemetry_meta, :uploader]
-    defstruct [:build, :build_dir, :cmd, :telemetry_meta, :uploader]
+    @enforce_keys [
+      :build,
+      :build_dir,
+      :cmd,
+      :telemetry_meta,
+      :uploader
+    ]
+    defstruct [
+      :build,
+      :build_dir,
+      :cmd,
+      :output_path,
+      :telemetry_meta,
+      :uploader
+    ]
   end
 
   def telemetry_events do
@@ -47,9 +62,9 @@ defmodule Klix.Builder do
 
   @impl true
   def handle_info(:set_up, state) do
-    case Klix.Images.next_build() do
+    case Images.next_build() do
       nil ->
-        state = %{state | telemetry_meta: %{}}
+        state = %{state | telemetry_meta: %{}, output_path: nil}
         emit(state, :nothing_to_do)
         {:noreply, state}
 
@@ -110,7 +125,7 @@ defmodule Klix.Builder do
       |> flake_lock_path()
       |> File.read()
 
-    {:ok, build} = Klix.Images.set_build_flake_files(state.build, flake_nix, flake_lock)
+    {:ok, build} = Images.set_build_flake_files(state.build, flake_nix, flake_lock)
 
     emit(state, :build_log, %{content: output})
     {:noreply, %{state | build: build}}
@@ -122,10 +137,10 @@ defmodule Klix.Builder do
       )
       when is_port(port) do
     {:ok, [%{"outputs" => %{"out" => output_path}}]} = JSON.decode(output)
-    {:ok, build} = Klix.Images.set_build_output_path(state.build, output_path)
+    {:ok, build} = Images.file_ready(state.build, output_path)
 
     emit(state, :build_log, %{content: output})
-    {:noreply, %{state | build: build}}
+    {:noreply, %{state | build: build, output_path: output_path}}
   end
 
   def handle_info({port, {:data, output}}, state) when is_port(port) do
@@ -135,16 +150,20 @@ defmodule Klix.Builder do
 
   def handle_info({port, {:exit_status, 0}}, state) when is_port(port) do
     send(port, {self(), :close})
+    {:ok, path} = Images.sd_file_path(state.output_path)
 
     emit(state, :uploading)
 
     {:ok, _build} =
-      case state.uploader.(state.build) do
+      case state.uploader.(
+             path,
+             "builds/#{state.build.id}.img.zst"
+           ) do
         :ok ->
-          Klix.Images.build_completed(state.build)
+          Images.build_completed(state.build)
 
         {:error, msg} ->
-          Klix.Images.build_failed(state.build, msg)
+          Images.build_failed(state.build, msg)
       end
 
     emit(state, :run_complete)
@@ -153,7 +172,7 @@ defmodule Klix.Builder do
 
   def handle_info({port, {:exit_status, code}}, state) when is_port(port) do
     send(port, {self(), :close})
-    {:ok, _build} = Klix.Images.build_failed(state.build, "nonzero exit code: #{code}")
+    {:ok, _build} = Images.build_failed(state.build, "nonzero exit code: #{code}")
     emit(state, :run_complete)
     {:noreply, state}
   end

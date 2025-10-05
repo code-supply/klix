@@ -10,7 +10,7 @@ defmodule Klix.Application do
       {Phoenix.PubSub, name: Klix.PubSub},
       KlixWeb.Endpoint,
       {Klix.Builder,
-       build_dir: Application.fetch_env!(:klix, :build_dir), uploader: &Klix.Images.s3_uploader/1},
+       build_dir: Application.fetch_env!(:klix, :build_dir), uploader: &Klix.Images.s3_uploader/2},
       {Klix.Snapshotter, name: Klix.Snapshotter}
     ]
 

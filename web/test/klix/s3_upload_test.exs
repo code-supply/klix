@@ -2,13 +2,13 @@ defmodule Klix.S3UploadTest do
   use Klix.DataCase, async: true
 
   @tag :tmp_dir
-  test "can send a build's output successfully", %{tmp_dir: dir} do
-    write_image(dir, "hi there")
-    assert :ok = Images.s3_uploader(%Images.Build{id: 123, output_path: "#{dir}/some-dir"})
+  test "can send a source file to a destination", %{tmp_dir: dir} do
+    File.write!("#{dir}/foo", "hi there")
+    assert :ok = Images.s3_uploader("#{dir}/foo", "justatest")
   end
 
-  test "it's an error when build dir has gone" do
-    assert {:error, :sd_dir_not_found} =
-             Images.s3_uploader(%Images.Build{id: 123, output_path: "/tmp/nonexistent/place"})
+  test "it's an error when source has gone" do
+    assert {:error, :source_not_present} =
+             Images.s3_uploader("/tmp/not/here", "justatest")
   end
 end

@@ -7,7 +7,7 @@ defmodule Klix.BuilderTest do
 
   @moduletag :tmp_dir
 
-  setup do: %{uploader: fn _ -> :ok end}
+  setup do: %{uploader: fn _source, _destination -> :ok end}
 
   describe "when an incomplete build is found" do
     setup do
@@ -48,11 +48,18 @@ defmodule Klix.BuilderTest do
                {:ok, to_nix(ctx.image)}
     end
 
-    test "runs the build and stores completion time", ctx do
+    test "runs the build, and uploads to cloud", ctx do
       %{builds: [build]} = ctx.image
       build_id = build.id
 
-      ctx = %{ctx | uploader: fn %Images.Build{id: ^build_id} -> :ok end}
+      ctx = %{
+        ctx
+        | uploader: fn from, to ->
+            assert String.ends_with?(from, "the-only-file-in-here")
+            assert to == "builds/#{build.id}.img.zst"
+            :ok
+          end
+      }
 
       %{ref: ref, builder: builder} = start_builder(ctx)
 
@@ -64,6 +71,8 @@ defmodule Klix.BuilderTest do
                       %{port: port, pid: ^builder}}
 
       assert Port.info(port)
+
+      nix_writes_to_disk(builder, port, ctx.tmp_dir)
 
       Images.subscribe(ctx.image.id)
       send(builder, {port, {:exit_status, 0}})
@@ -74,19 +83,23 @@ defmodule Klix.BuilderTest do
 
       build = Repo.reload!(build)
 
-      assert DateTime.compare(build.completed_at, DateTime.utc_now()) in [
-               :lt,
-               :eq
-             ]
-
+      assert DateTime.compare(build.completed_at, DateTime.utc_now()) in [:lt, :eq]
       assert Images.build_ready?(build)
+    end
+
+    defp nix_writes_to_disk(builder, port, dir, contents \\ "123456") do
+      nix_message =
+        ~s([{"drvPath":"/some/path/foo.drv","outputs":{"out":"#{dir}"}}]\n)
+
+      write_image(dir, contents)
+      send(builder, {port, {:data, nix_message}})
     end
 
     test "if cloud upload fails, store error and set as completed", ctx do
       %{builds: [build]} = ctx.image
       build_id = build.id
 
-      ctx = %{ctx | uploader: fn %Images.Build{id: ^build_id} -> {:error, "bad stuff"} end}
+      ctx = %{ctx | uploader: fn _from, _to -> {:error, "bad stuff"} end}
 
       %{ref: ref, builder: builder} = start_builder(ctx)
 
@@ -98,6 +111,8 @@ defmodule Klix.BuilderTest do
                       %{port: port, pid: ^builder}}
 
       assert Port.info(port)
+
+      nix_writes_to_disk(builder, port, ctx.tmp_dir)
 
       Images.subscribe(ctx.image.id)
       send(builder, {port, {:exit_status, 0}})
@@ -110,10 +125,7 @@ defmodule Klix.BuilderTest do
 
       assert build.error == "bad stuff"
 
-      assert DateTime.compare(build.completed_at, DateTime.utc_now()) in [
-               :lt,
-               :eq
-             ]
+      assert DateTime.compare(build.completed_at, DateTime.utc_now()) in [:lt, :eq]
 
       assert Images.build_ready?(build)
     end
@@ -147,25 +159,19 @@ defmodule Klix.BuilderTest do
       assert build.flake_lock == "flake.lock file content"
     end
 
-    test "stores the output path when available", ctx do
-      nix_message =
-        "[{\"drvPath\":\"/nix/store/j2hvqq83fhr8p6jpwkbhsjidh6dvcm1j-nixos-image-sd-card-25.11.20250831.e6cb50b-aarch64-linux.img.zst.drv\",\"outputs\":{\"out\":\"/nix/store/6rwl2k7a7ad0prmjsacz2d3lw9s3z0dh-nixos-image-sd-card-25.11.20250831.e6cb50b-aarch64-linux.img.zst\"}}]\n"
-
+    test "stores the file size when available", ctx do
       %{ref: ref, builder: builder} = start_builder(ctx)
       send(builder, :run)
 
       assert_receive {[:builder, :build_started], ^ref, _empty_measurements,
                       %{port: port, pid: ^builder}}
 
-      send(builder, {port, {:data, nix_message}})
+      nix_writes_to_disk(builder, port, ctx.tmp_dir, "123")
       assert_receive {[:builder, :build_log], ^ref, _measurements, %{pid: ^builder}}
 
       %{builds: [build]} = ctx.image
 
-      build = Repo.reload!(build)
-
-      assert build.output_path ==
-               "/nix/store/6rwl2k7a7ad0prmjsacz2d3lw9s3z0dh-nixos-image-sd-card-25.11.20250831.e6cb50b-aarch64-linux.img.zst"
+      assert Repo.reload!(build).byte_size == byte_size("123")
     end
 
     test "emits log messages as telemetry", ctx do

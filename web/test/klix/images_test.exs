@@ -106,13 +106,16 @@ defmodule Klix.ImagesTest do
     end
   end
 
-  test "can set output path", %{scope: scope} do
+  @tag :tmp_dir
+  test "when file is ready, record size", %{scope: scope, tmp_dir: dir} do
     {:ok, %{builds: [build]}} =
       Images.create(scope, Klix.Factory.params(:image))
 
-    {:ok, build} = Images.set_build_output_path(build, "/nix/store/blah")
+    write_image(dir, "four")
 
-    assert Repo.reload!(build).output_path == "/nix/store/blah"
+    {:ok, build} = Images.file_ready(build, dir)
+
+    assert Repo.reload!(build).byte_size == 4
   end
 
   describe "getting the next build" do

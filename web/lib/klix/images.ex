@@ -6,18 +6,16 @@ defmodule Klix.Images do
 
   import Klix.ToNix
 
-  def s3_uploader(%Build{} = build) do
-    with {:ok, path} <- sd_file_path(build),
-         {:ok, _} <-
-           path
-           |> S3.Upload.stream_file()
-           |> S3.upload(
-             Application.fetch_env!(:klix, :build_bucket),
-             "builds/#{build.id}.img.zst"
-           )
-           |> ExAws.request() do
-      :ok
-    end
+  def s3_uploader(source, destination) do
+    {:ok, _} =
+      source
+      |> S3.Upload.stream_file()
+      |> S3.upload(Application.fetch_env!(:klix, :build_bucket), destination)
+      |> ExAws.request()
+
+    :ok
+  rescue
+    File.Error -> {:error, :source_not_present}
   end
 
   def subscribe(image_id) when is_integer(image_id) do
@@ -82,21 +80,10 @@ defmodule Klix.Images do
     Klix.Images.Build.Query.next() |> Repo.one()
   end
 
-  def download_size(%Build{output_path: nil}), do: ""
+  def download_size(%Build{byte_size: nil}), do: ""
 
   def download_size(%Build{} = build) do
-    case sd_file_path(build) do
-      {:ok, path} ->
-        path
-        |> File.stat()
-        |> then(fn
-          {:ok, stat} ->
-            "#{Float.round(stat.size / 1_000_000_000, 2)} GB"
-        end)
-
-      {:error, :sd_dir_not_found} ->
-        ""
-    end
+    "#{Float.round(build.byte_size / 1_000_000_000, 2)} GB"
   end
 
   def download_url(%Build{} = build) do
@@ -141,10 +128,13 @@ defmodule Klix.Images do
     |> Repo.update()
   end
 
-  def set_build_output_path(%Build{} = build, output_path) do
-    build
-    |> Ecto.Changeset.change(output_path: output_path)
-    |> Repo.update()
+  def file_ready(%Build{} = build, output_path) do
+    with {:ok, path} <- sd_file_path(output_path),
+         {:ok, stat} = File.stat(path) do
+      build
+      |> Ecto.Changeset.change(byte_size: stat.size)
+      |> Repo.update()
+    end
   end
 
   def build_completed(%Build{} = build) do
@@ -177,8 +167,8 @@ defmodule Klix.Images do
     |> Time.from_seconds_after_midnight()
   end
 
-  def sd_file_path(%Build{} = build) do
-    sd_dir = Path.join(build.output_path, "sd-image")
+  def sd_file_path(output_path) do
+    sd_dir = Path.join(output_path, "sd-image")
 
     case File.ls(sd_dir) do
       {:ok, [sd_file]} ->

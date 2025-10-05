@@ -6,9 +6,9 @@ defmodule Klix.Images.Build do
   schema "builds" do
     field :flake_nix, :string
     field :flake_lock, :string
-    field :output_path, :string
     field :completed_at, :utc_datetime
     field :error, :string
+    field :byte_size, :integer
 
     belongs_to :image, Klix.Images.Image
 

@@ -50,8 +50,8 @@ defmodule KlixWeb.ManageImagesTest do
     {:ok, %{builds: [build]} = image} =
       Images.create(scope, Klix.Factory.params(:image, hostname: "machineA"))
 
-    {:ok, build} = Images.set_build_output_path(build, dir)
-    write_fake_sd_image(build)
+    write_image(dir)
+    {:ok, build} = Images.file_ready(build, dir)
     {:ok, _build} = Images.build_completed(build)
 
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
@@ -71,8 +71,8 @@ defmodule KlixWeb.ManageImagesTest do
 
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 
-    {:ok, build} = Images.set_build_output_path(build, dir)
-    write_fake_sd_image(build)
+    write_image(dir)
+    {:ok, build} = Images.file_ready(build, dir)
     {:ok, _build} = Images.build_completed(build)
 
     assert view |> has_element?("#builds a[download]", ~r/.+ GB/),
@@ -110,14 +110,5 @@ defmodule KlixWeb.ManageImagesTest do
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 
     assert view |> has_element?("#builds li")
-  end
-
-  defp write_fake_sd_image(build) do
-    path = Path.join(build.output_path, "sd-image")
-    File.mkdir_p!(path)
-
-    path
-    |> Path.join("something")
-    |> File.write!("123456")
   end
 end
