@@ -70,7 +70,10 @@ defmodule Klix.MixProject do
       {:bandit, "~> 1.5"},
       {:tzdata, "~> 1.1"},
       {:stream_data, "~> 1.2", only: :test},
-      {:deps_nix, ">= 0.0.0", only: :dev}
+      {:deps_nix, ">= 0.0.0", only: :dev},
+      {:ex_aws, "~> 2.6"},
+      {:ex_aws_s3, "~> 2.5"},
+      {:sweet_xml, "~> 0.0"}
     ]
   end
 

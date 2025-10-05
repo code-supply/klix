@@ -365,6 +365,54 @@ let
         in
         drv;
 
+      ex_aws =
+        let
+          version = "2.6.0";
+          drv = buildMix {
+            inherit version;
+            name = "ex_aws";
+            appConfigPath = ./config;
+
+            src = fetchHex {
+              inherit version;
+              pkg = "ex_aws";
+              sha256 = "30729ee9cbaacda674a4e4260d74206fa89bcd712267c4eaf42a0fc34592c0b3";
+            };
+
+            beamDeps = [
+              hackney
+              jason
+              mime
+              req
+              sweet_xml
+              telemetry
+            ];
+          };
+        in
+        drv;
+
+      ex_aws_s3 =
+        let
+          version = "2.5.8";
+          drv = buildMix {
+            inherit version;
+            name = "ex_aws_s3";
+            appConfigPath = ./config;
+
+            src = fetchHex {
+              inherit version;
+              pkg = "ex_aws_s3";
+              sha256 = "84e512ca2e0ae6a6c497036dff06d4493ffb422cfe476acc811d7c337c16691c";
+            };
+
+            beamDeps = [
+              ex_aws
+              sweet_xml
+            ];
+          };
+        in
+        drv;
+
       expo =
         let
           version = "1.1.0";
@@ -900,6 +948,23 @@ let
         in
         drv;
 
+      sweet_xml =
+        let
+          version = "0.7.5";
+          drv = buildMix {
+            inherit version;
+            name = "sweet_xml";
+            appConfigPath = ./config;
+
+            src = fetchHex {
+              inherit version;
+              pkg = "sweet_xml";
+              sha256 = "193b28a9b12891cae351d81a0cead165ffe67df1b73fe5866d10629f4faefb12";
+            };
+          };
+        in
+        drv;
+
       swoosh =
         let
           version = "1.19.5";
@@ -916,6 +981,7 @@ let
 
             beamDeps = [
               bandit
+              ex_aws
               finch
               hackney
               jason
