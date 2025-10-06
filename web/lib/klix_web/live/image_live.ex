@@ -97,7 +97,6 @@ defmodule KlixWeb.ImageLive do
                       class="btn btn-secondary"
                       href={Images.download_url(build)}
                       download
-                      target="_blank"
                     >
                       <.icon name="hero-arrow-down-tray" /> Download {Images.download_size(build)}
                     </.link>
