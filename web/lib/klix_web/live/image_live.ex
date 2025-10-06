@@ -108,6 +108,69 @@ defmodule KlixWeb.ImageLive do
             </li>
           </ol>
         </section>
+
+        <section class="card card-border col-span-2">
+          <div class="card-body overflow-hidden">
+            <h3 class="card-title">
+              <.icon name="hero-wrench-screwdriver" class="size-6" />
+              Installation: writing to an SD card
+            </h3>
+
+            <div class="tabs tabs-lift">
+              <input type="radio" name="installation" class="tab" aria-label="GUI" checked />
+              <div class="tab-content bg-base-100 border-base-300 p-6">
+                <div class="flex flex-col gap-3">
+                  <p>
+                    <% href = "https://www.raspberrypi.com/software/" %>
+                    <.link class="link" href={href}>Raspberry Pi Imager</.link>
+                    can install .img.zst files directly. It's available for Windows, Mac and Linux.
+                  </p>
+
+                  <p>
+                    Once installed:
+                    <ol class="list-disc list-inside">
+                      <li>Choose your Raspberry Pi device</li>
+                      <li>Click "Choose OS"</li>
+                      <li>Click "Use Custom" at the bottom of the list</li>
+                      <li>Choose your downloaded <code>klix.img.zst</code> file</li>
+                      <li>Click "Choose Storage" and select your SD card</li>
+                      <li>When asked whether to apply OS customisation settings: choose "NO"</li>
+                    </ol>
+                  </p>
+                </div>
+              </div>
+
+              <input
+                type="radio"
+                name="installation"
+                class="tab"
+                aria-label="Mac/Linux command line"
+              />
+              <div class="tab-content bg-base-100 border-base-300 p-6">
+                <div class="flex flex-col gap-3">
+                  <p>
+                    Insert your SD card and find its device name using <code>lsblk</code>
+                    or <code>df</code>. We'll assume it's <code>/dev/sda</code>.
+                  </p>
+                  <p>
+                    Then, unpack and copy the image to your device. <code>cp</code> will do this:
+                  </p>
+                  <div class="mockup-code w-full">
+                    <pre><code>unzstd klix.img.zst
+      umount /dev/sda
+      cp --verbose klix.img /dev/sda</code></pre>
+                  </div>
+                  <p>
+                    <code>unzstd</code>
+                    is available from <% href = "https://github.com/facebook/zstd/releases" %>
+                    <.link class="link" href={href}>the project's GitHub releases</.link>
+                    or from your favourite package manager.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </Layouts.app>
     """
