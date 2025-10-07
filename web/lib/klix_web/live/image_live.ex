@@ -110,7 +110,7 @@ defmodule KlixWeb.ImageLive do
         </section>
 
         <section class="card card-border col-span-2">
-          <div class="card-body overflow-hidden">
+          <div class="card-body">
             <h3 class="card-title">
               <.icon name="hero-wrench-screwdriver" class="size-6" />
               Installation: writing to an SD card
@@ -118,7 +118,7 @@ defmodule KlixWeb.ImageLive do
 
             <div class="tabs tabs-lift">
               <input type="radio" name="installation" class="tab" aria-label="GUI" checked />
-              <div class="tab-content bg-base-100 border-base-300 p-6">
+              <div class="tab-content bg-base-100 border-base-300 pt-6 px-6">
                 <div class="flex flex-col gap-3">
                   <p>
                     <% href = "https://www.raspberrypi.com/software/" %>
@@ -146,7 +146,7 @@ defmodule KlixWeb.ImageLive do
                 class="tab"
                 aria-label="Mac/Linux command line"
               />
-              <div class="tab-content bg-base-100 border-base-300 p-6">
+              <div class="tab-content bg-base-100 border-base-300 pt-6 px-6">
                 <div class="flex flex-col gap-3">
                   <p>
                     Insert your SD card and find its device name using <code>lsblk</code>
