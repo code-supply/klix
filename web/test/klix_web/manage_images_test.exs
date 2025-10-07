@@ -41,6 +41,17 @@ defmodule KlixWeb.ManageImagesTest do
     assert new_duration > initial_duration
   end
 
+  test "duration updates don't interrupt installation accordion", %{conn: conn, scope: scope} do
+    {:ok, image} = Images.create(scope, Klix.Factory.params(:image, hostname: "machineA"))
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+    for id <- ~w(sd-gui sd-cli wifi) do
+      refute view |> has_element?("##{id}[checked]")
+      view |> element("##{id}") |> render_click()
+      assert view |> has_element?("##{id}[checked]")
+    end
+  end
+
   @tag :tmp_dir
   test "shows download links, but only for completed builds", %{
     conn: conn,

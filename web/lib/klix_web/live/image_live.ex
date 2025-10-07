@@ -116,7 +116,14 @@ defmodule KlixWeb.ImageLive do
             </h3>
 
             <div class="collapse collapse-arrow bg-base-100 border border-base-300">
-              <input id="sd-gui" type="radio" name="installation" checked />
+              <input
+                id="sd-gui"
+                type="radio"
+                name="installation"
+                phx-click="open-doc"
+                phx-value-section="sd-gui"
+                checked={@doc_section == "sd-gui"}
+              />
               <label for="sd-gui" class="collapse-title font-semibold">
                 Writing to an SD card - GUI
               </label>
@@ -143,7 +150,14 @@ defmodule KlixWeb.ImageLive do
             </div>
 
             <div class="collapse collapse-arrow bg-base-100 border border-base-300">
-              <input id="sd-cli" type="radio" name="installation" />
+              <input
+                id="sd-cli"
+                type="radio"
+                name="installation"
+                phx-click="open-doc"
+                phx-value-section="sd-cli"
+                checked={@doc_section == "sd-cli"}
+              />
               <label for="sd-cli" class="collapse-title font-semibold">
                 Writing to an SD card - Mac/Linux command line
               </label>
@@ -170,7 +184,14 @@ defmodule KlixWeb.ImageLive do
             </div>
 
             <div class="collapse collapse-arrow bg-base-100 border border-base-300">
-              <input id="wifi" type="radio" name="installation" />
+              <input
+                id="wifi"
+                type="radio"
+                name="installation"
+                phx-click="open-doc"
+                phx-value-section="wifi"
+                checked={@doc_section == "wifi"}
+              />
               <label for="wifi" class="collapse-title font-semibold">
                 Connecting to WiFi
               </label>
@@ -213,17 +234,14 @@ defmodule KlixWeb.ImageLive do
       socket
       |> assign(
         page_title: "#{image.hostname} image",
+        doc_section: nil,
         image: with_durations(image, tick_clock())
       )
     }
   end
 
-  defp with_durations(image, now) do
-    update_in(image.builds, fn builds ->
-      Enum.map(builds, fn build ->
-        %{build | duration: Images.build_duration(build, now)}
-      end)
-    end)
+  def handle_event("open-doc", %{"section" => section}, socket) do
+    {:noreply, assign(socket, doc_section: section)}
   end
 
   def handle_info([build_ready: %Images.Build{} = updated_build], socket) do
@@ -256,5 +274,13 @@ defmodule KlixWeb.ImageLive do
     Process.send_after(self(), {:tick, next_tick}, interval)
 
     now
+  end
+
+  defp with_durations(image, now) do
+    update_in(image.builds, fn builds ->
+      Enum.map(builds, fn build ->
+        %{build | duration: Images.build_duration(build, now)}
+      end)
+    end)
   end
 end
