@@ -23,8 +23,8 @@ defmodule KlixWeb.ImageLive do
         </:subtitle>
       </.header>
 
-      <div class="grid md:grid-cols-2 gap-4">
-        <section class="bg-base-100 card card-border border-base-300">
+      <div class="md:grid md:grid-cols-2 gap-4">
+        <section class="bg-base-100 card card-border border-base-300 mb-4">
           <div class="card-body">
             <h3 class="card-title">
               <.icon name="hero-tag" class="size-6" /> Printer details
