@@ -112,61 +112,84 @@ defmodule KlixWeb.ImageLive do
         <section class="card card-border col-span-2">
           <div class="card-body">
             <h3 class="card-title">
-              <.icon name="hero-wrench-screwdriver" class="size-6" />
-              Installation: writing to an SD card
+              <.icon name="hero-wrench-screwdriver" class="size-6" /> Installation
             </h3>
 
-            <div class="tabs tabs-lift">
-              <input type="radio" name="installation" class="tab" aria-label="GUI" checked />
-              <div class="tab-content bg-base-100 border-base-300 p-6">
-                <div class="flex flex-col gap-3">
-                  <p>
-                    <% href = "https://www.raspberrypi.com/software/" %>
-                    <.link class="link" href={href}>Raspberry Pi Imager</.link>
-                    can install .img.zst files directly. It's available for Windows, Mac and Linux.
-                  </p>
+            <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+              <input id="sd-gui" type="radio" name="installation" checked />
+              <label for="sd-gui" class="collapse-title font-semibold">
+                Writing to an SD card - GUI
+              </label>
+              <div class="collapse-content flex flex-col gap-3">
+                <p>
+                  <% href = "https://www.raspberrypi.com/software/" %>
+                  <.link class="link" href={href}>Raspberry Pi Imager</.link>
+                  can install .img.zst files directly. It's available for Windows, Mac and Linux.
+                </p>
 
-                  <p>
-                    Once installed:
-                    <ol class="list-disc list-inside">
-                      <li>Choose your Raspberry Pi device</li>
-                      <li>Click "Choose OS"</li>
-                      <li>Click "Use Custom" at the bottom of the list</li>
-                      <li>Choose your downloaded <code>klix.img.zst</code> file</li>
-                      <li>Click "Choose Storage" and select your SD card</li>
-                      <li>When asked whether to apply OS customisation settings: choose "NO"</li>
-                    </ol>
-                  </p>
-                </div>
+                <p>
+                  Once installed:
+                </p>
+
+                <ol class="list-disc list-inside">
+                  <li>Choose your Raspberry Pi device</li>
+                  <li>Click "Choose OS"</li>
+                  <li>Click "Use Custom" at the bottom of the list</li>
+                  <li>Choose your downloaded <code>klix.img.zst</code> file</li>
+                  <li>Click "Choose Storage" and select your SD card</li>
+                  <li>When asked whether to apply OS customisation settings: choose "NO"</li>
+                </ol>
               </div>
+            </div>
 
-              <input
-                type="radio"
-                name="installation"
-                class="tab"
-                aria-label="Mac/Linux command line"
-              />
-              <div class="tab-content bg-base-100 border-base-300 p-6">
-                <div class="flex flex-col gap-3">
-                  <p>
-                    Insert your SD card and find its device name using <code>lsblk</code>
-                    or <code>df</code>. We'll assume it's <code>/dev/sda</code>.
-                  </p>
-                  <p>
-                    Then, unpack and copy the image to your device. <code>cp</code> will do this:
-                  </p>
-                  <div class="mockup-code w-full">
-                    <pre><code>unzstd klix.img.zst
+            <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+              <input id="sd-cli" type="radio" name="installation" />
+              <label for="sd-cli" class="collapse-title font-semibold">
+                Writing to an SD card - Mac/Linux command line
+              </label>
+              <div class="collapse-content flex flex-col gap-3">
+                <p>
+                  Insert your SD card and find its device name using <code>lsblk</code>
+                  or <code>df</code>. We'll assume it's <code>/dev/sda</code>.
+                </p>
+                <p>
+                  Then, unpack and copy the image to your device. <code>cp</code> will do this:
+                </p>
+                <div class="mockup-code w-full">
+                  <pre><code>unzstd klix.img.zst
       umount /dev/sda
       cp --verbose klix.img /dev/sda</code></pre>
-                  </div>
-                  <p>
-                    <code>unzstd</code>
-                    is available from <% href = "https://github.com/facebook/zstd/releases" %>
-                    <.link class="link" href={href}>the project's GitHub releases</.link>
-                    or from your favourite package manager.
-                  </p>
                 </div>
+                <p>
+                  <code>unzstd</code>
+                  is available from <% href = "https://github.com/facebook/zstd/releases" %>
+                  <.link class="link" href={href}>the project's GitHub releases</.link>
+                  or from your favourite package manager.
+                </p>
+              </div>
+            </div>
+
+            <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+              <input id="wifi" type="radio" name="installation" />
+              <label for="wifi" class="collapse-title font-semibold">
+                Connecting to WiFi
+              </label>
+              <div class="collapse-content flex flex-col gap-3">
+                <p>
+                  If you installed KlipperScreen and have a screen connected, use its interface to add a WiFi connection.
+                </p>
+                <p>
+                  If not, you must make your first connection via ethernet cable:
+                </p>
+
+                <ol class="list-disc list-inside">
+                  <li>Connect your Pi to a router and find its IP in your router's interface.</li>
+                  <li>SSH with user "klix" and the SSH key you submitted when creating the image.</li>
+                  <li>Once connected, type <code>nmtui</code> to connect to a wireless network.</li>
+                  <li>
+                    Type <code>reboot</code>, disconnect the cable and verify your machine connects using WiFi on boot
+                  </li>
+                </ol>
               </div>
             </div>
           </div>
