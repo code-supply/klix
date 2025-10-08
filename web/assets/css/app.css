@@ -6,6 +6,16 @@
 @source "../js";
 @source "../../lib/klix_web";
 
+.fieldset, .input, .select { font-size: 1.125rem; }
+
+.help-accordion {
+  @apply bg-base-100 border border-base-300;
+}
+
+.help-accordion-content {
+  @apply flex flex-col gap-3;
+}
+
 /* A Tailwind plugin that makes "hero-#{ICON}" classes available.
    The heroicons installation itself is managed by your mix.exs */
 @plugin "../vendor/heroicons";
@@ -16,8 +26,6 @@
 @plugin "../vendor/daisyui" {
   themes: false;
 }
-
-.fieldset, .input, .select { font-size: 1.125rem; }
 
 /* daisyUI theme plugin. You can update this file by fetching the latest version with:
   curl -sLO https://github.com/saadeghi/daisyui/releases/latest/download/daisyui-theme.js

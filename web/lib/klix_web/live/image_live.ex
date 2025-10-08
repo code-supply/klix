@@ -115,7 +115,7 @@ defmodule KlixWeb.ImageLive do
               <.icon name="hero-wrench-screwdriver" class="size-6" /> Installation
             </h3>
 
-            <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+            <div class="collapse collapse-arrow help-accordion">
               <input
                 id="sd-gui"
                 type="radio"
@@ -127,7 +127,7 @@ defmodule KlixWeb.ImageLive do
               <label for="sd-gui" class="collapse-title font-semibold">
                 Writing to an SD card - GUI
               </label>
-              <div class="collapse-content flex flex-col gap-3">
+              <div class="collapse-content help-accordion-content">
                 <p>
                   <.link class="link" href="https://www.raspberrypi.com/software/">Raspberry
                     Pi Imager</.link>
@@ -149,7 +149,7 @@ defmodule KlixWeb.ImageLive do
               </div>
             </div>
 
-            <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+            <div class="collapse collapse-arrow help-accordion">
               <input
                 id="sd-cli"
                 type="radio"
@@ -161,7 +161,7 @@ defmodule KlixWeb.ImageLive do
               <label for="sd-cli" class="collapse-title font-semibold">
                 Writing to an SD card - Mac/Linux command line
               </label>
-              <div class="collapse-content flex flex-col gap-3">
+              <div class="collapse-content help-accordion-content">
                 <p>
                   Insert your SD card and find its device name using <code>lsblk</code>
                   or <code>df</code>. We'll assume it's <code>/dev/sda</code>.
@@ -184,7 +184,7 @@ defmodule KlixWeb.ImageLive do
               </div>
             </div>
 
-            <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+            <div class="collapse collapse-arrow help-accordion">
               <input
                 id="wifi"
                 type="radio"
@@ -196,7 +196,7 @@ defmodule KlixWeb.ImageLive do
               <label for="wifi" class="collapse-title font-semibold">
                 Connecting to WiFi
               </label>
-              <div class="collapse-content flex flex-col gap-3">
+              <div class="collapse-content help-accordion-content">
                 <p>
                   If you installed KlipperScreen and have a screen connected, use its interface to add a WiFi connection.
                 </p>
@@ -211,6 +211,32 @@ defmodule KlixWeb.ImageLive do
                   <li>Type <code>sudo reboot</code>,
                     disconnect the cable and verify your machine connects using WiFi on boot</li>
                 </ol>
+              </div>
+            </div>
+
+            <div class="collapse collapse-arrow help-accordion">
+              <input
+                id="updating"
+                type="radio"
+                name="installation"
+                phx-click="open-doc"
+                phx-value-section="updating"
+                checked={@doc_section == "updating"}
+              />
+              <label for="updating" class="collapse-title font-semibold">
+                Updating your system
+              </label>
+              <div class="collapse-content help-accordion-content">
+                <p>
+                  SSH into your printer and type:
+                </p>
+                <div class="mockup-code w-full">
+                  <pre data-prefix="$"><code>klix-update</code></pre>
+                </div>
+                <p>
+                  This will only pull changes that we've tested and released to our users.
+                  Versions of software might change.
+                </p>
               </div>
             </div>
           </div>
