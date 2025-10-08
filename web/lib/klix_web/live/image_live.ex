@@ -192,22 +192,21 @@ defmodule KlixWeb.ImageLive do
                                         254:0    0   8.8G  0 crypt [SWAP]</code></pre>
                 </div>
                 <p>
-                  We need to unpack the image, unmount the filesystems, then copy the image to your device:
+                  We need to unmount the filesystems, then copy the image to your device:
                 </p>
                 <div class="mockup-code w-full">
-                  <pre data-prefix="$"><code>unzstd klix.img.zst</code></pre>
                   <pre data-prefix="$"><code>umount /dev/sda1 /dev/sda2</code></pre>
-                  <pre data-prefix="$"><code>cp klix.img /dev/sda</code></pre>
+                  <pre data-prefix="$"><code>zstdcat klix.img.zst > /dev/sda</code></pre>
                 </div>
                 <p>
-                  <code>unzstd</code>
+                  <code>zstdcat</code>
                   is available from
                   <.link class="link" href="https://github.com/facebook/zstd/releases">the
                     project's GitHub releases</.link>
                   or from your favourite package manager.
                 </p>
                 <p>
-                  Once <code>cp</code> completes (several minutes), you can
+                  Once <code>cp</code> completes (it takes several minutes), you can
                   eject your card and put it into your Raspberry Pi for its
                   first boot.
                 </p>
