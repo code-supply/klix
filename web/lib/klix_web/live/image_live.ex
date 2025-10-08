@@ -216,7 +216,7 @@ defmodule KlixWeb.ImageLive do
           </div>
         </section>
 
-        <section class="bg-warning card card-border border-base-300 mb-4">
+        <section class="bg-warning text-warning-content card card-border border-base-300 mb-4">
           <div class="card-body">
             <h3 class="card-title">
               <.icon name="hero-exclamation-triangle" class="size-6" /> Danger zone
