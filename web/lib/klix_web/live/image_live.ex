@@ -170,9 +170,9 @@ defmodule KlixWeb.ImageLive do
                   Then, unpack and copy the image to your device. <code>cp</code> will do this:
                 </p>
                 <div class="mockup-code w-full">
-                  <pre><code>unzstd klix.img.zst
-      umount /dev/sda
-      cp --verbose klix.img /dev/sda</code></pre>
+                  <pre data-prefix="$"><code>unzstd klix.img.zst</code></pre>
+                  <pre data-prefix="$"><code>umount /dev/sda</code></pre>
+                  <pre data-prefix="$"><code>cp --verbose klix.img /dev/sda</code></pre>
                 </div>
                 <p>
                   <code>unzstd</code>
