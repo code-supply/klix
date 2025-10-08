@@ -91,6 +91,9 @@ defmodule KlixWeb.ImageLive do
                   <dt class="font-bold">Duration</dt>
                   <dd class="duration cols-span-2">{build.duration}</dd>
                 </dl>
+                <p :if={not Images.build_ready?(build)}>
+                  Build in progress. Download link will appear here when ready.
+                </p>
                 <div class="card-actions justify-end">
                   <%= if Images.build_ready?(build) do %>
                     <.link
