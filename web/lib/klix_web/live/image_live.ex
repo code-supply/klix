@@ -129,8 +129,8 @@ defmodule KlixWeb.ImageLive do
               </label>
               <div class="collapse-content flex flex-col gap-3">
                 <p>
-                  <% href = "https://www.raspberrypi.com/software/" %>
-                  <.link class="link" href={href}>Raspberry Pi Imager</.link>
+                  <.link class="link" href="https://www.raspberrypi.com/software/">Raspberry
+                    Pi Imager</.link>
                   can install .img.zst files directly. It's available for Windows, Mac and Linux.
                 </p>
 
@@ -176,8 +176,9 @@ defmodule KlixWeb.ImageLive do
                 </div>
                 <p>
                   <code>unzstd</code>
-                  is available from <% href = "https://github.com/facebook/zstd/releases" %>
-                  <.link class="link" href={href}>the project's GitHub releases</.link>
+                  is available from
+                  <.link class="link" href="https://github.com/facebook/zstd/releases">the
+                    project's GitHub releases</.link>
                   or from your favourite package manager.
                 </p>
               </div>
@@ -207,9 +208,8 @@ defmodule KlixWeb.ImageLive do
                   <li>Connect your Pi to a router and find its IP in your router's interface.</li>
                   <li>SSH with user "klix" and the SSH key you submitted when creating the image.</li>
                   <li>Once connected, type <code>nmtui</code> to connect to a wireless network.</li>
-                  <li>
-                    Type <code>reboot</code>, disconnect the cable and verify your machine connects using WiFi on boot
-                  </li>
+                  <li>Type <code>sudo reboot</code>,
+                    disconnect the cable and verify your machine connects using WiFi on boot</li>
                 </ol>
               </div>
             </div>
