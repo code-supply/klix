@@ -253,7 +253,7 @@ defmodule Klix.ImagesTest do
                                  klix.packages.aarch64-linux.tarball-url
                                ];
                                text = ''
-                                 sudo nixos-rebuild --flake "$(klix-tarball-url deadb33f-f33d-f00d-d00f-d0feef0f1355)"
+                                 nixos-rebuild --flake "$(klix-tarball-url deadb33f-f33d-f00d-d00f-d0feef0f1355)"
                                '';
                              })
                            ];

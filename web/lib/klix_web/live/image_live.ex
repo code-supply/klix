@@ -267,7 +267,7 @@ defmodule KlixWeb.ImageLive do
                   SSH into your printer and type:
                 </p>
                 <div class="mockup-code w-full">
-                  <pre data-prefix="$"><code>klix-update</code></pre>
+                  <pre data-prefix="$"><code>sudo klix-update</code></pre>
                 </div>
                 <p>
                   This will only pull changes that we've tested and released to our users.
