@@ -112,7 +112,7 @@ defmodule KlixWeb.ImageLive do
         <section class="card card-border col-span-2">
           <div class="card-body">
             <h3 class="card-title">
-              <.icon name="hero-wrench-screwdriver" class="size-6" /> Installation
+              <.icon name="hero-wrench-screwdriver" class="size-6" /> Getting started
             </h3>
 
             <div class="collapse collapse-arrow help-accordion">
@@ -159,20 +159,42 @@ defmodule KlixWeb.ImageLive do
                 checked={@doc_section == "sd-cli"}
               />
               <label for="sd-cli" class="collapse-title font-semibold">
-                Writing to an SD card - Mac/Linux command line
+                Writing to an SD card - Linux command line
               </label>
               <div class="collapse-content help-accordion-content">
                 <p>
-                  Insert your SD card and find its device name using <code>lsblk</code>
-                  or <code>df</code>. We'll assume it's <code>/dev/sda</code>.
+                  Insert your SD card and find its device name(s) using <code>lsblk</code>.
+                  In the following example, we see two
+                  partitions, <code>/dev/sda1</code>
+                  and <code>/dev/sda2</code>
+                  on a device called <code>/dev/sda</code>.
                 </p>
                 <p>
-                  Then, unpack and copy the image to your device. <code>cp</code> will do this:
+                  You can tell those two partitions are mounted, because they have MOUNTPOINTS.
+                </p>
+                <div class="mockup-code w-full">
+                  <pre data-prefix="$"><code>lsblk</code></pre>
+                  <pre><code>NAME                              MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
+      sda                                 8:0    1 116.5G  0 disk
+      ├─sda1                              8:1    1    30M  0 part  /run/media/andrew/FIRMWARE
+      └─sda2                              8:2    1   5.8G  0 part  /run/media/andrew/NIXOS_SD
+      nvme0n1                           259:0    0 931.5G  0 disk
+      ├─nvme0n1p1                       259:1    0   512M  0 part  /boot/efi
+      ├─nvme0n1p2                       259:2    0 922.2G  0 part
+      │ └─luks-73dc2827-b296-40a3-941d-53424502edb7
+      │                                 254:1    0 922.2G  0 crypt /nix/store
+      │                                                            /
+      └─nvme0n1p3                       259:3    0   8.8G  0 part
+        └─luks-26861216-bdc0-4196-a13f-1d9b8caaebfe
+                                        254:0    0   8.8G  0 crypt [SWAP]</code></pre>
+                </div>
+                <p>
+                  We need to unpack the image, unmount the filesystems, then copy the image to your device:
                 </p>
                 <div class="mockup-code w-full">
                   <pre data-prefix="$"><code>unzstd klix.img.zst</code></pre>
-                  <pre data-prefix="$"><code>umount /dev/sda</code></pre>
-                  <pre data-prefix="$"><code>cp --verbose klix.img /dev/sda</code></pre>
+                  <pre data-prefix="$"><code>umount /dev/sda1 /dev/sda2</code></pre>
+                  <pre data-prefix="$"><code>cp klix.img /dev/sda</code></pre>
                 </div>
                 <p>
                   <code>unzstd</code>
@@ -180,6 +202,11 @@ defmodule KlixWeb.ImageLive do
                   <.link class="link" href="https://github.com/facebook/zstd/releases">the
                     project's GitHub releases</.link>
                   or from your favourite package manager.
+                </p>
+                <p>
+                  Once <code>cp</code> completes (several minutes), you can
+                  eject your card and put it into your Raspberry Pi for its
+                  first boot.
                 </p>
               </div>
             </div>
@@ -201,15 +228,24 @@ defmodule KlixWeb.ImageLive do
                   If you installed KlipperScreen and have a screen connected, use its interface to add a WiFi connection.
                 </p>
                 <p>
-                  If not, you must make your first connection via ethernet cable:
+                  If not, make your first connection via ethernet cable:
                 </p>
 
                 <ol class="list-disc list-inside">
                   <li>Connect your Pi to a router and find its IP in your router's interface.</li>
                   <li>SSH with user "klix" and the SSH key you submitted when creating the image.</li>
-                  <li>Once connected, type <code>nmtui</code> to connect to a wireless network.</li>
-                  <li>Type <code>sudo reboot</code>,
-                    disconnect the cable and verify your machine connects using WiFi on boot</li>
+                  <li>
+                    Once connected, type the following to connect to a wireless network.
+                    <div class="mockup-code w-full">
+                      <pre data-prefix="$"><code>nmtui</code></pre>
+                    </div>
+                  </li>
+                  <li>
+                    Optionally, disconnect your cable and verify that your machine connects on boot with:
+                    <div class="mockup-code w-full">
+                      <pre data-prefix="$"><code>sudo reboot</code></pre>
+                    </div>
+                  </li>
                 </ol>
               </div>
             </div>
