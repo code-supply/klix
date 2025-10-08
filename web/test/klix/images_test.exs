@@ -6,6 +6,30 @@ defmodule Klix.ImagesTest do
 
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
+  describe "soft deletion" do
+    setup %{scope: scope} do
+      {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
+      %{image: image}
+    end
+
+    test "hides image from lists", %{scope: scope, image: image} do
+      {:ok, _image} = Images.soft_delete(scope, image)
+
+      assert Images.list() == []
+      assert Images.list(scope) == []
+    end
+
+    test "must be done by the owner", %{image: image} do
+      another_scope = user_fixture() |> Scope.for_user()
+      {:error, :invalid_scope} = Images.soft_delete(another_scope, image)
+    end
+
+    test "is still in the database", %{scope: scope, image: image} do
+      {:ok, _image} = Images.soft_delete(scope, image)
+      assert %Images.Image{} = Repo.get(Images.Image, image.id)
+    end
+  end
+
   describe "download URL" do
     test "uses https" do
       assert Images.download_url(%Images.Build{id: 123}) |> String.starts_with?("https://")

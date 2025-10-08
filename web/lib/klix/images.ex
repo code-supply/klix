@@ -6,6 +6,15 @@ defmodule Klix.Images do
 
   import Klix.ToNix
 
+  def soft_delete(%Scope{} = scope, %Image{} = image) do
+    if scope.user.id == image.user_id do
+      Ecto.Changeset.change(image, deleted_at: DateTime.utc_now(:second))
+      |> Repo.update()
+    else
+      {:error, :invalid_scope}
+    end
+  end
+
   def s3_uploader(source, destination) do
     {:ok, _} =
       source
@@ -60,7 +69,7 @@ defmodule Klix.Images do
 
   def create(%Scope{} = scope, attrs) do
     %Image{user: scope.user, builds: [[]]}
-    |> Klix.Images.Image.changeset(attrs)
+    |> Image.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -77,7 +86,7 @@ defmodule Klix.Images do
   end
 
   def next_build do
-    Klix.Images.Build.Query.next() |> Repo.one()
+    Build.Query.next() |> Repo.one()
   end
 
   def download_size(%Build{byte_size: nil}), do: ""

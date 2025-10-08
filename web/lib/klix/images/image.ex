@@ -11,6 +11,7 @@ defmodule Klix.Images.Image do
     field :plugin_z_calibration_enabled, :boolean, default: true
     field :public_key, :string
     field :host_public_key, :binary
+    field :deleted_at, :utc_datetime
 
     embeds_one :klipper_config, Klix.Images.KlipperConfig
 
@@ -127,6 +128,7 @@ defmodule Klix.Images.Image do
 
     def base do
       from(Image, as: :images)
+      |> where([images: i], is_nil(i.deleted_at))
       |> order_by([images: i], desc: i.id)
     end
 
