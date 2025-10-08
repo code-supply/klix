@@ -47,12 +47,12 @@ defmodule Klix.Images do
   end
 
   def find(uuid) when is_binary(uuid) do
-    Image
+    Image.Query.base()
     |> Repo.get_by(uri_id: uuid)
   end
 
   def find!(uuid) when is_binary(uuid) do
-    Image
+    Image.Query.base()
     |> Repo.get_by!(uri_id: uuid)
   end
 

@@ -12,11 +12,18 @@ defmodule Klix.ImagesTest do
       %{image: image}
     end
 
-    test "hides image from lists", %{scope: scope, image: image} do
+    test "hides image from lists and finds", %{scope: scope, image: image} do
       {:ok, _image} = Images.soft_delete(scope, image)
+
+      [build] = image.builds
 
       assert Images.list() == []
       assert Images.list(scope) == []
+      assert Images.find(image.uri_id) == nil
+      assert_raise Ecto.NoResultsError, fn -> Images.find!(image.uri_id) end
+      assert Images.find_build(scope, image.id, build.id) == nil
+
+      assert Repo.preload(build, :image).image == nil
     end
 
     test "must be done by the owner", %{image: image} do

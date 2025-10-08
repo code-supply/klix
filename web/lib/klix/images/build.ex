@@ -11,7 +11,7 @@ defmodule Klix.Images.Build do
     field :byte_size, :integer
     field :duration, :string, virtual: true
 
-    belongs_to :image, Klix.Images.Image
+    belongs_to :image, Klix.Images.Image, where: [deleted_at: nil]
 
     timestamps(type: :utc_datetime)
   end
@@ -36,7 +36,9 @@ defmodule Klix.Images.Build do
     end
 
     def for_scope(query \\ base(), scope) do
-      image = from i in Klix.Images.Image, where: i.user_id == ^scope.user.id
+      image =
+        from i in Klix.Images.Image, where: i.user_id == ^scope.user.id and is_nil(i.deleted_at)
+
       join(query, :inner, [builds: b], i in ^image, on: i.id == b.image_id)
     end
 
