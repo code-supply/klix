@@ -285,7 +285,10 @@ defmodule KlixWeb.ImageLive do
             </h3>
             <div class="flex flex-col gap-3">
               <p>
-                You can delete this image if you no longer want to see it listed.
+                You can delete this image if you no longer use it in the printer, or no longer want to manage the system through Klix.
+              </p>
+              <p>
+                Doing so will disable Klix updates.
               </p>
             </div>
             <div class="card-actions justify-end">
