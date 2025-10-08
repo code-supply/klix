@@ -7,6 +7,16 @@ defmodule KlixWeb.ManageImagesTest do
     %{conn: log_in_user(conn, user), scope: scope}
   end
 
+  test "can soft-delete an image", %{conn: conn, scope: scope} do
+    {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+    {:ok, view, _html} = view |> element("#delete") |> render_click() |> follow_redirect(conn)
+
+    assert view |> has_element?("h1", "Your Images")
+    refute view |> has_element?("#images li")
+    assert view |> has_element?("*", "deleted")
+  end
+
   test "shows a list of plugins that're enabled", %{conn: conn, scope: scope} do
     {:ok, image} =
       Images.create(

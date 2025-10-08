@@ -215,6 +215,29 @@ defmodule KlixWeb.ImageLive do
             </div>
           </div>
         </section>
+
+        <section class="bg-warning card card-border border-base-300 mb-4">
+          <div class="card-body">
+            <h3 class="card-title">
+              <.icon name="hero-exclamation-triangle" class="size-6" /> Danger zone
+            </h3>
+            <div class="flex flex-col gap-3">
+              <p>
+                You can delete this image if you no longer want to see it listed.
+              </p>
+            </div>
+            <div class="card-actions justify-end">
+              <button
+                id="delete"
+                class="btn"
+                phx-click="delete"
+                data-confirm="Really delete this image?"
+              >
+                <.icon name="hero-trash" class="size-6" /> Delete image
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </Layouts.app>
     """
@@ -242,6 +265,15 @@ defmodule KlixWeb.ImageLive do
 
   def handle_event("open-doc", %{"section" => section}, socket) do
     {:noreply, assign(socket, doc_section: section)}
+  end
+
+  def handle_event("delete", _params, socket) do
+    {:ok, _image} = Images.soft_delete(socket.assigns.current_scope, socket.assigns.image)
+
+    {:noreply,
+     socket
+     |> push_navigate(to: ~p"/images")
+     |> put_flash(:info, "Image deleted")}
   end
 
   def handle_info([build_ready: %Images.Build{} = updated_build], socket) do
