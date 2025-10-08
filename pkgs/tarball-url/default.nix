@@ -12,6 +12,6 @@ writeShellApplication {
         | ssh-keygen -q -Y sign -n file -f "$key_path" \
         | base64 --wrap=0
     )"
-    echo -n "https://klix.code.supply/images/$uuid/$url_datetime/$url_signature/config.tar.gz"
+    echo -n "https://klix.code.supply/images/$uuid/$url_datetime/$url_signature/config.tar.gz#default"
   '';
 }

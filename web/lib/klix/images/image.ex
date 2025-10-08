@@ -91,7 +91,7 @@ defmodule Klix.Images.Image do
                           klix.packages.aarch64-linux.tarball-url
                         ];
                         text = ''
-                          nixos-rebuild --flake "$(klix-tarball-url #{image.uri_id})"
+                          nixos-rebuild switch --flake "$(klix-tarball-url #{image.uri_id})"
                         '';
                       })
                     ];
