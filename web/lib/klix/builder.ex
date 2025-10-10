@@ -1,6 +1,9 @@
 defmodule Klix.Builder do
   use GenServer
 
+  @log_lock_file_creation "warning: creating lock file"
+  @log_output_path_ready "[{\"drvPath"
+
   alias Klix.Images
 
   import Klix.ToNix
@@ -110,10 +113,7 @@ defmodule Klix.Builder do
     {:noreply, state}
   end
 
-  def handle_info(
-        {port, {:data, <<"warning: creating lock file", _rest::binary>> = output}},
-        state
-      )
+  def handle_info({port, {:data, <<@log_lock_file_creation, _rest::binary>> = output}}, state)
       when is_port(port) do
     {:ok, flake_nix} =
       state
@@ -131,10 +131,7 @@ defmodule Klix.Builder do
     {:noreply, %{state | build: build}}
   end
 
-  def handle_info(
-        {port, {:data, <<"[{\"drvPath", _rest::binary>> = output}},
-        state
-      )
+  def handle_info({port, {:data, <<@log_output_path_ready, _rest::binary>> = output}}, state)
       when is_port(port) do
     {:ok, [%{"outputs" => %{"out" => output_path}}]} = JSON.decode(output)
     {:ok, build} = Images.file_ready(state.build, output_path)
