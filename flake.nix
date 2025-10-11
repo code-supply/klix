@@ -98,5 +98,34 @@
           tarball-url = callPackage ./pkgs/tarball-url { };
         }
       );
+
+      versions =
+        with nixpkgs.lib.attrsets;
+        let
+          inputsWithRevisions = (filterAttrs (name: input: input ? rev) inputs);
+          versionsFromInputs = mapAttrs (name: input: input.rev) inputsWithRevisions;
+          nixpkgsPackages = [
+            "cage"
+            "fluidd"
+            "klipper"
+            "moonraker"
+            "nginx"
+            "plymouth"
+            "wayland"
+          ];
+          versionsFromNixpkgs = builtins.listToAttrs (
+            map (name: {
+              name = name;
+              value = nixpkgs.legacyPackages.aarch64-linux.${name}.version;
+            }) nixpkgsPackages
+          );
+          kernelVersion = {
+            linux =
+              (nixpkgs.lib.nixosSystem {
+                modules = [ self.nixosModules.default ];
+              }).config.boot.kernelPackages.kernel.version;
+          };
+        in
+        versionsFromInputs // versionsFromNixpkgs // kernelVersion;
     };
 }
