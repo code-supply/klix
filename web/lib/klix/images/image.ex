@@ -115,6 +115,7 @@ defmodule Klix.Images.Image do
                 )
               ];
             };
+            versions = klix.versions;
           };
       }
       """

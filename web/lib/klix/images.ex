@@ -15,6 +15,22 @@ defmodule Klix.Images do
     end
   end
 
+  def retrieve_versions(dir) do
+    case System.cmd(
+           "nix",
+           ~w(eval --json .#versions),
+           cd: dir,
+           stderr_to_stdout: true
+         ) do
+      {versions, 0} ->
+        [_junk, doc] = String.split(versions, "{", parts: 2)
+        JSON.decode("{" <> doc)
+
+      {_, exit_status} ->
+        {:error, :nix_eval_failed, exit_status}
+    end
+  end
+
   def s3_uploader(source, destination) do
     {:ok, _} =
       source
@@ -145,6 +161,13 @@ defmodule Klix.Images do
       |> Ecto.Changeset.change(byte_size: stat.size)
       |> Repo.update()
     end
+  end
+
+  def store_versions(%Build{} = build, versions) do
+    build
+    |> Ecto.Changeset.cast(%{versions: versions}, [])
+    |> Ecto.Changeset.cast_embed(:versions)
+    |> Repo.update()
   end
 
   def build_completed(%Build{} = build) do

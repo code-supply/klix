@@ -277,6 +277,7 @@ defmodule Klix.ImagesTest do
                        )
                      ];
                    };
+                   versions = klix.versions;
                  };
              }
              """

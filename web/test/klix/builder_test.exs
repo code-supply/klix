@@ -7,7 +7,20 @@ defmodule Klix.BuilderTest do
 
   @moduletag :tmp_dir
 
-  setup do: %{uploader: fn _source, _destination -> :ok end}
+  @stub_klipper_version "1.2.3"
+
+  setup do: %{
+          uploader: fn _source, _destination -> :ok end,
+          version_retriever: fn _path ->
+            {
+              :ok,
+              %{
+                "cage" => "1.2.3",
+                "klipper" => @stub_klipper_version
+              }
+            }
+          end
+        }
 
   describe "when an incomplete build is found" do
     setup do
@@ -48,7 +61,7 @@ defmodule Klix.BuilderTest do
                {:ok, to_nix(ctx.image)}
     end
 
-    test "runs the build, and uploads to cloud", ctx do
+    test "runs the build, stores versions and uploads to cloud", ctx do
       %{builds: [build]} = ctx.image
       build_id = build.id
 
@@ -77,6 +90,11 @@ defmodule Klix.BuilderTest do
       Images.subscribe(ctx.image.id)
       send(builder, {port, {:exit_status, 0}})
 
+      assert_receive {[:builder, :versions_stored], ^ref, %{}, %{pid: ^builder}}
+
+      build = Repo.reload!(build)
+      assert build.versions.klipper == @stub_klipper_version
+
       assert_receive {[:builder, :uploading], ^ref, %{}, %{pid: ^builder}}
       assert_receive build_ready: %Images.Build{id: ^build_id}
       assert_receive {[:builder, :run_complete], ^ref, %{}, %{pid: ^builder}}
@@ -85,14 +103,6 @@ defmodule Klix.BuilderTest do
 
       assert DateTime.compare(build.completed_at, DateTime.utc_now()) in [:lt, :eq]
       assert Images.build_ready?(build)
-    end
-
-    defp nix_writes_to_disk(builder, port, dir, contents \\ "123456") do
-      nix_message =
-        ~s([{"drvPath":"/some/path/foo.drv","outputs":{"out":"#{dir}"}}]\n)
-
-      write_image(dir, contents)
-      send(builder, {port, {:data, nix_message}})
     end
 
     test "if cloud upload fails, store error and set as completed", ctx do
@@ -202,17 +212,28 @@ defmodule Klix.BuilderTest do
     end
   end
 
+  defp nix_writes_to_disk(builder, port, dir, contents \\ "123456") do
+    nix_message =
+      ~s([{"drvPath":"/some/path/foo.drv","outputs":{"out":"#{dir}"}}]\n)
+
+    write_image(dir, contents)
+    send(builder, {port, {:data, nix_message}})
+  end
+
   defp subscribe do
     :telemetry_test.attach_event_handlers(self(), Builder.telemetry_events())
   end
 
-  defp start_builder(%{tmp_dir: tmp_dir, uploader: uploader}, cmd \\ "yes @nix {}") do
+  defp start_builder(
+         %{tmp_dir: tmp_dir, uploader: uploader, version_retriever: version_retriever},
+         cmd \\ "yes @nix {}"
+       ) do
     ref = subscribe()
 
     builder =
       start_link_supervised!({
         Builder,
-        build_dir: tmp_dir, cmd: cmd, uploader: uploader
+        build_dir: tmp_dir, cmd: cmd, uploader: uploader, version_retriever: version_retriever
       })
 
     assert_receive {[:builder, :idle], ^ref, _empty_measurements, %{pid: ^builder}}

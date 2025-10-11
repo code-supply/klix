@@ -11,6 +11,7 @@ defmodule Klix.Images.Build do
     field :byte_size, :integer
     field :duration, :string, virtual: true
 
+    embeds_one :versions, Klix.Images.Versions
     belongs_to :image, Klix.Images.Image, where: [deleted_at: nil]
 
     timestamps(type: :utc_datetime)

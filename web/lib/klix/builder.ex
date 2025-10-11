@@ -14,7 +14,8 @@ defmodule Klix.Builder do
       :build_dir,
       :cmd,
       :telemetry_meta,
-      :uploader
+      :uploader,
+      :version_retriever
     ]
     defstruct [
       :build,
@@ -22,7 +23,8 @@ defmodule Klix.Builder do
       :cmd,
       :output_path,
       :telemetry_meta,
-      :uploader
+      :uploader,
+      :version_retriever
     ]
   end
 
@@ -30,7 +32,8 @@ defmodule Klix.Builder do
     [
       [:builder, :build_log],
       [:builder, :build_started],
-      [:builder, :uploading]
+      [:builder, :uploading],
+      [:builder, :versions_stored]
       | Klix.Scheduler.events_for(:builder)
     ]
   end
@@ -149,18 +152,23 @@ defmodule Klix.Builder do
     send(port, {self(), :close})
     {:ok, path} = Images.sd_file_path(state.output_path)
 
+    {:ok, versions} = state.version_retriever.(state.build_dir)
+    {:ok, build} = Images.store_versions(state.build, versions)
+
+    emit(state, :versions_stored)
+
     emit(state, :uploading)
 
     {:ok, _build} =
       case state.uploader.(
              path,
-             "builds/#{state.build.id}.img.zst"
+             "builds/#{build.id}.img.zst"
            ) do
         :ok ->
-          Images.build_completed(state.build)
+          Images.build_completed(build)
 
         {:error, msg} ->
-          Images.build_failed(state.build, msg)
+          Images.build_failed(build, msg)
       end
 
     emit(state, :run_complete)
