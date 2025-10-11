@@ -192,6 +192,23 @@ let
         in
         drv;
 
+      castore =
+        let
+          version = "1.0.15";
+          drv = buildMix {
+            inherit version;
+            name = "castore";
+            appConfigPath = ./config;
+
+            src = fetchHex {
+              inherit version;
+              pkg = "castore";
+              sha256 = "96ce4c69d7d5d7a0761420ef743e2f4096253931a3ba69e5ff8ef1844fe446d3";
+            };
+          };
+        in
+        drv;
+
       certifi =
         let
           version = "2.15.0";
@@ -631,6 +648,7 @@ let
             };
 
             beamDeps = [
+              castore
               hpax
             ];
           };
