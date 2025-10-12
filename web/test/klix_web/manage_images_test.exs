@@ -79,6 +79,7 @@ defmodule KlixWeb.ManageImagesTest do
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 
     assert view |> has_element?(".printer .versions .klipper", "4.0.0")
+    assert view |> has_element?(".printer .klix-updated", ~r/\d{4}-\d{2}-\d{2}/)
   end
 
   @tag :tmp_dir
@@ -158,6 +159,7 @@ defmodule KlixWeb.ManageImagesTest do
 
     assert view |> has_element?("*", "being prepared"), view |> render()
     refute view |> has_element?(".printer .versions")
+    assert view |> has_element?(".printer .klix-updated", "never")
   end
 
   test "shows builds", %{conn: conn, scope: scope} do

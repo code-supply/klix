@@ -70,7 +70,9 @@ defmodule KlixWeb.ImageLive do
                 </dd>
 
                 <dt class="font-bold">Last <code>klix-update</code></dt>
-                <dd>{format_datetime(@image.current_versions_updated_at)}</dd>
+                <dd class="klix-updated">
+                  {format_datetime(@image.current_versions_updated_at, blank: "never")}
+                </dd>
               </dl>
 
               <.software_versions
@@ -118,10 +120,14 @@ defmodule KlixWeb.ImageLive do
                       <.icon name="hero-arrow-down-tray" /> Download {Images.download_size(build)}
                     </.link>
                   <% else %>
-                    <p>
-                      Build in progress. Download link will appear here when ready.
+                    <p class="col-span-2">
+                      Download link will appear here when ready.
                     </p>
-                    <div class="loading loading-bars loading-xl">being prepared</div>
+                    <div class="w-full text-right">
+                      <div class="loading loading-bars loading-xl">
+                        being prepared
+                      </div>
+                    </div>
                   <% end %>
                 </div>
               </div>

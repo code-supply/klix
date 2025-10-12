@@ -94,11 +94,12 @@ defmodule KlixWeb do
       # Routes generation with the ~p sigil
       unquote(verified_routes())
 
-      def format_datetime(nil) do
-        ""
-      end
+      def format_datetime(dt, opts \\ [])
 
-      def format_datetime(%DateTime{} = dt) do
+      def format_datetime(nil, blank: blank_text), do: blank_text
+      def format_datetime(nil, _opts), do: ""
+
+      def format_datetime(%DateTime{} = dt, _opts) do
         Calendar.strftime(dt, "%x %X %p")
       end
     end
