@@ -4,7 +4,7 @@ defmodule Klix.VersionRetrievalTest do
   test "can get versions that have been previously stored as an ordered list" do
     scope = Scope.for_user(user_fixture())
 
-    {:ok, %{builds: [build]} = image} =
+    {:ok, %{builds: [build]}} =
       Images.create(
         scope,
         Factory.params(
@@ -35,14 +35,12 @@ defmodule Klix.VersionRetrievalTest do
         }
       )
 
-    versions = Images.versions(image, build)
+    versions = Images.versions(build.versions)
 
     assert {:cage, "0.2.0"} in versions
     assert {:linux, "6.12.34"} in versions
     assert {:kamp, "b0dad8e"} in versions
     refute Keyword.has_key?(versions, :id)
-    refute Keyword.has_key?(versions, :z_calibration)
-    refute Keyword.has_key?(versions, :klipperscreen)
   end
 
   # works because we have the same output in Klix's flake as each printer's flake
