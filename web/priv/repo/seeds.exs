@@ -16,7 +16,7 @@ build_start =
 
 {:ok, finished_build} =
   finished_build
-  |> Ecto.Changeset.change(inserted_at: build_start)
+  |> Ecto.Changeset.change(inserted_at: build_start, byte_size: 99_999_999)
   |> Klix.Repo.update()
 
 {:ok, finished_build} =

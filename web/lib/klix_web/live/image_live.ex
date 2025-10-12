@@ -110,7 +110,7 @@ defmodule KlixWeb.ImageLive do
                     </div>
 
                     <.link
-                      class="col-start-3 btn btn-secondary"
+                      class="col-start-2 col-span-2 btn btn-secondary"
                       href={Images.download_url(build)}
                       download
                     >
