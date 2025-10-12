@@ -250,10 +250,17 @@ defmodule Klix.ImagesTest do
                              (pkgs.writeShellApplication {
                                name = "klix-update";
                                runtimeInputs = [
-                                 klix.packages.aarch64-linux.tarball-url
+                                 klix.packages.aarch64-linux.url
                                ];
                                text = ''
-                                 nixos-rebuild switch --flake "$(klix-tarball-url deadb33f-f33d-f00d-d00f-d0feef0f1355)"
+                                 dir="$(mktemp)"
+                                 (
+                                   cd "$dir"
+                                   curl "$(klix-url #{image.uri_id} config.tar.gz#default)" | tar -x
+                                   nixos-rebuild switch --flake .
+                                   nix eval .#versions | curl --request PUT --json @- "$(klix-url #{image.uri_id} versions)"
+                                 )
+                                 rm -rf "$dir"
                                '';
                              })
                            ];

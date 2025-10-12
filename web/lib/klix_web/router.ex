@@ -80,5 +80,6 @@ defmodule KlixWeb.Router do
   scope "/", KlixWeb do
     pipe_through [:printer]
     get "/images/:uuid/:datetime/:sshsig/config.tar.gz", TarballsController, :download
+    put "/images/:uuid/:datetime/:sshsig/versions", VersionsController, :update
   end
 end

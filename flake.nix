@@ -57,7 +57,7 @@
               klipperscreen = prev.klipperscreen.overrideAttrs {
                 src = klipperscreen;
               };
-              tarball-url = prev.callPackage ./pkgs/tarball-url { };
+              url = prev.callPackage ./pkgs/url { };
             })
           ];
         };
@@ -95,7 +95,7 @@
           default = callPackage ./web {
             version = if self ? rev then "0.0.0-${self.rev}" else "0.0.0-dev";
           };
-          tarball-url = callPackage ./pkgs/tarball-url { };
+          url = callPackage ./pkgs/url { };
         }
       );
 

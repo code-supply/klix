@@ -73,7 +73,7 @@ defmodule KlixWeb.MachineAuthTest do
     refute Repo.reload(image).host_public_key
   end
 
-  test "when stored host doesn't match subsequent requests, scope is nil", %{
+  test "when stored host key doesn't match subsequent requests, scope is nil", %{
     conn: conn,
     image: image,
     datetime: datetime,

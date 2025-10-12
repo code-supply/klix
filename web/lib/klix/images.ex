@@ -191,6 +191,12 @@ defmodule Klix.Images do
     |> Repo.update()
   end
 
+  def store_versions(%Scope{image: image}, versions) do
+    image
+    |> Image.current_versions_changeset(versions)
+    |> Repo.update()
+  end
+
   def build_completed(%Build{} = build) do
     build
     |> Build.success_changeset()

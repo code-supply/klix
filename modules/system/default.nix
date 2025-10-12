@@ -6,9 +6,7 @@
     ./user.nix
   ];
 
-  environment.systemPackages = with pkgs; [
-    tarball-url
-  ];
+  environment.systemPackages = [ pkgs.url ];
 
   boot = {
     initrd.verbose = false;

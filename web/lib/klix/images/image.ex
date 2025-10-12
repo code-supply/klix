@@ -11,8 +11,10 @@ defmodule Klix.Images.Image do
     field :plugin_z_calibration_enabled, :boolean, default: true
     field :public_key, :string
     field :host_public_key, :binary
+    field :current_versions_updated_at, :utc_datetime
     field :deleted_at, :utc_datetime
 
+    embeds_one :current_versions, Klix.Images.Versions
     embeds_one :klipper_config, Klix.Images.KlipperConfig
 
     belongs_to :user, Klix.Accounts.User
@@ -45,6 +47,18 @@ defmodule Klix.Images.Image do
     |> validate_format(:public_key, ~r/^(?!.*private).*$/, message: "looks like a private key")
     |> validate_change(:public_key, &errors_for/2)
     |> validate_inclusion(:timezone, Tzdata.zone_list(), message: "must be a valid timezone")
+  end
+
+  def current_versions_changeset(image, versions) do
+    image
+    |> Ecto.Changeset.cast(
+      %{
+        current_versions_updated_at: DateTime.utc_now(:second),
+        current_versions: versions
+      },
+      [:current_versions_updated_at]
+    )
+    |> Ecto.Changeset.cast_embed(:current_versions)
   end
 
   defp errors_for(:public_key, nil), do: []
@@ -88,10 +102,17 @@ defmodule Klix.Images.Image do
                       (pkgs.writeShellApplication {
                         name = "klix-update";
                         runtimeInputs = [
-                          klix.packages.aarch64-linux.tarball-url
+                          klix.packages.aarch64-linux.url
                         ];
                         text = ''
-                          nixos-rebuild switch --flake "$(klix-tarball-url #{image.uri_id})"
+                          dir="$(mktemp)"
+                          (
+                            cd "$dir"
+                            curl "$(klix-url #{image.uri_id} config.tar.gz#default)" | tar -x
+                            nixos-rebuild switch --flake .
+                            nix eval .#versions | curl --request PUT --json @- "$(klix-url #{image.uri_id} versions)"
+                          )
+                          rm -rf "$dir"
                         '';
                       })
                     ];
