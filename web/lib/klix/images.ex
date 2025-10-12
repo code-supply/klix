@@ -6,13 +6,18 @@ defmodule Klix.Images do
 
   import Klix.ToNix
 
-  def versions(%Build{versions: nil}), do: []
+  def versions(%Image{}, %Build{versions: nil}), do: []
 
-  def versions(%Build{} = build) do
+  def versions(%Image{} = image, %Build{} = build) do
     build.versions
     |> Map.from_struct()
-    |> Enum.reject(fn {k, _v} -> k == :id end)
+    |> Enum.reject(fn {k, _v} ->
+      k == :id or disabled?(image, k)
+    end)
     |> Enum.map(fn
+      {name, nil} ->
+        {name, nil}
+
       {name, <<version::binary-size(40)>>} ->
         {name, String.slice(version, 0..6)}
 
@@ -227,6 +232,16 @@ defmodule Klix.Images do
         {:error, :sd_dir_not_found}
     end
   end
+
+  defp disabled?(%Image{} = image, key) when key in [:z_calibration, :shaketune, :kamp] do
+    !Map.get(image, String.to_existing_atom("plugin_#{key}_enabled"), true)
+  end
+
+  defp disabled?(%Image{} = image, :klipperscreen) do
+    !Map.get(image, :klipperscreen_enabled, true)
+  end
+
+  defp disabled?(%Image{}, _key), do: false
 
   defp broadcast_ready({:ok, build}) do
     broadcast(build.image_id, build_ready: build)

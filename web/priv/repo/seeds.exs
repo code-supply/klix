@@ -5,7 +5,10 @@ scope = Klix.Accounts.Scope.for_user(user)
   Klix.Images.create(scope, Klix.Factory.params(:image, hostname: "unfinished"))
 
 {:ok, %Klix.Images.Image{builds: [finished_build]}} =
-  Klix.Images.create(scope, Klix.Factory.params(:image, hostname: "finished"))
+  Klix.Images.create(
+    scope,
+    Klix.Factory.params(:image, hostname: "finished", plugin_z_calibration_enabled: false)
+  )
 
 build_start =
   DateTime.utc_now(:second)

@@ -102,7 +102,7 @@ defmodule KlixWeb.ImageLive do
                       <h4 class="py-2 collapse-title">Software Versions</h4>
                       <dl class="collapse-content grid grid-cols-2 versions">
                         <.version
-                          :for={{package, version} <- Images.versions(build)}
+                          :for={{package, version} <- Images.versions(@image, build)}
                           package={package}
                           version={version}
                         />
