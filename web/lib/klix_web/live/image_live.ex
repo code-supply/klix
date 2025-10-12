@@ -89,21 +89,37 @@ defmodule KlixWeb.ImageLive do
                     {build.completed_at |> format_datetime()}
                   </dd>
                   <dt class="font-bold">Duration</dt>
-                  <dd class="duration cols-span-2">{build.duration}</dd>
+                  <dd class="duration col-span-2">{build.duration}</dd>
                 </dl>
-                <p :if={not Images.build_ready?(build)}>
-                  Build in progress. Download link will appear here when ready.
-                </p>
-                <div class="card-actions justify-end">
+
+                <div class="card-actions grid grid-cols-3">
                   <%= if Images.build_ready?(build) do %>
+                    <div
+                      :if={Images.build_ready?(build)}
+                      class="col-start-2 col-span-2 collapse collapse-arrow bg-base-300"
+                    >
+                      <input type="checkbox" />
+                      <h4 class="py-2 collapse-title">Software Versions</h4>
+                      <dl class="collapse-content grid grid-cols-2 versions">
+                        <.version
+                          :for={{package, version} <- Images.versions(build)}
+                          package={package}
+                          version={version}
+                        />
+                      </dl>
+                    </div>
+
                     <.link
-                      class="btn btn-secondary"
+                      class="col-start-3 btn btn-secondary"
                       href={Images.download_url(build)}
                       download
                     >
                       <.icon name="hero-arrow-down-tray" /> Download {Images.download_size(build)}
                     </.link>
                   <% else %>
+                    <p :if={not Images.build_ready?(build)}>
+                      Build in progress. Download link will appear here when ready.
+                    </p>
                     <div class="loading loading-bars loading-xl">being prepared</div>
                   <% end %>
                 </div>
@@ -365,7 +381,17 @@ defmodule KlixWeb.ImageLive do
     }
   end
 
-  defp tick_clock() do
+  attr :package, :string
+  attr :version, :string
+
+  defp version(assigns) do
+    ~H"""
+    <dt>{@package}</dt>
+    <dd class={"text-right #{@package}"}>{@version}</dd>
+    """
+  end
+
+  defp tick_clock do
     interval = :timer.seconds(1)
     now = DateTime.utc_now()
     next_tick = now |> DateTime.add(interval, :millisecond)

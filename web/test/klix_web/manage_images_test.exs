@@ -63,7 +63,25 @@ defmodule KlixWeb.ManageImagesTest do
   end
 
   @tag :tmp_dir
-  test "shows download links, but only for completed builds", %{
+  test "shows versions of software for completed builds", %{
+    conn: conn,
+    scope: scope,
+    tmp_dir: dir
+  } do
+    {:ok, %{builds: [build]} = image} = Images.create(scope, Klix.Factory.params(:image))
+
+    write_image(dir)
+    {:ok, build} = Images.file_ready(build, dir)
+    {:ok, build} = Images.store_versions(build, %{"klipper" => "3.2.1"})
+    {:ok, _build} = Images.build_completed(build)
+
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+    assert view |> has_element?(".versions .klipper", "3.2.1")
+  end
+
+  @tag :tmp_dir
+  test "shows download links for already-completed builds", %{
     conn: conn,
     scope: scope,
     tmp_dir: dir

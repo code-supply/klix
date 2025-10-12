@@ -6,6 +6,15 @@ defmodule Klix.Images do
 
   import Klix.ToNix
 
+  def versions(%Build{versions: nil}), do: []
+
+  def versions(%Build{} = build) do
+    build.versions
+    |> Map.from_struct()
+    |> Enum.reject(fn {k, _v} -> k == :id end)
+    |> Enum.into([])
+  end
+
   def soft_delete(%Scope{} = scope, %Image{} = image) do
     if scope.user.id == image.user_id do
       Ecto.Changeset.change(image, deleted_at: DateTime.utc_now(:second))
