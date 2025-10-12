@@ -63,6 +63,25 @@ defmodule KlixWeb.ManageImagesTest do
   end
 
   @tag :tmp_dir
+  test "shows most recent software versions on the printer", %{
+    conn: conn,
+    scope: scope,
+    tmp_dir: dir
+  } do
+    {:ok, %{builds: [build]} = image} = Images.create(scope, Klix.Factory.params(:image))
+
+    write_image(dir)
+    {:ok, build} = Images.file_ready(build, dir)
+    {:ok, build} = Images.store_versions(build, %{"klipper" => "3.0.0"})
+    {:ok, image} = Images.store_versions(Scope.for_image(image), %{"klipper" => "4.0.0"})
+    {:ok, _build} = Images.build_completed(build)
+
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+    assert view |> has_element?(".printer .versions .klipper", "4.0.0")
+  end
+
+  @tag :tmp_dir
   test "shows versions of software for completed builds", %{
     conn: conn,
     scope: scope,
@@ -77,7 +96,7 @@ defmodule KlixWeb.ManageImagesTest do
 
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 
-    assert view |> has_element?(".versions .klipper", "3.2.1")
+    assert view |> has_element?(".build .versions .klipper", "3.2.1")
   end
 
   @tag :tmp_dir
@@ -138,6 +157,7 @@ defmodule KlixWeb.ManageImagesTest do
       view |> element("a", "Details") |> render_click() |> follow_redirect(conn)
 
     assert view |> has_element?("*", "being prepared"), view |> render()
+    refute view |> has_element?(".printer .versions")
   end
 
   test "shows builds", %{conn: conn, scope: scope} do

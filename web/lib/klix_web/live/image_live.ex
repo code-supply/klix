@@ -24,50 +24,61 @@ defmodule KlixWeb.ImageLive do
       </.header>
 
       <div class="md:grid md:grid-cols-2 gap-4">
-        <section class="bg-base-100 card card-border border-base-300 mb-4">
-          <div class="card-body">
-            <h3 class="card-title">
-              <.icon name="hero-tag" class="size-6" /> Printer details
-            </h3>
-            <dl class="grid grid-cols-2 gap-2 pt-1">
-              <dt class="font-bold">Hostname</dt>
-              <dd>{@image.hostname}</dd>
+        <section>
+          <div class="bg-base-100 card card-border border-base-300 mb-4 printer">
+            <div class="card-body">
+              <h3 class="card-title">
+                <.icon name="hero-tag" class="size-6" /> Printer details
+              </h3>
+              <dl class="grid grid-cols-2 gap-2 pt-1">
+                <dt class="font-bold">Hostname</dt>
+                <dd>{@image.hostname}</dd>
 
-              <dt class="font-bold">Timezone</dt>
-              <dd>{@image.timezone}</dd>
+                <dt class="font-bold">Timezone</dt>
+                <dd>{@image.timezone}</dd>
 
-              <dt class="font-bold">KlipperScreen</dt>
-              <dd>
-                <.icon
-                  name={
-                    if @image.klipperscreen_enabled, do: "hero-check-circle", else: "hero-x-circle"
-                  }
-                  class="size-6"
-                />
-              </dd>
+                <dt class="font-bold">KlipperScreen</dt>
+                <dd>
+                  <.icon
+                    name={
+                      if @image.klipperscreen_enabled, do: "hero-check-circle", else: "hero-x-circle"
+                    }
+                    class="size-6"
+                  />
+                </dd>
 
-              <dt class="font-bold">Plugins</dt>
-              <dd>
-                <ul id="plugins" class="flex flex-wrap gap-2">
-                  <li
-                    :for={{flag, name} <- Images.plugins(@image)}
-                    class="badge badge-info mt-1"
+                <dt class="font-bold">Plugins</dt>
+                <dd>
+                  <ul id="plugins" class="flex flex-wrap gap-2">
+                    <li
+                      :for={{flag, name} <- Images.plugins(@image)}
+                      class="badge badge-info mt-1"
+                    >
+                      {name}
+                    </li>
+                  </ul>
+                </dd>
+
+                <dt class="font-bold">Klipper Config</dt>
+                <dd>
+                  <.link
+                    class="badge"
+                    href={"https://#{@image.klipper_config.type}.com/#{@image.klipper_config.owner}/#{@image.klipper_config.repo}/tree/main/#{@image.klipper_config.path}"}
                   >
-                    {name}
-                  </li>
-                </ul>
-              </dd>
+                    {Images.KlipperConfig.type_name(@image.klipper_config)}
+                  </.link>
+                </dd>
 
-              <dt class="font-bold">Klipper Config</dt>
-              <dd>
-                <.link
-                  class="badge"
-                  href={"https://#{@image.klipper_config.type}.com/#{@image.klipper_config.owner}/#{@image.klipper_config.repo}/tree/main/#{@image.klipper_config.path}"}
-                >
-                  {Images.KlipperConfig.type_name(@image.klipper_config)}
-                </.link>
-              </dd>
-            </dl>
+                <dt class="font-bold">Last <code>klix-update</code></dt>
+                <dd>{format_datetime(@image.current_versions_updated_at)}</dd>
+              </dl>
+
+              <.software_versions
+                :if={!Enum.empty?(@current_image_versions)}
+                title="Current software versions"
+                versions={@current_image_versions}
+              />
+            </div>
           </div>
         </section>
 
@@ -92,22 +103,12 @@ defmodule KlixWeb.ImageLive do
                   <dd class="duration col-span-2">{build.duration}</dd>
                 </dl>
 
-                <div class="card-actions grid grid-cols-3">
+                <div class="card-actions grid grid-cols-3 build">
                   <%= if Images.build_ready?(build) do %>
-                    <div
-                      :if={Images.build_ready?(build)}
-                      class="col-span-3 collapse collapse-arrow bg-base-300"
-                    >
-                      <input type="checkbox" />
-                      <h4 class="py-2 collapse-title">Software Versions</h4>
-                      <dl class="collapse-content grid grid-cols-2 versions">
-                        <.version
-                          :for={{package, version} <- Images.versions(build.versions)}
-                          package={package}
-                          version={version}
-                        />
-                      </dl>
-                    </div>
+                    <.software_versions
+                      title="Software versions"
+                      versions={Images.versions(build.versions)}
+                    />
 
                     <.link
                       class="col-start-2 col-span-2 btn btn-secondary"
@@ -117,7 +118,7 @@ defmodule KlixWeb.ImageLive do
                       <.icon name="hero-arrow-down-tray" /> Download {Images.download_size(build)}
                     </.link>
                   <% else %>
-                    <p :if={not Images.build_ready?(build)}>
+                    <p>
                       Build in progress. Download link will appear here when ready.
                     </p>
                     <div class="loading loading-bars loading-xl">being prepared</div>
@@ -341,7 +342,8 @@ defmodule KlixWeb.ImageLive do
       |> assign(
         page_title: "#{image.hostname} image",
         doc_section: nil,
-        image: with_durations(image, tick_clock())
+        image: with_durations(image, tick_clock()),
+        current_image_versions: Images.versions(image.current_versions)
       )
     }
   end
@@ -379,6 +381,25 @@ defmodule KlixWeb.ImageLive do
         with_durations(image, now)
       end)
     }
+  end
+
+  attr :title, :string
+  attr :versions, :list
+
+  defp software_versions(assigns) do
+    ~H"""
+    <div class="col-span-3 collapse collapse-arrow bg-base-300">
+      <input type="checkbox" />
+      <h4 class="py-2 collapse-title">{@title}</h4>
+      <dl class="collapse-content grid grid-cols-2 versions">
+        <.version
+          :for={{package, version} <- @versions}
+          package={package}
+          version={version}
+        />
+      </dl>
+    </div>
+    """
   end
 
   attr :package, :string
