@@ -96,7 +96,7 @@ defmodule KlixWeb.ImageLive do
                   <%= if Images.build_ready?(build) do %>
                     <div
                       :if={Images.build_ready?(build)}
-                      class="col-start-2 col-span-2 collapse collapse-arrow bg-base-300"
+                      class="col-span-3 collapse collapse-arrow bg-base-300"
                     >
                       <input type="checkbox" />
                       <h4 class="py-2 collapse-title">Software Versions</h4>

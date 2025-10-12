@@ -12,6 +12,13 @@ defmodule Klix.Images do
     build.versions
     |> Map.from_struct()
     |> Enum.reject(fn {k, _v} -> k == :id end)
+    |> Enum.map(fn
+      {name, <<version::binary-size(40)>>} ->
+        {name, String.slice(version, 0..6)}
+
+      {name, version} ->
+        {name, String.replace(version, ~r/-stable_.*/, "")}
+    end)
     |> Enum.into([])
   end
 
