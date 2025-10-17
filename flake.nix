@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     klipperscreen = {
@@ -29,6 +30,7 @@
       self,
       nixpkgs,
       nixos-hardware,
+      nixos-raspberrypi,
       klipperscreen,
       ...
     }@inputs:
