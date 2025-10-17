@@ -1,6 +1,9 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-nooverrides = {
+      url = "github:NixOS/nixpkgs/nixos-unstable";
+    };
     nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
@@ -68,11 +71,7 @@
     {
       nixosModules = modules // {
         default = {
-          imports = builtins.attrValues modules ++ [
-            { nixpkgs.hostPlatform = "aarch64-linux"; }
-            nixos-hardware.nixosModules.raspberry-pi-4
-            ./modules/system/raspberry-pi.nix
-          ];
+          imports = builtins.attrValues modules;
         };
       };
 

@@ -64,6 +64,9 @@ in
         group = "klipper";
 
         package =
+          let
+            pkgs = inputs.nixpkgs-nooverrides.legacyPackages.aarch64-linux;
+          in
           (pkgs.klipper.override {
             inherit extraPythonPackages;
           }).overrideAttrs
