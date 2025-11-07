@@ -1,4 +1,14 @@
 {
+  nixConfig = {
+    builders = "ssh://klix.code.supply aarch64-linux - 15 - kvm,nixos-test,big-parallel";
+    extra-substituters = [
+      "https://nixos-raspberrypi.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+    ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-nooverrides = {
@@ -88,6 +98,19 @@
           default = pkgs.callPackage ./shell.nix { };
         }
       );
+
+      lib = {
+        nixosSystem =
+          args:
+          nixos-raspberrypi.lib.nixosInstaller {
+            specialArgs = inputs;
+            modules = [
+              nixos-raspberrypi.inputs.nixos-images.nixosModules.sdimage-installer
+              self.nixosModules.default
+            ]
+            ++ args.modules;
+          };
+      };
 
       packages = forAllSystems (
         { pkgs, ... }:
