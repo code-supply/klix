@@ -101,6 +101,10 @@
 
       lib = {
         machineImports = {
+          raspberry-pi-4 = [
+            nixos-raspberrypi.nixosModules.raspberry-pi-4.base
+          ];
+
           raspberry-pi-5 = [
             nixos-raspberrypi.nixosModules.raspberry-pi-5.base
             nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
