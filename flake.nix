@@ -107,6 +107,27 @@
             modules = [
               nixos-raspberrypi.inputs.nixos-images.nixosModules.sdimage-installer
               self.nixosModules.default
+              (
+                {
+                  config,
+                  lib,
+                  modulesPath,
+                  ...
+                }:
+                {
+                  disabledModules = [
+                    # disable the sd-image module that nixos-images uses
+                    (modulesPath + "/installer/sd-card/sd-image-aarch64-installer.nix")
+                  ];
+                  # nixos-images sets this with `mkForce`, thus `mkOverride 40`
+                  image.baseName =
+                    let
+                      cfg = config.boot.loader.raspberryPi;
+                    in
+                    lib.mkOverride 40 "nixos-installer-rpi${cfg.variant}-${cfg.bootloader}";
+
+                }
+              )
             ]
             ++ args.modules;
           };
