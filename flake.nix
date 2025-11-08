@@ -100,6 +100,13 @@
       );
 
       lib = {
+        machineImports = {
+          raspberry-pi-5 = [
+            nixos-raspberrypi.nixosModules.raspberry-pi-5.base
+            nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
+          ];
+        };
+
         nixosSystem =
           args:
           nixos-raspberrypi.lib.nixosInstaller {
