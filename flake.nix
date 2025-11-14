@@ -86,17 +86,7 @@
       checks = forAllSystems (
         { pkgs, ... }:
         {
-          default = pkgs.callPackage ./tests {
-            imports = [
-              {
-                virtualisation.qemu.options = [
-                  "-accel"
-                  "tcg"
-                ];
-              }
-            ]
-            ++ builtins.attrValues modules;
-          };
+          default = pkgs.callPackage ./tests { imports = builtins.attrValues modules; };
         }
       );
 
