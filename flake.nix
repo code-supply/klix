@@ -15,7 +15,6 @@
       url = "github:NixOS/nixpkgs/nixos-unstable";
     };
     nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi";
-    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     klipperscreen = {
       url = "github:KlipperScreen/KlipperScreen";
@@ -42,7 +41,6 @@
     {
       self,
       nixpkgs,
-      nixos-hardware,
       nixos-raspberrypi,
       klipperscreen,
       ...
