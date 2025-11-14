@@ -64,14 +64,12 @@ in
         group = "klipper";
 
         package =
-          let
-            pkgs = inputs.nixpkgs-nooverrides.legacyPackages.aarch64-linux;
-          in
-          (pkgs.klipper.override {
+          with inputs.nixpkgs-nooverrides.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+          (klipper.override {
             inherit extraPythonPackages;
           }).overrideAttrs
             {
-              postUnpack = pkgs.lib.concatMapAttrsStringSep "\n" (
+              postUnpack = lib.concatMapAttrsStringSep "\n" (
                 name: pluginCfg:
                 let
                   plugin = plugins.${name};
