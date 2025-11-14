@@ -10,7 +10,7 @@ defmodule Klix.Images.Versions do
     :linux,
     :moonraker,
     :nginx,
-    :"nixos-hardware",
+    :"nixos-raspberrypi",
     :nixpkgs,
     :plymouth,
     :shaketune,
@@ -29,7 +29,7 @@ defmodule Klix.Images.Versions do
     field :linux
     field :moonraker
     field :nginx
-    field :"nixos-hardware"
+    field :"nixos-raspberrypi"
     field :nixpkgs
     field :plymouth
     field :shaketune

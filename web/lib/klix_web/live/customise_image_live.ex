@@ -28,12 +28,20 @@ defmodule KlixWeb.CustomiseImageLive do
           <legend class="fieldset-legend">Base OS Options</legend>
 
           <div class="flex flex-wrap">
-            <div class="w-1/2 pr-2">
+            <div class="w-1/3 pr-2">
+              <.input
+                field={@image[:machine]}
+                type="select"
+                options={Klix.Images.Image.options_for_machine()}
+                label="Machine type"
+              />
+            </div>
+            <div class="w-1/3 pr-2">
               <.input label="Hostname" placeholder="printy-mc-printface" field={@image[:hostname]} />
             </div>
-            <div class="w-1/2 pl-2">
+            <div class="w-1/3 pl-2">
               <.input
-                label="Time Zone"
+                label="Time zone"
                 placeholder="Europe/London"
                 field={@image[:timezone]}
                 type="select"

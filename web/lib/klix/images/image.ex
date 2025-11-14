@@ -1,8 +1,14 @@
 defmodule Klix.Images.Image do
   use Ecto.Schema
 
+  @options_for_machine [
+    {"Raspberry Pi 4", :raspberry_pi_4},
+    {"Raspberry Pi 5", :raspberry_pi_5}
+  ]
+
   schema "images" do
     field :uri_id, Ecto.UUID, autogenerate: true
+    field :machine, Ecto.Enum, values: Keyword.values(@options_for_machine)
     field :hostname, :string
     field :timezone, :string, default: "Europe/London"
     field :klipperscreen_enabled, :boolean, default: true
@@ -30,6 +36,7 @@ defmodule Klix.Images.Image do
 
     image
     |> cast(params, [
+      :machine,
       :hostname,
       :klipperscreen_enabled,
       :plugin_kamp_enabled,
@@ -59,6 +66,10 @@ defmodule Klix.Images.Image do
       [:current_versions_updated_at]
     )
     |> Ecto.Changeset.cast_embed(:current_versions)
+  end
+
+  def options_for_machine do
+    @options_for_machine
   end
 
   defp errors_for(:public_key, nil), do: []
@@ -92,7 +103,7 @@ defmodule Klix.Images.Image do
           }:
           {
             packages.aarch64-linux.image = self.nixosConfigurations.default.config.system.build.sdImage;
-            nixosConfigurations.default = nixpkgs.lib.nixosSystem {
+            nixosConfigurations.default = klix.lib.nixosSystem {
               modules = [
                 klix.nixosModules.default
                 (
@@ -116,6 +127,7 @@ defmodule Klix.Images.Image do
                         '';
                       })
                     ];
+                    imports = klix.lib.machineImports.#{machine_import(image)};
                     networking.hostName = "#{image.hostname}";
                     time.timeZone = "#{image.timezone}";
                     system.stateVersion = "25.05";
@@ -140,6 +152,12 @@ defmodule Klix.Images.Image do
           };
       }
       """
+    end
+
+    defp machine_import(%Klix.Images.Image{machine: machine}) do
+      machine
+      |> to_string()
+      |> String.replace("_", "-")
     end
   end
 

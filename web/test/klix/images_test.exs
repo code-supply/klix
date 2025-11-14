@@ -6,6 +6,16 @@ defmodule Klix.ImagesTest do
 
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
+  test "can get friendly machine name" do
+    assert Images.friendly_machine_name(%Images.Image{machine: :raspberry_pi_4}) ==
+             "Raspberry Pi 4"
+
+    assert Images.friendly_machine_name(%Images.Image{machine: :raspberry_pi_5}) ==
+             "Raspberry Pi 5"
+
+    assert Images.friendly_machine_name(%Images.Image{}) == nil
+  end
+
   describe "soft deletion" do
     setup %{scope: scope} do
       {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
@@ -197,6 +207,7 @@ defmodule Klix.ImagesTest do
         scope,
         Klix.Factory.params(
           :image,
+          machine: :raspberry_pi_5,
           klipper_config: [
             type: :github,
             owner: "mr-print",
@@ -240,7 +251,7 @@ defmodule Klix.ImagesTest do
                  }:
                  {
                    packages.aarch64-linux.image = self.nixosConfigurations.default.config.system.build.sdImage;
-                   nixosConfigurations.default = nixpkgs.lib.nixosSystem {
+                   nixosConfigurations.default = klix.lib.nixosSystem {
                      modules = [
                        klix.nixosModules.default
                        (
@@ -264,6 +275,7 @@ defmodule Klix.ImagesTest do
                                '';
                              })
                            ];
+                           imports = klix.lib.machineImports.raspberry-pi-5;
                            networking.hostName = "some-printer";
                            time.timeZone = "Europe/Madrid";
                            system.stateVersion = "25.05";

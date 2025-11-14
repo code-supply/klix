@@ -31,6 +31,11 @@ defmodule KlixWeb.ImageLive do
                 <.icon name="hero-tag" class="size-6" /> Printer details
               </h3>
               <dl class="grid grid-cols-2 gap-2 pt-1">
+                <dt class="font-bold">Machine type</dt>
+                <dd>
+                  {Images.friendly_machine_name(@image)}
+                </dd>
+
                 <dt class="font-bold">Hostname</dt>
                 <dd>{@image.hostname}</dd>
 

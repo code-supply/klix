@@ -6,6 +6,13 @@ defmodule Klix.Images do
 
   import Klix.ToNix
 
+  def friendly_machine_name(%Image{machine: machine}) do
+    Enum.find_value(Image.options_for_machine(), fn
+      {friendly_name, ^machine} -> friendly_name
+      _ -> nil
+    end)
+  end
+
   def versions(nil), do: []
 
   def versions(%Versions{} = versions) do

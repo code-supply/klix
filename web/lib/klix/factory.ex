@@ -5,6 +5,7 @@ defmodule Klix.Factory do
     [{_name, first_type} | _rest] = Ecto.Enum.mappings(Klix.Images.KlipperConfig, :type)
 
     [
+      machine: "raspberry_pi_4",
       hostname: "some-printer",
       klipper_config: [
         type: first_type,
