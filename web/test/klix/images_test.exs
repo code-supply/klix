@@ -159,6 +159,16 @@ defmodule Klix.ImagesTest do
     assert Repo.reload!(build).byte_size == 4
   end
 
+  test "can store large file sizes without overflowing", %{scope: scope} do
+    {:ok, %{builds: [build]}} =
+      Images.create(scope, Klix.Factory.params(:image))
+
+    assert {:ok, _build} =
+             build
+             |> Ecto.Changeset.change(byte_size: 2_450_333_781)
+             |> Repo.update()
+  end
+
   describe "getting the next build" do
     test "nil when there's no build" do
       assert Images.next_build() == nil
