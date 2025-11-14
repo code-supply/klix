@@ -175,8 +175,11 @@
           );
           kernelVersion = {
             linux =
-              (nixpkgs.lib.nixosSystem {
-                modules = [ self.nixosModules.default ];
+              (self.lib.nixosSystem {
+                modules = [
+                  { nixpkgs.hostPlatform = "aarch64-linux"; }
+                  self.nixosModules.default
+                ];
               }).config.boot.kernelPackages.kernel.version;
           };
         in
