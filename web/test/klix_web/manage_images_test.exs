@@ -7,6 +7,26 @@ defmodule KlixWeb.ManageImagesTest do
     %{conn: log_in_user(conn, user), scope: scope}
   end
 
+  test "can't go to another user's image", %{conn: conn} do
+    different_user = user_fixture()
+    different_scope = Klix.Accounts.Scope.for_user(different_user)
+
+    {:ok, image} = Klix.Images.create(different_scope, Klix.Factory.params(:image))
+
+    assert_raise Ecto.NoResultsError, fn ->
+      live(conn, ~p"/images/#{image.id}")
+    end
+  end
+
+  test "images that are already built are downloadable", %{conn: conn, scope: scope} do
+    {:ok, %{builds: [build]} = image} = Klix.Images.create(scope, Klix.Factory.params(:image))
+    {:ok, _build} = Klix.Images.build_completed(build)
+
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+    assert view |> has_element?("[download]")
+  end
+
   test "can soft-delete an image", %{conn: conn, scope: scope} do
     {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")

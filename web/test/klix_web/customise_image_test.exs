@@ -10,17 +10,6 @@ defmodule KlixWeb.CustomiseImageTest do
     %{conn: log_in_user(conn, user), scope: scope}
   end
 
-  test "can't go to another user's image", %{conn: conn} do
-    different_user = user_fixture()
-    different_scope = Klix.Accounts.Scope.for_user(different_user)
-
-    {:ok, image} = Klix.Images.create(different_scope, Klix.Factory.params(:image))
-
-    assert_raise Ecto.NoResultsError, fn ->
-      live(conn, ~p"/images/#{image.id}")
-    end
-  end
-
   test "shows a message when download requested", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/images/new")
 
@@ -31,15 +20,6 @@ defmodule KlixWeb.CustomiseImageTest do
       |> follow_redirect(conn)
 
     assert html =~ "being prepared"
-  end
-
-  test "images that are already built are downloadable", %{conn: conn, scope: scope} do
-    {:ok, %{builds: [build]} = image} = Klix.Images.create(scope, Klix.Factory.params(:image))
-    {:ok, _build} = Klix.Images.build_completed(build)
-
-    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
-
-    assert view |> has_element?("[download]")
   end
 
   @tag :tmp_dir
