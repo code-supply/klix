@@ -54,7 +54,7 @@ defmodule KlixWeb.ImagesLive do
                 |> DateTime.shift_zone!(image.timezone, Tzdata.TimeZoneDatabase)
                 |> format_datetime()}
               </dd>
-              <dt class="font-bold">Timezone</dt>
+              <dt class="font-bold">Time zone</dt>
               <dd class="col-span-2">{image.timezone}</dd>
               <dt class="font-bold">Builds</dt>
               <dd class="col-span-2">{length(image.builds)}</dd>

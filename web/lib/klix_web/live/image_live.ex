@@ -39,7 +39,7 @@ defmodule KlixWeb.ImageLive do
                 <dt class="font-bold">Hostname</dt>
                 <dd>{@image.hostname}</dd>
 
-                <dt class="font-bold">Timezone</dt>
+                <dt class="font-bold">Time zone</dt>
                 <dd>{@image.timezone}</dd>
 
                 <dt class="font-bold">KlipperScreen</dt>
