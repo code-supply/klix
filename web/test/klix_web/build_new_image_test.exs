@@ -1,4 +1,4 @@
-defmodule KlixWeb.CustomiseImageTest do
+defmodule KlixWeb.BuildNewImageTest do
   use KlixWeb.ConnCase, async: true
 
   import Klix.AccountsFixtures

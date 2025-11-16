@@ -1,4 +1,4 @@
-defmodule KlixWeb.CustomiseImageLive do
+defmodule KlixWeb.BuildNewImageLive do
   use KlixWeb, :live_view
 
   import KlixWeb.CoreComponents
