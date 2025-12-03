@@ -12,12 +12,17 @@ defmodule Klix.WizardTest do
       field :age, :integer
     end
 
+    def empty_changeset(thing) do
+      thing |> Ecto.Changeset.cast(%{}, [])
+    end
+
     def changeset(thing, params) do
-      Ecto.Changeset.cast(
-        thing,
+      thing
+      |> Ecto.Changeset.cast(
         Enum.into(params, %{}),
         [:name, :description, :age]
       )
+      |> Ecto.Changeset.validate_required([:name, :description, :age])
     end
   end
 
@@ -25,8 +30,8 @@ defmodule Klix.WizardTest do
     @behaviour Wizard.Step
 
     @impl Wizard.Step
-    def changeset(parent_changeset, params) do
-      parent_changeset
+    def changeset(params) do
+      %Klix.WizardTest.Thing{}
       |> Ecto.Changeset.cast(Enum.into(params, %{}), [:name])
       |> Ecto.Changeset.validate_required([:name])
     end
@@ -36,8 +41,8 @@ defmodule Klix.WizardTest do
     @behaviour Wizard.Step
 
     @impl Wizard.Step
-    def changeset(parent_changeset, params) do
-      parent_changeset
+    def changeset(params) do
+      %Klix.WizardTest.Thing{}
       |> Ecto.Changeset.cast(Enum.into(params, %{}), [:description])
       |> Ecto.Changeset.validate_required([:description])
     end
@@ -47,29 +52,28 @@ defmodule Klix.WizardTest do
     @behaviour Wizard.Step
 
     @impl Wizard.Step
-    def changeset(parent_changeset, params) do
-      parent_changeset
+    def changeset(params) do
+      %Klix.WizardTest.Thing{}
       |> Ecto.Changeset.cast(Enum.into(params, %{}), [:age])
       |> Ecto.Changeset.validate_required([:age])
     end
   end
 
   test "completing first step produces new incomplete step" do
-    changeset = Thing.changeset(%Thing{}, [])
-    wizard = Wizard.new(changeset, [TestStep1, TestStep2, TestStep3])
+    wizard = Wizard.new(%Thing{}, [TestStep1, TestStep2, TestStep3])
 
-    refute Wizard.changeset_for_step(wizard, TestStep1).valid?
+    assert wizard.current == TestStep1
+    refute wizard.changeset_for_step.valid?
 
     wizard = Wizard.next(wizard, name: "Andrew")
 
-    assert Wizard.changeset_for_step(wizard, TestStep1).valid?
     assert wizard.current == TestStep2
+    refute wizard.changeset_for_step.valid?
     assert wizard.data == nil
   end
 
   test "completing final step produces data ready for persistence" do
-    changeset = Thing.changeset(%Thing{}, [])
-    wizard = Wizard.new(changeset, [TestStep1, TestStep2, TestStep3])
+    wizard = Wizard.new(%Thing{}, [TestStep1, TestStep2, TestStep3])
 
     refute Wizard.changeset_for_step(wizard, TestStep1).valid?
 
@@ -87,14 +91,14 @@ defmodule Klix.WizardTest do
   end
 
   test "errors are available on step changesets" do
-    changeset = Thing.changeset(%Thing{}, [])
-
     wizard =
-      changeset
+      %Thing{}
       |> Wizard.new([TestStep1, TestStep2, TestStep3])
       |> Wizard.next(name: "")
 
-    refute Wizard.changeset_for_step(wizard, TestStep1).valid?
+    refute wizard.changeset_for_step.valid?
+    assert wizard.changeset_for_step.action
+    assert wizard.changeset_for_step.errors[:name]
 
     assert wizard.current == TestStep1
   end
