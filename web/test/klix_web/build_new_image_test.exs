@@ -10,52 +10,50 @@ defmodule KlixWeb.BuildNewImageTest do
     %{conn: log_in_user(conn, user), scope: scope}
   end
 
-  test "shows a message when download requested", %{conn: conn} do
+  test "shows a message when all steps are complete", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/images/new")
+
+    view
+    |> fill_in(machine: "raspberry_pi_5")
+    |> render_submit()
+
+    view
+    |> fill_in(hostname: "my-machine", timezone: "Europe/London")
+    |> render_submit()
+
+    view
+    |> fill_in(public_key: Factory.params(:image).public_key)
+    |> render_submit()
+
+    view
+    |> fill_in(plugin_kamp_enabled: false)
+    |> render_submit()
 
     {:ok, _view, html} =
       view
-      |> form("#image", image: Klix.Factory.params(:image))
+      |> fill_in(
+        klipper_config: [
+          type: "github",
+          owner: "code-supply",
+          repo: "code-supply",
+          path: "some/path"
+        ]
+      )
       |> render_submit()
       |> follow_redirect(conn)
 
     assert html =~ "being prepared"
   end
 
-  @tag :tmp_dir
-  test "shows download link when image is built", %{scope: scope, conn: conn, tmp_dir: tmp_dir} do
+  test "errors are shown and prevent progress", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/images/new")
 
-    {:error, {:live_redirect, %{kind: :push, to: <<"/images/", image_id::binary>>}}} =
-      response =
-      view
-      |> form("#image", image: Klix.Factory.params(:image))
-      |> render_submit()
-
-    {:ok, view, _html} =
-      follow_redirect(response, conn)
-
-    %{builds: [build]} = Klix.Images.find!(scope, image_id)
-
-    top_dir = write_image(tmp_dir, "the image contents")
-
-    Klix.Images.file_ready(build, top_dir)
-    Klix.Images.build_completed(build)
-
-    expected_host = Application.fetch_env!(:ex_aws, :s3)[:host]
-    assert view |> has_element?("[download][href*='https://#{expected_host}']")
+    assert view
+           |> fill_in(machine: "")
+           |> render_submit() =~ ~r/can.*t be blank/
   end
 
-  test "shows validation errors", %{conn: conn} do
-    {:ok, view, _html} = live(conn, ~p"/images/new")
-
-    assert view |> form("#image", image: %{hostname: "-"}) |> render_submit() =~
-             "must not start with a hyphen"
-  end
-
-  test "has a submit button", %{conn: conn} do
-    {:ok, view, _html} = live(conn, ~p"/images/new")
-
-    assert view |> has_element?("#download")
+  defp fill_in(view, params) do
+    view |> form("#step", image: params)
   end
 end

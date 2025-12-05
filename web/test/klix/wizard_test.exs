@@ -60,7 +60,7 @@ defmodule Klix.WizardTest do
   end
 
   test "completing first step produces new incomplete step" do
-    wizard = Wizard.new(%Thing{}, [TestStep1, TestStep2, TestStep3])
+    wizard = Wizard.new([TestStep1, TestStep2, TestStep3])
 
     assert wizard.current == TestStep1
     refute wizard.changeset_for_step.valid?
@@ -73,7 +73,9 @@ defmodule Klix.WizardTest do
   end
 
   test "completing final step produces data ready for persistence" do
-    wizard = Wizard.new(%Thing{}, [TestStep1, TestStep2, TestStep3])
+    wizard = Wizard.new([TestStep1, TestStep2, TestStep3])
+
+    refute Wizard.complete?(wizard)
 
     refute Wizard.changeset_for_step(wizard, TestStep1).valid?
 
@@ -88,12 +90,15 @@ defmodule Klix.WizardTest do
              description: "a person",
              age: 999
            } = wizard.data
+
+    assert wizard.changeset.changes == %{name: "Andrew", description: "a person", age: 999}
+
+    assert Wizard.complete?(wizard)
   end
 
   test "errors are available on step changesets" do
     wizard =
-      %Thing{}
-      |> Wizard.new([TestStep1, TestStep2, TestStep3])
+      Wizard.new([TestStep1, TestStep2, TestStep3])
       |> Wizard.next(name: "")
 
     refute wizard.changeset_for_step.valid?

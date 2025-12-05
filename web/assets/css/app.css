@@ -6,8 +6,6 @@
 @source "../js";
 @source "../../lib/klix_web";
 
-.fieldset, .input, .select { font-size: 1.125rem; }
-
 .help-accordion {
   @apply bg-base-100 border border-base-300;
 }

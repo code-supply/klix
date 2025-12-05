@@ -109,10 +109,15 @@ defmodule Klix.Images do
     |> Repo.get_by(image_id: image_id, id: build_id)
   end
 
-  def create(%Scope{} = scope, attrs) do
-    %Image{user: scope.user, builds: [[]]}
-    |> Image.changeset(attrs)
+  def create(%Scope{} = scope, %Ecto.Changeset{} = changeset) do
+    changeset
+    |> Ecto.Changeset.put_change(:user, scope.user)
+    |> Ecto.Changeset.put_change(:builds, [[]])
     |> Repo.insert()
+  end
+
+  def create(%Scope{} = scope, attrs) do
+    create(scope, Image.changeset(%Image{}, attrs))
   end
 
   def snapshot(%Image{} = image) do

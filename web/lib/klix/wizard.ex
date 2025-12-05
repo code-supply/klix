@@ -7,32 +7,78 @@ defmodule Klix.Wizard do
     @callback changeset(params :: Enum.t()) :: Changeset.t()
   end
 
-  defmodule Steps.Machine do
-    @behaviour Step
+  defmodule Steps do
+    defmodule Machine do
+      @behaviour Step
 
-    def changeset(params) do
-      %Klix.Images.Image{}
-      |> Ecto.Changeset.cast(params, [:machine])
-      |> Ecto.Changeset.validate_required([:machine])
+      def changeset(params) do
+        %Klix.Images.Image{}
+        |> Ecto.Changeset.cast(params, [:machine])
+        |> Ecto.Changeset.validate_required([:machine])
+      end
+    end
+
+    defmodule LocaleAndIdentity do
+      @behaviour Step
+
+      def changeset(params) do
+        %Klix.Images.Image{}
+        |> Ecto.Changeset.cast(params, [:hostname, :timezone])
+        |> Ecto.Changeset.validate_required([:hostname, :timezone])
+      end
+    end
+
+    defmodule Authentication do
+      @behaviour Step
+
+      def changeset(params) do
+        %Klix.Images.Image{}
+        |> Ecto.Changeset.cast(params, [:public_key])
+        |> Ecto.Changeset.validate_required([:public_key])
+      end
+    end
+
+    defmodule ExtraSoftware do
+      @behaviour Step
+
+      @attrs [
+        :plugin_kamp_enabled,
+        :plugin_shaketune_enabled,
+        :plugin_z_calibration_enabled,
+        :klipperscreen_enabled
+      ]
+
+      def changeset(params) do
+        %Klix.Images.Image{}
+        |> Ecto.Changeset.cast(params, @attrs)
+        |> Ecto.Changeset.validate_required(@attrs)
+      end
+    end
+
+    defmodule KlipperConfig do
+      @behaviour Step
+
+      def changeset(params) do
+        %Klix.Images.Image{}
+        |> Ecto.Changeset.cast(params, [])
+        |> Ecto.Changeset.cast_embed(:klipper_config)
+      end
+    end
+
+    def sign_up do
+      [
+        Machine,
+        LocaleAndIdentity,
+        Authentication,
+        ExtraSoftware,
+        KlipperConfig
+      ]
     end
   end
 
-  defmodule Steps.LocaleAndIdentity do
-    @behaviour Step
-
-    def changeset(params) do
-      %Klix.Images.Image{}
-      |> Ecto.Changeset.cast(params, [:hostname, :timezone])
-    end
-  end
-
-  def sign_up_steps do
-    [Steps.Machine, Steps.LocaleAndIdentity]
-  end
-
-  def new(struct, [step_1 | _] = steps) do
+  def new([step_1 | _] = steps) do
     wizard = %__MODULE__{
-      changeset: Ecto.Changeset.change(struct),
+      changeset: nil,
       current: step_1,
       data: nil,
       steps: Enum.map(steps, &{&1, &1.changeset(%{})})
@@ -41,30 +87,24 @@ defmodule Klix.Wizard do
     %{wizard | changeset_for_step: changeset_for_step(wizard, step_1)}
   end
 
+  def complete?(wizard), do: !!wizard.data
+
   def next(%__MODULE__{steps: steps, current: current} = wizard, params) do
     {step_changeset, wizard} = change_step(wizard, params)
-    parent_changeset = merge_step(wizard, current)
 
     case {Changeset.apply_action(step_changeset, :next), next_step(steps, current)} do
       {{:ok, _data}, :complete} ->
-        case Changeset.apply_action(parent_changeset, :complete_wizard) do
-          {:ok, data} ->
-            %{wizard | current: nil, data: data}
-
-          {:error, changeset} ->
-            %{wizard | changeset: changeset}
-        end
+        complete(wizard)
 
       {{:ok, _data}, {new_current, _}} ->
         %{
           wizard
-          | changeset: parent_changeset,
-            changeset_for_step: changeset_for_step(wizard, new_current),
+          | changeset_for_step: changeset_for_step(wizard, new_current),
             current: new_current
         }
 
       {{:error, changeset}, _} ->
-        %{wizard | changeset: parent_changeset, changeset_for_step: changeset}
+        %{wizard | changeset_for_step: changeset}
     end
   end
 
@@ -73,6 +113,27 @@ defmodule Klix.Wizard do
       {^step, changeset} -> changeset
       _ -> nil
     end)
+  end
+
+  defp complete(wizard) do
+    wizard = %{
+      wizard
+      | changeset:
+          wizard.steps
+          |> Enum.map(fn {_, cs} -> cs end)
+          |> Enum.reduce(fn step_changeset, cs ->
+            Changeset.merge(cs, step_changeset)
+          end)
+    }
+
+    case Changeset.apply_action(wizard.changeset, :complete_wizard) do
+      {:ok, data} ->
+        %{wizard | current: nil, data: data}
+
+      {:error, changeset} ->
+        dbg(changeset.changes)
+        %{wizard | changeset: changeset}
+    end
   end
 
   defp change_step(wizard, params) do
@@ -91,10 +152,6 @@ defmodule Klix.Wizard do
         end
       )
     }
-  end
-
-  defp merge_step(wizard, current) do
-    Changeset.merge(wizard.changeset, changeset_for_step(wizard, current))
   end
 
   defp next_step([{current, _}, next | _], current), do: next

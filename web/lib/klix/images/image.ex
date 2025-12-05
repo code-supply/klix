@@ -68,9 +68,7 @@ defmodule Klix.Images.Image do
     |> Ecto.Changeset.cast_embed(:current_versions)
   end
 
-  def options_for_machine do
-    @options_for_machine
-  end
+  def options_for_machine, do: @options_for_machine
 
   defp errors_for(:public_key, nil), do: []
 

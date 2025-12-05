@@ -2,9 +2,30 @@ defmodule Klix.ImagesTest do
   use Klix.DataCase, async: true
   use ExUnitProperties
 
+  alias Klix.Wizard
+
   import Klix.ToNix
 
   setup do: %{scope: user_fixture() |> Scope.for_user()}
+
+  test "can build an image from a wizard", %{scope: scope} do
+    wizard =
+      Wizard.Steps.sign_up()
+      |> Wizard.new()
+      |> Wizard.next(%{machine: "raspberry_pi_4"})
+      |> Wizard.next(%{hostname: "my-printer", timezone: "Europe/London"})
+      |> Wizard.next(%{public_key: "hi"})
+      |> Wizard.next(%{plugin_shaketune_enabled: true})
+      |> Wizard.next(%{
+        klipper_config: %{type: "github", owner: "code-supply", repo: "code-supply"}
+      })
+
+    assert Wizard.complete?(wizard)
+    {:ok, image} = Images.create(scope, wizard.changeset)
+
+    assert image.user == scope.user
+    assert Repo.preload(image, :builds).builds |> length() == 1
+  end
 
   test "can get friendly machine name" do
     assert Images.friendly_machine_name(%Images.Image{machine: :raspberry_pi_4}) ==
