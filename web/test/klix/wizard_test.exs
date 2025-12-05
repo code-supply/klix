@@ -29,10 +29,11 @@ defmodule Klix.WizardTest do
   defmodule TestStep1 do
     @behaviour Wizard.Step
 
-    @impl Wizard.Step
-    def changeset(params) do
-      %Klix.WizardTest.Thing{}
-      |> Ecto.Changeset.cast(Enum.into(params, %{}), [:name])
+    def struct, do: %Klix.WizardTest.Thing{}
+    def cast(thing, params), do: Ecto.Changeset.cast(thing, Enum.into(params, %{}), [:name])
+
+    def validate(changeset) do
+      changeset
       |> Ecto.Changeset.validate_required([:name])
     end
   end
@@ -40,10 +41,13 @@ defmodule Klix.WizardTest do
   defmodule TestStep2 do
     @behaviour Wizard.Step
 
-    @impl Wizard.Step
-    def changeset(params) do
-      %Klix.WizardTest.Thing{}
-      |> Ecto.Changeset.cast(Enum.into(params, %{}), [:description])
+    def struct, do: %Klix.WizardTest.Thing{}
+
+    def cast(thing, params),
+      do: Ecto.Changeset.cast(thing, Enum.into(params, %{}), [:description])
+
+    def validate(changeset) do
+      changeset
       |> Ecto.Changeset.validate_required([:description])
     end
   end
@@ -51,10 +55,11 @@ defmodule Klix.WizardTest do
   defmodule TestStep3 do
     @behaviour Wizard.Step
 
-    @impl Wizard.Step
-    def changeset(params) do
-      %Klix.WizardTest.Thing{}
-      |> Ecto.Changeset.cast(Enum.into(params, %{}), [:age])
+    def struct, do: %Klix.WizardTest.Thing{}
+    def cast(thing, params), do: Ecto.Changeset.cast(thing, Enum.into(params, %{}), [:age])
+
+    def validate(changeset) do
+      changeset
       |> Ecto.Changeset.validate_required([:age])
     end
   end

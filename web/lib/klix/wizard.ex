@@ -4,76 +4,9 @@ defmodule Klix.Wizard do
   alias Ecto.Changeset
 
   defmodule Step do
-    @callback changeset(params :: Enum.t()) :: Changeset.t()
-  end
-
-  defmodule Steps do
-    defmodule Machine do
-      @behaviour Step
-
-      def changeset(params) do
-        %Klix.Images.Image{}
-        |> Ecto.Changeset.cast(params, [:machine])
-        |> Ecto.Changeset.validate_required([:machine])
-      end
-    end
-
-    defmodule LocaleAndIdentity do
-      @behaviour Step
-
-      def changeset(params) do
-        %Klix.Images.Image{}
-        |> Ecto.Changeset.cast(params, [:hostname, :timezone])
-        |> Ecto.Changeset.validate_required([:hostname, :timezone])
-      end
-    end
-
-    defmodule Authentication do
-      @behaviour Step
-
-      def changeset(params) do
-        %Klix.Images.Image{}
-        |> Ecto.Changeset.cast(params, [:public_key])
-        |> Ecto.Changeset.validate_required([:public_key])
-      end
-    end
-
-    defmodule ExtraSoftware do
-      @behaviour Step
-
-      @attrs [
-        :plugin_kamp_enabled,
-        :plugin_shaketune_enabled,
-        :plugin_z_calibration_enabled,
-        :klipperscreen_enabled
-      ]
-
-      def changeset(params) do
-        %Klix.Images.Image{}
-        |> Ecto.Changeset.cast(params, @attrs)
-        |> Ecto.Changeset.validate_required(@attrs)
-      end
-    end
-
-    defmodule KlipperConfig do
-      @behaviour Step
-
-      def changeset(params) do
-        %Klix.Images.Image{}
-        |> Ecto.Changeset.cast(params, [])
-        |> Ecto.Changeset.cast_embed(:klipper_config)
-      end
-    end
-
-    def sign_up do
-      [
-        Machine,
-        LocaleAndIdentity,
-        Authentication,
-        ExtraSoftware,
-        KlipperConfig
-      ]
-    end
+    @callback struct() :: struct()
+    @callback cast(struct(), params :: Enum.t()) :: Changeset.t()
+    @callback validate(Changeset.t()) :: Changeset.t()
   end
 
   def new([step_1 | _] = steps) do
@@ -81,7 +14,7 @@ defmodule Klix.Wizard do
       changeset: nil,
       current: step_1,
       data: nil,
-      steps: Enum.map(steps, &{&1, &1.changeset(%{})})
+      steps: Enum.map(steps, &{&1, step_changeset(&1, %{})})
     }
 
     %{wizard | changeset_for_step: changeset_for_step(wizard, step_1)}
@@ -137,7 +70,7 @@ defmodule Klix.Wizard do
   end
 
   defp change_step(wizard, params) do
-    step_changeset = wizard.current.changeset(params)
+    step_changeset = step_changeset(wizard.current, params)
 
     {
       step_changeset,
@@ -152,6 +85,12 @@ defmodule Klix.Wizard do
         end
       )
     }
+  end
+
+  defp step_changeset(step, params) do
+    step.struct()
+    |> step.cast(params)
+    |> step.validate()
   end
 
   defp next_step([{current, _}, next | _], current), do: next

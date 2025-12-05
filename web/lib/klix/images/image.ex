@@ -31,29 +31,116 @@ defmodule Klix.Images.Image do
     timestamps(type: :utc_datetime)
   end
 
-  def changeset(image, params) do
-    import Ecto.Changeset
+  defmodule Steps do
+    defmodule Machine do
+      @behaviour Klix.Wizard.Step
 
-    image
-    |> cast(params, [
-      :machine,
-      :hostname,
-      :klipperscreen_enabled,
-      :plugin_kamp_enabled,
-      :plugin_shaketune_enabled,
-      :plugin_z_calibration_enabled,
-      :public_key,
-      :timezone
-    ])
-    |> cast_embed(:klipper_config)
-    |> validate_format(:hostname, ~r/^[^-].*$/, message: "must not start with a hyphen")
-    |> validate_format(:hostname, ~r/^.*[^-]$/, message: "must not end with a hyphen")
-    |> validate_format(:hostname, ~r/^[a-zA-Z0-9-]+$/, message: "must be A-Za-z0-9 or hyphen")
-    |> validate_length(:hostname, max: 253)
-    |> validate_required([:hostname, :klipper_config, :public_key])
-    |> validate_format(:public_key, ~r/^(?!.*private).*$/, message: "looks like a private key")
-    |> validate_change(:public_key, &errors_for/2)
-    |> validate_inclusion(:timezone, Tzdata.zone_list(), message: "must be a valid timezone")
+      def struct, do: %Klix.Images.Image{}
+      def cast(image, params), do: Ecto.Changeset.cast(image, params, [:machine])
+
+      def validate(changeset) do
+        changeset
+        |> Ecto.Changeset.validate_required([:machine])
+      end
+    end
+
+    defmodule LocaleAndIdentity do
+      @behaviour Klix.Wizard.Step
+
+      def struct, do: %Klix.Images.Image{}
+      def cast(image, params), do: Ecto.Changeset.cast(image, params, [:hostname, :timezone])
+
+      def validate(changeset) do
+        import Ecto.Changeset
+
+        changeset
+        |> validate_required([:hostname, :timezone])
+        |> validate_format(:hostname, ~r/^[^-].*$/, message: "must not start with a hyphen")
+        |> validate_format(:hostname, ~r/^.*[^-]$/, message: "must not end with a hyphen")
+        |> validate_format(:hostname, ~r/^[a-zA-Z0-9-]+$/, message: "must be A-Za-z0-9 or hyphen")
+        |> validate_length(:hostname, max: 253)
+        |> validate_inclusion(:timezone, Tzdata.zone_list(), message: "must be a valid timezone")
+      end
+    end
+
+    defmodule Authentication do
+      @behaviour Klix.Wizard.Step
+
+      def struct, do: %Klix.Images.Image{}
+      def cast(image, params), do: Ecto.Changeset.cast(image, params, [:public_key])
+
+      def validate(changeset) do
+        import Ecto.Changeset
+
+        changeset
+        |> validate_required([:public_key])
+        |> validate_format(:public_key, ~r/^(?!.*private).*$/,
+          message: "looks like a private key"
+        )
+        |> validate_change(:public_key, &errors_for/2)
+      end
+
+      defp errors_for(:public_key, nil), do: []
+
+      defp errors_for(:public_key, key) do
+        case :ssh_file.decode(key, :public_key) do
+          {:error, type} -> [public_key: {"not a valid key", validation: type}]
+          _ -> []
+        end
+      end
+    end
+
+    defmodule ExtraSoftware do
+      @behaviour Klix.Wizard.Step
+
+      @attrs [
+        :plugin_kamp_enabled,
+        :plugin_shaketune_enabled,
+        :plugin_z_calibration_enabled,
+        :klipperscreen_enabled
+      ]
+
+      def struct, do: %Klix.Images.Image{}
+      def cast(image, params), do: Ecto.Changeset.cast(image, params, @attrs)
+
+      def validate(changeset) do
+        Ecto.Changeset.validate_required(changeset, @attrs)
+      end
+    end
+
+    defmodule KlipperConfig do
+      @behaviour Klix.Wizard.Step
+
+      def struct, do: %Klix.Images.Image{}
+
+      def cast(image, params) do
+        image
+        |> Ecto.Changeset.cast(params, [])
+        |> Ecto.Changeset.cast_embed(:klipper_config)
+      end
+
+      def validate(changeset) do
+        Ecto.Changeset.validate_required(changeset, :klipper_config)
+      end
+    end
+
+    def sign_up do
+      [
+        Machine,
+        LocaleAndIdentity,
+        Authentication,
+        ExtraSoftware,
+        KlipperConfig
+      ]
+    end
+  end
+
+  def changeset(image, params) do
+    Enum.reduce(Steps.sign_up(), image, fn step, acc ->
+      acc
+      |> step.cast(params)
+      |> step.validate()
+    end)
   end
 
   def current_versions_changeset(image, versions) do
@@ -69,15 +156,6 @@ defmodule Klix.Images.Image do
   end
 
   def options_for_machine, do: @options_for_machine
-
-  defp errors_for(:public_key, nil), do: []
-
-  defp errors_for(:public_key, key) do
-    case :ssh_file.decode(key, :public_key) do
-      {:error, type} -> [public_key: {"not a valid key", validation: type}]
-      _ -> []
-    end
-  end
 
   defimpl Klix.ToNix do
     def to_nix(%Klix.Images.Image{} = image) do

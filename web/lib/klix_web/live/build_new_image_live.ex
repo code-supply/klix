@@ -2,6 +2,7 @@ defmodule KlixWeb.BuildNewImageLive do
   use KlixWeb, :live_view
 
   alias Klix.{Images, Wizard}
+  alias Images.Image.Steps
 
   import KlixWeb.CoreComponents
 
@@ -43,7 +44,7 @@ defmodule KlixWeb.BuildNewImageLive do
   end
 
   def handle_params(_params, _uri, socket) do
-    {:noreply, assign(socket, wizard: Wizard.new(Wizard.Steps.sign_up()))}
+    {:noreply, assign(socket, wizard: Wizard.new(Images.Image.Steps.sign_up()))}
   end
 
   def handle_event("next", %{"image" => image_params}, socket) do
@@ -68,7 +69,7 @@ defmodule KlixWeb.BuildNewImageLive do
   attr :form, Phoenix.HTML.Form
   attr :step, :integer
 
-  defp step(%{step: Wizard.Steps.Machine} = assigns) do
+  defp step(%{step: Steps.Machine} = assigns) do
     ~H"""
     <div class="card bg-base-100 w-3/4 m-auto">
       <div class="card-body">
@@ -100,7 +101,7 @@ defmodule KlixWeb.BuildNewImageLive do
     """
   end
 
-  defp step(%{step: Wizard.Steps.LocaleAndIdentity} = assigns) do
+  defp step(%{step: Steps.LocaleAndIdentity} = assigns) do
     ~H"""
     <div class="card bg-base-100 w-3/4 m-auto">
       <div class="card-body">
@@ -131,7 +132,7 @@ defmodule KlixWeb.BuildNewImageLive do
     """
   end
 
-  defp step(%{step: Wizard.Steps.Authentication} = assigns) do
+  defp step(%{step: Steps.Authentication} = assigns) do
     ~H"""
     <div class="card bg-base-100 w-3/4 m-auto">
       <div class="card-body">
@@ -163,7 +164,7 @@ defmodule KlixWeb.BuildNewImageLive do
     """
   end
 
-  defp step(%{step: Wizard.Steps.ExtraSoftware} = assigns) do
+  defp step(%{step: Steps.ExtraSoftware} = assigns) do
     ~H"""
     <div class="card bg-base-100 w-3/4 m-auto">
       <div class="card-body">
@@ -194,7 +195,7 @@ defmodule KlixWeb.BuildNewImageLive do
     """
   end
 
-  defp step(%{step: Wizard.Steps.KlipperConfig} = assigns) do
+  defp step(%{step: Steps.KlipperConfig} = assigns) do
     ~H"""
     <div class="card bg-base-100 w-3/4 m-auto">
       <div class="card-body">

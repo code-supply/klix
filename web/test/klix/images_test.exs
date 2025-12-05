@@ -10,11 +10,11 @@ defmodule Klix.ImagesTest do
 
   test "can build an image from a wizard", %{scope: scope} do
     wizard =
-      Wizard.Steps.sign_up()
+      Images.Image.Steps.sign_up()
       |> Wizard.new()
       |> Wizard.next(%{machine: "raspberry_pi_4"})
       |> Wizard.next(%{hostname: "my-printer", timezone: "Europe/London"})
-      |> Wizard.next(%{public_key: "hi"})
+      |> Wizard.next(%{public_key: Klix.Factory.params(:image).public_key})
       |> Wizard.next(%{plugin_shaketune_enabled: true})
       |> Wizard.next(%{
         klipper_config: %{type: "github", owner: "code-supply", repo: "code-supply"}
