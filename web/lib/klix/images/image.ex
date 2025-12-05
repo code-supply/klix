@@ -35,6 +35,7 @@ defmodule Klix.Images.Image do
     defmodule Machine do
       @behaviour Klix.Wizard.Step
 
+      def title, do: "Machine"
       def struct, do: %Klix.Images.Image{}
       def cast(image, params), do: Ecto.Changeset.cast(image, params, [:machine])
 
@@ -47,6 +48,7 @@ defmodule Klix.Images.Image do
     defmodule LocaleAndIdentity do
       @behaviour Klix.Wizard.Step
 
+      def title, do: "Locale & Identity"
       def struct, do: %Klix.Images.Image{}
       def cast(image, params), do: Ecto.Changeset.cast(image, params, [:hostname, :timezone])
 
@@ -66,6 +68,7 @@ defmodule Klix.Images.Image do
     defmodule Authentication do
       @behaviour Klix.Wizard.Step
 
+      def title, do: "Authentication"
       def struct, do: %Klix.Images.Image{}
       def cast(image, params), do: Ecto.Changeset.cast(image, params, [:public_key])
 
@@ -100,6 +103,7 @@ defmodule Klix.Images.Image do
         :klipperscreen_enabled
       ]
 
+      def title, do: "Extra Software"
       def struct, do: %Klix.Images.Image{}
       def cast(image, params), do: Ecto.Changeset.cast(image, params, @attrs)
 
@@ -111,6 +115,7 @@ defmodule Klix.Images.Image do
     defmodule KlipperConfig do
       @behaviour Klix.Wizard.Step
 
+      def title, do: "Klipper Config"
       def struct, do: %Klix.Images.Image{}
 
       def cast(image, params) do

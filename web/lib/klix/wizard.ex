@@ -4,7 +4,8 @@ defmodule Klix.Wizard do
   alias Ecto.Changeset
 
   defmodule Step do
-    @callback struct() :: struct()
+    @callback title :: String.t()
+    @callback struct :: struct()
     @callback cast(struct(), params :: Enum.t()) :: Changeset.t()
     @callback validate(Changeset.t()) :: Changeset.t()
   end
@@ -38,6 +39,20 @@ defmodule Klix.Wizard do
 
       {{:error, changeset}, _} ->
         %{wizard | changeset_for_step: changeset}
+    end
+  end
+
+  def previous(%__MODULE__{steps: steps, current: current} = wizard) do
+    case previous_step(steps, current) do
+      :complete ->
+        wizard
+
+      {new_current, _} ->
+        %{
+          wizard
+          | changeset_for_step: changeset_for_step(wizard, new_current),
+            current: new_current
+        }
     end
   end
 
@@ -96,4 +111,10 @@ defmodule Klix.Wizard do
   defp next_step([{current, _}, next | _], current), do: next
   defp next_step([_ | rest], current), do: next_step(rest, current)
   defp next_step([], _), do: :complete
+
+  defp previous_step(steps, current),
+    do:
+      steps
+      |> Enum.reverse()
+      |> next_step(current)
 end

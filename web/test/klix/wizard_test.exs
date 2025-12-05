@@ -29,6 +29,7 @@ defmodule Klix.WizardTest do
   defmodule TestStep1 do
     @behaviour Wizard.Step
 
+    def title, do: "Step 1"
     def struct, do: %Klix.WizardTest.Thing{}
     def cast(thing, params), do: Ecto.Changeset.cast(thing, Enum.into(params, %{}), [:name])
 
@@ -41,6 +42,7 @@ defmodule Klix.WizardTest do
   defmodule TestStep2 do
     @behaviour Wizard.Step
 
+    def title, do: "Step 2"
     def struct, do: %Klix.WizardTest.Thing{}
 
     def cast(thing, params),
@@ -55,6 +57,7 @@ defmodule Klix.WizardTest do
   defmodule TestStep3 do
     @behaviour Wizard.Step
 
+    def title, do: "Step 3"
     def struct, do: %Klix.WizardTest.Thing{}
     def cast(thing, params), do: Ecto.Changeset.cast(thing, Enum.into(params, %{}), [:age])
 
@@ -99,6 +102,24 @@ defmodule Klix.WizardTest do
     assert wizard.changeset.changes == %{name: "Andrew", description: "a person", age: 999}
 
     assert Wizard.complete?(wizard)
+  end
+
+  test "can go back" do
+    wizard =
+      Wizard.new([TestStep1, TestStep2])
+      |> Wizard.next(name: "a name")
+      |> Wizard.previous()
+
+    assert wizard.current == TestStep1
+    assert wizard.changeset_for_step.changes.name == "a name"
+  end
+
+  test "going back from first is a no-op" do
+    wizard =
+      Wizard.new([TestStep1])
+      |> Wizard.previous()
+
+    assert wizard.current == TestStep1
   end
 
   test "errors are available on step changesets" do

@@ -21,16 +21,15 @@ defmodule KlixWeb.BuildNewImageLive do
           </div>
         </:subtitle>
       </.header>
-      
-    <!-- <ol class="steps py-6">
+
+      <ol class="steps py-6 w-full">
         <li
-          :for={{{title, fields}, idx} <- Klix.Images.Image.steps()}
-          id={"step#{idx}"}
-          class={[@step == idx && "step-primary" | ["step"]]}
+          :for={step <- Klix.Images.Image.Steps.sign_up()}
+          class={[step == @wizard.current && "step-primary" | ["step"]]}
         >
-          {title}
+          {step.title()}
         </li>
-      </ol> -->
+      </ol>
 
       <.form for={@wizard.changeset_for_step} id="step" phx-submit="next">
         <.step form={to_form(@wizard.changeset_for_step)} step={@wizard.current} />
@@ -64,6 +63,15 @@ defmodule KlixWeb.BuildNewImageLive do
     else
       {:noreply, socket}
     end
+  end
+
+  def handle_event("previous", _params, socket) do
+    socket =
+      update(socket, :wizard, fn wizard ->
+        Wizard.previous(wizard)
+      end)
+
+    {:noreply, socket}
   end
 
   attr :form, Phoenix.HTML.Form
@@ -120,9 +128,9 @@ defmodule KlixWeb.BuildNewImageLive do
           />
         </div>
         <div class="card-actions justify-between">
-          <.link id="prev" patch={~p"/images/new"} class="btn btn-lg btn-neutral">
+          <a id="prev" phx-click="previous" class="btn btn-lg btn-neutral">
             <.icon name="hero-arrow-left" class="size-6 shrink-0" /> Previous
-          </.link>
+          </a>
           <button id="next" class="btn btn-lg btn-primary">
             Next <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </button>
@@ -152,9 +160,17 @@ defmodule KlixWeb.BuildNewImageLive do
           Be sure to only paste the public key. The filename usually ends with <code>.pub</code>.
         </p>
         <div>
-          <.input type="textarea" label="SSH public key" field={@form[:public_key]} />
+          <.input
+            type="textarea"
+            label="SSH public key"
+            field={@form[:public_key]}
+            rows="10"
+          />
         </div>
-        <div class="card-actions justify-end">
+        <div class="card-actions justify-between">
+          <a id="prev" phx-click="previous" class="btn btn-lg btn-neutral">
+            <.icon name="hero-arrow-left" class="size-6 shrink-0" /> Previous
+          </a>
           <button id="next" class="btn btn-lg btn-primary">
             Next <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </button>
@@ -185,7 +201,10 @@ defmodule KlixWeb.BuildNewImageLive do
           />
           <.input label="KlipperScreen" field={@form[:klipperscreen_enabled]} type="checkbox" />
         </div>
-        <div class="card-actions justify-end">
+        <div class="card-actions justify-between">
+          <a id="prev" phx-click="previous" class="btn btn-lg btn-neutral">
+            <.icon name="hero-arrow-left" class="size-6 shrink-0" /> Previous
+          </a>
           <button id="next" class="btn btn-lg btn-primary">
             Next <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </button>
@@ -204,9 +223,6 @@ defmodule KlixWeb.BuildNewImageLive do
           Your Klipper config will be pulled from this repo. At present, it must be publically viewable.
         </p>
         <p>
-          Let us know if you'd prefer a mutable config and we can implement that.
-        </p>
-        <p>
           The "path to config dir" needs to point to the dir inside your repo that contains your <code>printer.cfg</code>.
           If it's in the root of your repo, you don't need to specify it.
         </p>
@@ -223,7 +239,10 @@ defmodule KlixWeb.BuildNewImageLive do
           <.input label="Path to config dir (optional)" field={klipper_config[:path]} />
         </.inputs_for>
 
-        <div class="card-actions justify-end">
+        <div class="card-actions justify-between">
+          <a id="prev" phx-click="previous" class="btn btn-lg btn-neutral">
+            <.icon name="hero-arrow-left" class="size-6 shrink-0" /> Previous
+          </a>
           <button id="next" class="btn btn-lg btn-primary">
             Finish <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </button>
