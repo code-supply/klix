@@ -196,7 +196,7 @@ defmodule Klix.Images.Image do
                           klix.packages.aarch64-linux.url
                         ];
                         text = ''
-                          dir="$(mktemp)"
+                          dir="$(mktemp -d)"
                           (
                             cd "$dir"
                             curl "$(klix-url #{image.uri_id} config.tar.gz#default)" | tar -x
