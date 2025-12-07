@@ -21,15 +21,21 @@ defmodule Klix.Wizard do
     %{wizard | changeset_for_step: changeset_for_step(wizard, step_1)}
   end
 
-  def complete?(wizard), do: !!wizard.data
+  def complete?(wizard), do: get_in(wizard.changeset.valid?)
 
   def next(%__MODULE__{steps: steps, current: current} = wizard, params) do
     {step_changeset, wizard} = change_step(wizard, params)
 
     case {Changeset.apply_action(step_changeset, :next), next_step(steps, current)} do
-      {{:ok, _data}, :complete} -> complete(wizard)
-      {{:ok, _data}, {new_current, _}} -> move(wizard, new_current)
-      {{:error, changeset}, _} -> %{wizard | changeset_for_step: changeset}
+      {{:ok, _data}, :complete} ->
+        complete(wizard)
+
+      {{:ok, data}, {new_current, _}} ->
+        wizard = move(wizard, new_current)
+        %{wizard | data: Map.merge(data, merge_changesets(wizard).changes)}
+
+      {{:error, changeset}, _} ->
+        %{wizard | changeset_for_step: changeset}
     end
   end
 
@@ -70,15 +76,7 @@ defmodule Klix.Wizard do
     }
 
   defp complete(wizard) do
-    wizard = %{
-      wizard
-      | changeset:
-          wizard.steps
-          |> Enum.map(fn {_, cs} -> cs end)
-          |> Enum.reduce(fn step_changeset, cs ->
-            Changeset.merge(cs, step_changeset)
-          end)
-    }
+    wizard = %{wizard | changeset: merge_changesets(wizard)}
 
     case Changeset.apply_action(wizard.changeset, :complete_wizard) do
       {:ok, data} ->
@@ -87,6 +85,14 @@ defmodule Klix.Wizard do
       {:error, changeset} ->
         %{wizard | changeset: changeset}
     end
+  end
+
+  defp merge_changesets(wizard) do
+    wizard.steps
+    |> Enum.map(fn {_, cs} -> cs end)
+    |> Enum.reduce(fn step_changeset, cs ->
+      Changeset.merge(cs, step_changeset)
+    end)
   end
 
   defp change_step(wizard, params) do

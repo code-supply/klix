@@ -77,7 +77,17 @@ defmodule Klix.WizardTest do
 
     assert wizard.current == TestStep2
     refute wizard.changeset_for_step.valid?
-    assert wizard.data == nil
+    assert %Thing{name: "Andrew"} = wizard.data
+  end
+
+  test "data accretes" do
+    wizard =
+      [TestStep1, TestStep2, TestStep3]
+      |> Wizard.new()
+      |> Wizard.next(name: "Andrew")
+      |> Wizard.next(description: "a thing")
+
+    assert %Thing{name: "Andrew", description: "a thing"} = wizard.data
   end
 
   test "completing final step produces data ready for persistence" do
