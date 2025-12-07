@@ -67,6 +67,24 @@ defmodule Klix.WizardTest do
     end
   end
 
+  test "can start with an unfinished image" do
+    wizard =
+      Wizard.new(
+        [TestStep1, TestStep2, TestStep3],
+        %Thing{name: "I got named"}
+      )
+
+    assert wizard.current == TestStep2
+
+    wizard =
+      Wizard.new(
+        [TestStep1, TestStep2, TestStep3],
+        %Thing{name: "I got named", description: "I got described"}
+      )
+
+    assert wizard.current == TestStep3
+  end
+
   test "completing first step produces new incomplete step" do
     wizard = Wizard.new([TestStep1, TestStep2, TestStep3])
 
@@ -77,7 +95,7 @@ defmodule Klix.WizardTest do
 
     assert wizard.current == TestStep2
     refute wizard.changeset_for_step.valid?
-    assert %Thing{name: "Andrew"} = wizard.data
+    assert %{name: "Andrew"} = wizard.data
   end
 
   test "data accretes" do
@@ -87,7 +105,7 @@ defmodule Klix.WizardTest do
       |> Wizard.next(name: "Andrew")
       |> Wizard.next(description: "a thing")
 
-    assert %Thing{name: "Andrew", description: "a thing"} = wizard.data
+    assert %{name: "Andrew", description: "a thing"} = wizard.data
   end
 
   test "completing final step produces data ready for persistence" do

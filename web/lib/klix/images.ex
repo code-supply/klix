@@ -120,6 +120,15 @@ defmodule Klix.Images do
     create(scope, Image.changeset(%Image{}, attrs))
   end
 
+  def save_unfinished(%Scope{} = scope, image_attrs) do
+    scope.user
+    |> Repo.preload(:unfinished_image)
+    |> Ecto.Changeset.change(%{
+      unfinished_image: Map.put(image_attrs, :user_id, scope.user.id)
+    })
+    |> Repo.update()
+  end
+
   def snapshot(%Image{} = image) do
     flake_nix = to_nix(image)
 

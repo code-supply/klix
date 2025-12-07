@@ -42,8 +42,29 @@ defmodule KlixWeb.BuildNewImageLive do
     {:ok, assign(socket, page_title: "Custom 3D Printer OS Image")}
   end
 
+  def handle_params(%{"step" => step}, _uri, socket) do
+    {
+      :noreply,
+      assign(
+        socket,
+        wizard:
+          Images.Image.Steps.sign_up()
+          |> Wizard.new(current_user(socket).unfinished_image)
+          |> Wizard.jump(String.to_integer(step))
+      )
+    }
+  end
+
   def handle_params(_params, _uri, socket) do
-    {:noreply, assign(socket, wizard: Wizard.new(Images.Image.Steps.sign_up()))}
+    {
+      :noreply,
+      assign(
+        socket,
+        wizard:
+          Images.Image.Steps.sign_up()
+          |> Wizard.new(current_user(socket).unfinished_image)
+      )
+    }
   end
 
   def handle_event("next", %{"image" => image_params}, socket) do
@@ -61,6 +82,12 @@ defmodule KlixWeb.BuildNewImageLive do
           raise "Wizard out of sync with image validations"
       end
     else
+      socket.assigns.wizard.data &&
+        Images.save_unfinished(
+          socket.assigns.current_scope,
+          socket.assigns.wizard.data
+        )
+
       {:noreply, socket}
     end
   end
@@ -73,6 +100,9 @@ defmodule KlixWeb.BuildNewImageLive do
 
     {:noreply, socket}
   end
+
+  defp current_user(socket),
+    do: socket.assigns.current_scope.user |> Klix.Repo.preload(:unfinished_image)
 
   attr :form, Phoenix.HTML.Form
   attr :step, :integer

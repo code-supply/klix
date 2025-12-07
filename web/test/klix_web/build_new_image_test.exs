@@ -45,6 +45,42 @@ defmodule KlixWeb.BuildNewImageTest do
     assert html =~ "being prepared"
   end
 
+  test "can return to a step and continue with the wizard", %{conn: conn} do
+    {:ok, view, _html} = live(conn, ~p"/images/new")
+
+    view
+    |> fill_in(machine: "raspberry_pi_5")
+    |> render_submit()
+
+    {:ok, view, _html} = live(conn, ~p"/images/new?step=1")
+
+    view
+    |> fill_in(hostname: "my-machine", timezone: "Europe/London")
+    |> render_submit()
+
+    view
+    |> fill_in(public_key: Factory.params(:image).public_key)
+    |> render_submit()
+
+    {:ok, view, _html} = live(conn, ~p"/images/new?step=2")
+
+    assert view |> fill_in(public_key: "a new key") |> render_submit()
+  end
+
+  test "can return to the start of the wizard with previous data preloaded", %{conn: conn} do
+    {:ok, view, _html} = live(conn, ~p"/images/new")
+
+    view
+    |> fill_in(machine: "raspberry_pi_5")
+    |> render_submit()
+
+    {:ok, view, _html} = live(conn, ~p"/images/new")
+
+    assert view
+           |> fill_in(hostname: "my-machine", timezone: "Europe/London")
+           |> render_submit()
+  end
+
   test "errors are shown and prevent progress", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/images/new")
 

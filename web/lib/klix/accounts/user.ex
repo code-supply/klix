@@ -9,6 +9,7 @@ defmodule Klix.Accounts.User do
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
 
+    belongs_to :unfinished_image, Klix.Images.Image, on_replace: :update
     has_many :images, Klix.Images.Image
 
     timestamps(type: :utc_datetime)

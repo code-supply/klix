@@ -10,6 +10,20 @@ defmodule Klix.Wizard do
     @callback validate(Changeset.t()) :: Changeset.t()
   end
 
+  def new(steps, nil), do: new(steps)
+
+  def new(steps, data) do
+    Enum.reduce_while(steps, new(steps), fn step, wizard ->
+      wizard = next(wizard, Map.from_struct(data))
+
+      if wizard.current == step do
+        {:halt, wizard}
+      else
+        {:cont, wizard}
+      end
+    end)
+  end
+
   def new([step_1 | _] = steps) do
     wizard = %__MODULE__{
       changeset: nil,
@@ -30,9 +44,9 @@ defmodule Klix.Wizard do
       {{:ok, _data}, :complete} ->
         complete(wizard)
 
-      {{:ok, data}, {new_current, _}} ->
+      {{:ok, _data}, {new_current, _}} ->
         wizard = move(wizard, new_current)
-        %{wizard | data: Map.merge(data, merge_changesets(wizard).changes)}
+        %{wizard | data: merge_changesets(wizard).changes}
 
       {{:error, changeset}, _} ->
         %{wizard | changeset_for_step: changeset}
