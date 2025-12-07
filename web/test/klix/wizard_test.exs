@@ -155,7 +155,7 @@ defmodule Klix.WizardTest do
       Wizard.new([TestStep1, TestStep2])
       |> Wizard.next(name: "a name")
       |> Wizard.previous()
-      |> Wizard.jump(1)
+      |> Wizard.jump("TestStep2")
 
     assert wizard.current == TestStep2
     assert wizard.changeset_for_step.changes == %{}
@@ -165,7 +165,7 @@ defmodule Klix.WizardTest do
     wizard =
       Wizard.new([TestStep1, TestStep2])
       |> Wizard.next(name: "a name")
-      |> Wizard.jump(0)
+      |> Wizard.jump("TestStep1")
 
     assert wizard.current == TestStep1
     assert wizard.changeset_for_step.changes.name == "a name"
@@ -176,7 +176,7 @@ defmodule Klix.WizardTest do
       Wizard.new([TestStep1, TestStep2, TestStep3])
       |> Wizard.next(name: "a name")
       |> Wizard.previous()
-      |> Wizard.jump(2)
+      |> Wizard.jump("TestStep3")
 
     assert wizard.current == TestStep2
     assert wizard.changeset_for_step.changes == %{}

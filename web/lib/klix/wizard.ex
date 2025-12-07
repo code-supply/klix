@@ -60,14 +60,16 @@ defmodule Klix.Wizard do
     end
   end
 
-  def jump(wizard, idx) do
+  def jump(wizard, step_name) do
     wizard.steps
-    |> Enum.with_index()
+    |> Enum.map(fn {step, changeset} ->
+      {step, Module.split(step) |> List.last(), changeset}
+    end)
     |> Enum.reduce_while(wizard, fn
-      {{step, _changeset}, ^idx}, acc ->
+      {step, ^step_name, _changeset}, acc ->
         {:halt, move(acc, step)}
 
-      {{step, %{valid?: false}}, _idx}, acc ->
+      {step, _step_name, %{valid?: false}}, acc ->
         {:halt, move(acc, step)}
 
       _, acc ->

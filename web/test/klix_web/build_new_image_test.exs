@@ -52,7 +52,7 @@ defmodule KlixWeb.BuildNewImageTest do
     |> fill_in(machine: "raspberry_pi_5")
     |> render_submit()
 
-    {:ok, view, _html} = live(conn, ~p"/images/new?step=1")
+    {:ok, view, _html} = live(conn, ~p"/images/new?step=LocaleAndIdentity")
 
     view
     |> fill_in(hostname: "my-machine", timezone: "Europe/London")
@@ -62,7 +62,7 @@ defmodule KlixWeb.BuildNewImageTest do
     |> fill_in(public_key: Factory.params(:image).public_key)
     |> render_submit()
 
-    {:ok, view, _html} = live(conn, ~p"/images/new?step=2")
+    {:ok, view, _html} = live(conn, ~p"/images/new?step=Authentication")
 
     assert view |> fill_in(public_key: "a new key") |> render_submit()
   end

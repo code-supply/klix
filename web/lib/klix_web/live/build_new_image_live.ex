@@ -50,7 +50,7 @@ defmodule KlixWeb.BuildNewImageLive do
         wizard:
           Images.Image.Steps.sign_up()
           |> Wizard.new(current_user(socket).unfinished_image)
-          |> Wizard.jump(String.to_integer(step))
+          |> Wizard.jump(step)
       )
     }
   end
