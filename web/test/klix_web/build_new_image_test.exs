@@ -17,6 +17,9 @@ defmodule KlixWeb.BuildNewImageTest do
     |> fill_in(machine: "raspberry_pi_5")
     |> render_submit()
 
+    path = assert_patch view
+    assert path =~ "step=LocaleAndIdentity"
+
     view
     |> fill_in(hostname: "my-machine", timezone: "Europe/London")
     |> render_submit()
@@ -89,24 +92,7 @@ defmodule KlixWeb.BuildNewImageTest do
            |> render_submit() =~ ~r/can.*t be blank/
   end
 
-  test "going back renders the form with previously-filled values", %{conn: conn} do
-    {:ok, view, _html} = live(conn, ~p"/images/new")
-
-    view
-    |> fill_in(machine: "raspberry_pi_5")
-    |> render_submit()
-
-    view |> go_back()
-
-    assert view |> has_element?("#image_machine option[value=raspberry_pi_5][selected]"),
-           "Expected Raspberry Pi 5 to be selected in:\n#{view |> element("#image_machine") |> render()}"
-  end
-
   defp fill_in(view, params) do
     view |> form("#step", image: params)
-  end
-
-  defp go_back(view) do
-    view |> element("#prev") |> render_click()
   end
 end

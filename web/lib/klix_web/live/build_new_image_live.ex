@@ -67,38 +67,42 @@ defmodule KlixWeb.BuildNewImageLive do
     }
   end
 
-  def handle_event("next", %{"image" => image_params}, socket) do
-    socket =
-      update(socket, :wizard, fn wizard ->
-        Wizard.next(wizard, image_params)
-      end)
+  def handle_event(
+        "next",
+        %{"image" => image_params},
+        %{assigns: %{wizard: original_wizard, current_scope: scope}} = socket
+      ) do
+    new_wizard = Wizard.next(original_wizard, image_params)
+    socket = assign(socket, :wizard, new_wizard)
 
-    if Wizard.complete?(socket.assigns.wizard) do
-      case Images.create(socket.assigns.current_scope, socket.assigns.wizard.changeset) do
-        {:ok, image} ->
-          {:noreply, push_navigate(socket, to: ~p"/images/#{image.id}")}
+    cond do
+      Wizard.complete?(new_wizard) ->
+        {:ok, image} = Images.create(scope, new_wizard.changeset)
+        {:noreply, push_navigate(socket, to: ~p"/images/#{image.id}")}
 
-        _ ->
-          raise "Wizard out of sync with image validations"
-      end
-    else
-      socket.assigns.wizard.data &&
-        Images.save_unfinished(
-          socket.assigns.current_scope,
-          socket.assigns.wizard.data
-        )
+      new_wizard.current == original_wizard.current ->
+        {:noreply, socket}
 
-      {:noreply, socket}
+      true ->
+        advance(socket)
     end
   end
 
-  def handle_event("previous", _params, socket) do
+  defp advance(%{assigns: %{wizard: wizard, current_scope: scope}} = socket) do
     socket =
-      update(socket, :wizard, fn wizard ->
-        Wizard.previous(wizard)
-      end)
+      if wizard.data do
+        {:ok, user} = Images.save_unfinished(scope, wizard.data)
 
-    {:noreply, socket}
+        update(socket, :current_scope, fn current_scope ->
+          %{current_scope | user: user}
+        end)
+      else
+        socket
+      end
+
+    step_name = Module.split(wizard.current) |> List.last()
+
+    {:noreply, push_patch(socket, to: ~p"/images/new?step=#{step_name}")}
   end
 
   defp current_user(socket),
@@ -158,9 +162,9 @@ defmodule KlixWeb.BuildNewImageLive do
           />
         </div>
         <div class="card-actions justify-between">
-          <a id="prev" phx-click="previous" class="btn btn-lg btn-neutral">
+          <.link id="prev" patch={~p"/images/new?step=Machine"} class="btn btn-lg btn-neutral">
             <.icon name="hero-arrow-left" class="size-6 shrink-0" /> Previous
-          </a>
+          </.link>
           <button id="next" class="btn btn-lg btn-primary">
             Next <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </button>
@@ -198,9 +202,13 @@ defmodule KlixWeb.BuildNewImageLive do
           />
         </div>
         <div class="card-actions justify-between">
-          <a id="prev" phx-click="previous" class="btn btn-lg btn-neutral">
+          <.link
+            id="prev"
+            patch={~p"/images/new?step=LocaleAndIdentity"}
+            class="btn btn-lg btn-neutral"
+          >
             <.icon name="hero-arrow-left" class="size-6 shrink-0" /> Previous
-          </a>
+          </.link>
           <button id="next" class="btn btn-lg btn-primary">
             Next <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </button>
@@ -232,9 +240,9 @@ defmodule KlixWeb.BuildNewImageLive do
           <.input label="KlipperScreen" field={@form[:klipperscreen_enabled]} type="checkbox" />
         </div>
         <div class="card-actions justify-between">
-          <a id="prev" phx-click="previous" class="btn btn-lg btn-neutral">
+          <.link id="prev" patch={~p"/images/new?step=Authentication"} class="btn btn-lg btn-neutral">
             <.icon name="hero-arrow-left" class="size-6 shrink-0" /> Previous
-          </a>
+          </.link>
           <button id="next" class="btn btn-lg btn-primary">
             Next <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </button>
@@ -270,9 +278,9 @@ defmodule KlixWeb.BuildNewImageLive do
         </.inputs_for>
 
         <div class="card-actions justify-between">
-          <a id="prev" phx-click="previous" class="btn btn-lg btn-neutral">
+          <.link id="prev" patch={~p"/images/new?step=ExtraSoftware"} class="btn btn-lg btn-neutral">
             <.icon name="hero-arrow-left" class="size-6 shrink-0" /> Previous
-          </a>
+          </.link>
           <button id="next" class="btn btn-lg btn-primary">
             Finish <.icon name="hero-arrow-right" class="size-6 shrink-0" />
           </button>
