@@ -111,6 +111,7 @@ defmodule Klix.Images do
 
   def create(%Scope{} = scope, %Ecto.Changeset{} = changeset) do
     changeset
+    |> Ecto.Changeset.put_change(:completed_at, DateTime.utc_now(:second))
     |> Ecto.Changeset.put_change(:user, scope.user)
     |> Ecto.Changeset.put_change(:builds, [[]])
     |> Repo.insert()

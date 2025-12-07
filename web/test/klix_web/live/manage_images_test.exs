@@ -158,7 +158,13 @@ defmodule KlixWeb.ManageImagesTest do
            element(view, "#builds a[download]") |> render
   end
 
-  test "lists all of the user's images", %{conn: conn, scope: scope} do
+  test "lists all of the user's images, except incomplete ones", %{conn: conn, scope: scope} do
+    {:ok, _user} =
+      Images.save_unfinished(
+        scope,
+        Klix.Factory.params(:image, hostname: "incomplete")
+      )
+
     {:ok, _image} = Images.create(scope, Klix.Factory.params(:image, hostname: "machineA"))
     {:ok, _image} = Images.create(scope, Klix.Factory.params(:image, hostname: "machineB"))
     {:ok, _image} = Images.create(scope, Klix.Factory.params(:image, hostname: "machineC"))
@@ -168,6 +174,7 @@ defmodule KlixWeb.ManageImagesTest do
     assert view |> has_element?("#images li", "machineA")
     assert view |> has_element?("#images li", "machineB")
     assert view |> has_element?("#images li", "machineC")
+    refute view |> has_element?("#images li", "incomplete")
   end
 
   test "can click through to an image's page", %{conn: conn, scope: scope} do

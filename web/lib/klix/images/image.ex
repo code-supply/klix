@@ -18,6 +18,7 @@ defmodule Klix.Images.Image do
     field :public_key, :string
     field :host_public_key, :binary
     field :current_versions_updated_at, :utc_datetime
+    field :completed_at, :utc_datetime
     field :deleted_at, :utc_datetime
 
     embeds_one :current_versions, Klix.Images.Versions
@@ -248,7 +249,7 @@ defmodule Klix.Images.Image do
 
     def base do
       from(Image, as: :images)
-      |> where([images: i], is_nil(i.deleted_at))
+      |> where([images: i], is_nil(i.deleted_at) and not is_nil(i.completed_at))
       |> order_by([images: i], desc: i.id)
     end
 
