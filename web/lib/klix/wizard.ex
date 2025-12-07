@@ -27,33 +27,32 @@ defmodule Klix.Wizard do
     {step_changeset, wizard} = change_step(wizard, params)
 
     case {Changeset.apply_action(step_changeset, :next), next_step(steps, current)} do
-      {{:ok, _data}, :complete} ->
-        complete(wizard)
-
-      {{:ok, _data}, {new_current, _}} ->
-        %{
-          wizard
-          | changeset_for_step: changeset_for_step(wizard, new_current),
-            current: new_current
-        }
-
-      {{:error, changeset}, _} ->
-        %{wizard | changeset_for_step: changeset}
+      {{:ok, _data}, :complete} -> complete(wizard)
+      {{:ok, _data}, {new_current, _}} -> move(wizard, new_current)
+      {{:error, changeset}, _} -> %{wizard | changeset_for_step: changeset}
     end
   end
 
   def previous(%__MODULE__{steps: steps, current: current} = wizard) do
     case previous_step(steps, current) do
-      :complete ->
-        wizard
-
-      {new_current, _} ->
-        %{
-          wizard
-          | changeset_for_step: changeset_for_step(wizard, new_current),
-            current: new_current
-        }
+      :complete -> wizard
+      {new_current, _} -> move(wizard, new_current)
     end
+  end
+
+  def jump(wizard, idx) do
+    wizard.steps
+    |> Enum.with_index()
+    |> Enum.reduce_while(wizard, fn
+      {{step, _changeset}, ^idx}, acc ->
+        {:halt, move(acc, step)}
+
+      {{step, %{valid?: false}}, _idx}, acc ->
+        {:halt, move(acc, step)}
+
+      _, acc ->
+        {:cont, acc}
+    end)
   end
 
   def changeset_for_step(wizard, step) do
@@ -62,6 +61,13 @@ defmodule Klix.Wizard do
       _ -> nil
     end)
   end
+
+  defp move(wizard, step),
+    do: %{
+      wizard
+      | changeset_for_step: changeset_for_step(wizard, step),
+        current: step
+    }
 
   defp complete(wizard) do
     wizard = %{

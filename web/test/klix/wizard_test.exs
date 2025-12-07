@@ -122,6 +122,38 @@ defmodule Klix.WizardTest do
     assert wizard.current == TestStep1
   end
 
+  test "jumping to the next incomplete step is fine" do
+    wizard =
+      Wizard.new([TestStep1, TestStep2])
+      |> Wizard.next(name: "a name")
+      |> Wizard.previous()
+      |> Wizard.jump(1)
+
+    assert wizard.current == TestStep2
+    assert wizard.changeset_for_step.changes == %{}
+  end
+
+  test "jumping before next incomplete step is like going back" do
+    wizard =
+      Wizard.new([TestStep1, TestStep2])
+      |> Wizard.next(name: "a name")
+      |> Wizard.jump(0)
+
+    assert wizard.current == TestStep1
+    assert wizard.changeset_for_step.changes.name == "a name"
+  end
+
+  test "jumping ahead of latest incomplete step takes you to the incomplete step" do
+    wizard =
+      Wizard.new([TestStep1, TestStep2, TestStep3])
+      |> Wizard.next(name: "a name")
+      |> Wizard.previous()
+      |> Wizard.jump(2)
+
+    assert wizard.current == TestStep2
+    assert wizard.changeset_for_step.changes == %{}
+  end
+
   test "errors are available on step changesets" do
     wizard =
       Wizard.new([TestStep1, TestStep2, TestStep3])
