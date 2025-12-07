@@ -79,7 +79,6 @@ defmodule Klix.Wizard do
         %{wizard | current: nil, data: data}
 
       {:error, changeset} ->
-        dbg(changeset.changes)
         %{wizard | changeset: changeset}
     end
   end
