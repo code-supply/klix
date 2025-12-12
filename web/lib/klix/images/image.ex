@@ -200,8 +200,8 @@ defmodule Klix.Images.Image do
                           dir="$(mktemp -d)"
                           (
                             cd "$dir"
-                            curl "$(klix-url #{image.uri_id} config.tar.gz#default)" | tar -x
-                            nixos-rebuild switch --flake .
+                            curl "$(klix-url #{image.uri_id} config.tar.gz#default)" | tar -xz
+                            nixos-rebuild switch --flake .#default
                             nix eval .#versions | curl --request PUT --json @- "$(klix-url #{image.uri_id} versions)"
                           )
                           rm -rf "$dir"
