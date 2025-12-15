@@ -21,7 +21,7 @@ defmodule Klix.Images.Image do
     field :completed_at, :utc_datetime
     field :deleted_at, :utc_datetime
 
-    embeds_one :current_versions, Klix.Images.Versions
+    embeds_one :current_versions, Klix.Images.Versions, on_replace: :update
     embeds_one :klipper_config, Klix.Images.KlipperConfig
 
     belongs_to :user, Klix.Accounts.User
