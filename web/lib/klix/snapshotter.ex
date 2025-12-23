@@ -9,7 +9,7 @@ defmodule Klix.Snapshotter do
   end
 
   def snapshot(flake_nix) do
-    GenServer.call(__MODULE__, {:snapshot, flake_nix})
+    GenServer.call(__MODULE__, {:snapshot, flake_nix}, :timer.minutes(5))
   end
 
   @impl true
