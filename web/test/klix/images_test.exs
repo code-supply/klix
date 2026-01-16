@@ -256,6 +256,9 @@ defmodule Klix.ImagesTest do
 
     {:ok, image} = Images.set_uri_id(image, "deadb33f-f33d-f00d-d00f-d0feef0f1355")
 
+    # get defaults, like nixpkgs version
+    image = Repo.reload!(image)
+
     assert to_nix(image) ==
              """
              {

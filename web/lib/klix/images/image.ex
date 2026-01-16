@@ -17,6 +17,7 @@ defmodule Klix.Images.Image do
     field :plugin_z_calibration_enabled, :boolean, default: true
     field :public_key, :string
     field :host_public_key, :binary
+    field :nixpkgs_version, :string, default: "e6cb50b7edb109d393856d19b797ba6b6e71a4fc"
     field :current_versions_updated_at, :utc_datetime
     field :completed_at, :utc_datetime
     field :deleted_at, :utc_datetime
@@ -168,7 +169,7 @@ defmodule Klix.Images.Image do
       """
       {
         inputs = {
-          nixpkgs.url = "github:NixOS/nixpkgs/e6cb50b7edb109d393856d19b797ba6b6e71a4fc";
+          nixpkgs.url = "github:NixOS/nixpkgs/#{image.nixpkgs_version}";
           klipperConfig = #{image.klipper_config |> Klix.ToNix.to_nix() |> Klix.indent(from: 1) |> Klix.indent(from: 1)};
           klix = {
             url = "github:code-supply/klix";
