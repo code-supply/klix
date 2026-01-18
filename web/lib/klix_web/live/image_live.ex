@@ -308,7 +308,10 @@ defmodule KlixWeb.ImageLive do
           </div>
         </section>
 
-        <section class="bg-warning text-warning-content card card-border border-base-300 mb-4 col-start-2">
+        <section
+          :if={@current_scope}
+          class="bg-warning text-warning-content card card-border border-base-300 mb-4 col-start-2"
+        >
           <div class="card-body">
             <h3 class="card-title">
               <.icon name="hero-exclamation-triangle" class="size-6" /> Danger zone

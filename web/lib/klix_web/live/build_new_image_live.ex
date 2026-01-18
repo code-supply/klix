@@ -1,7 +1,7 @@
 defmodule KlixWeb.BuildNewImageLive do
   use KlixWeb, :live_view
 
-  alias Klix.{Images, Wizard}
+  alias Klix.{Accounts, Images, Wizard}
   alias Images.Image.Steps
 
   import KlixWeb.CoreComponents
@@ -34,6 +34,29 @@ defmodule KlixWeb.BuildNewImageLive do
       <.form for={@wizard.changeset_for_step} id="step" phx-submit="next">
         <.step form={to_form(@wizard.changeset_for_step)} step={@wizard.current} />
       </.form>
+
+      <div :if={!@current_scope} role="alert" class="alert alert-info alert-soft mt-6 w-3/4 m-auto">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          class="h-6 w-6 shrink-0 stroke-current"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          >
+          </path>
+        </svg>
+        <p>
+          You are not logged in. You can still create images, download and use them.
+          To work with multiple printers, please
+          <.link class="link" href={~p"/users/log-in"}>log in</.link>
+          or <.link class="link" href={~p"/users/register"}>register for an account</.link>.
+        </p>
+      </div>
     </Layouts.app>
     """
   end
@@ -49,7 +72,9 @@ defmodule KlixWeb.BuildNewImageLive do
         socket,
         wizard:
           Images.Image.Steps.sign_up()
-          |> Wizard.new(current_user(socket).unfinished_image)
+          |> Wizard.new(
+            socket.assigns[:unfinished_image] || current_user(socket).unfinished_image
+          )
           |> Wizard.jump(step)
       )
     }
@@ -93,9 +118,14 @@ defmodule KlixWeb.BuildNewImageLive do
       if wizard.data do
         {:ok, user} = Images.save_unfinished(scope, wizard.data)
 
-        update(socket, :current_scope, fn current_scope ->
-          %{current_scope | user: user}
-        end)
+        if user.id do
+          update(socket, :current_scope, fn
+            current_scope ->
+              %{current_scope | user: user}
+          end)
+        else
+          assign(socket, :unfinished_image, user.unfinished_image)
+        end
       else
         socket
       end
@@ -105,8 +135,17 @@ defmodule KlixWeb.BuildNewImageLive do
     {:noreply, push_patch(socket, to: ~p"/images/new?step=#{step_name}")}
   end
 
-  defp current_user(socket),
-    do: socket.assigns.current_scope.user |> Klix.Repo.preload(:unfinished_image)
+  defp current_user(%{assigns: %{current_scope: nil}, unfinished_image: image}) do
+    %Accounts.User{unfinished_image: image}
+  end
+
+  defp current_user(%{assigns: %{current_scope: nil}}) do
+    %Accounts.User{unfinished_image: nil}
+  end
+
+  defp current_user(socket) do
+    Klix.Repo.preload(socket.assigns.current_scope.user, :unfinished_image)
+  end
 
   attr :form, Phoenix.HTML.Form
   attr :step, :integer

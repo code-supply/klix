@@ -1,6 +1,7 @@
 defmodule Klix.Images do
   alias __MODULE__.{Build, Image, Versions}
   alias ExAws.S3
+  alias Klix.Accounts
   alias Klix.Accounts.Scope
   alias Klix.Repo
 
@@ -31,6 +32,8 @@ defmodule Klix.Images do
     end)
     |> Enum.into([])
   end
+
+  def soft_delete(nil, _image), do: {:error, :invalid_scope}
 
   def soft_delete(%Scope{} = scope, %Image{} = image) do
     if scope.user.id == image.user_id do
@@ -98,7 +101,7 @@ defmodule Klix.Images do
     |> Repo.get_by!(uri_id: uuid)
   end
 
-  def find!(%Scope{} = scope, id) do
+  def find!(scope, id) do
     Image.Query.for_scope(scope)
     |> Repo.get!(id)
     |> Repo.preload(:builds)
@@ -109,16 +112,29 @@ defmodule Klix.Images do
     |> Repo.get_by(image_id: image_id, id: build_id)
   end
 
-  def create(%Scope{} = scope, %Ecto.Changeset{} = changeset) do
+  def create(scope, %Ecto.Changeset{} = changeset) do
     changeset
     |> Ecto.Changeset.put_change(:completed_at, DateTime.utc_now(:second))
-    |> Ecto.Changeset.put_change(:user, scope.user)
+    |> then(fn cs ->
+      if scope do
+        Ecto.Changeset.put_change(cs, :user, scope.user)
+      else
+        cs
+      end
+    end)
     |> Ecto.Changeset.put_change(:builds, [[]])
     |> Repo.insert()
   end
 
-  def create(%Scope{} = scope, attrs) do
+  def create(scope, attrs) do
     create(scope, Image.changeset(%Image{}, attrs))
+  end
+
+  def save_unfinished(nil, image_attrs) do
+    {
+      :ok,
+      %Accounts.User{unfinished_image: struct!(Image, image_attrs)}
+    }
   end
 
   def save_unfinished(%Scope{} = scope, image_attrs) do

@@ -59,7 +59,13 @@ defmodule Klix.ImagesTest do
 
     test "must be done by the owner", %{image: image} do
       another_scope = user_fixture() |> Scope.for_user()
-      {:error, :invalid_scope} = Images.soft_delete(another_scope, image)
+      assert {:error, :invalid_scope} = Images.soft_delete(another_scope, image)
+    end
+
+    test "un-owned images can't be soft-deleted", %{scope: scope} do
+      {:ok, image} = Images.create(Scope.for_user(nil), Klix.Factory.params(:image))
+      assert {:error, :invalid_scope} = Images.soft_delete(scope, image)
+      assert {:error, :invalid_scope} = Images.soft_delete(Scope.for_user(nil), image)
     end
 
     test "is still in the database", %{scope: scope, image: image} do
@@ -156,6 +162,17 @@ defmodule Klix.ImagesTest do
     test "can't find another user's image", %{scope_2: scope_2, id_1: id_1} do
       assert_raise Ecto.NoResultsError, fn ->
         Images.find!(scope_2, id_1)
+      end
+    end
+
+    test "unauthenticated users can find any un-owned image", %{} do
+      {:ok, %{id: id}} = Images.create(Scope.for_user(nil), Klix.Factory.params(:image))
+      assert %Images.Image{} = Images.find!(Scope.for_user(nil), id)
+    end
+
+    test "unauthenticated users can't find owned images", %{id_1: id} do
+      assert_raise Ecto.NoResultsError, fn ->
+        Images.find!(Scope.for_user(nil), id)
       end
     end
 

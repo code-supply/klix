@@ -255,7 +255,13 @@ defmodule Klix.Images.Image do
       |> order_by([images: i], desc: i.id)
     end
 
-    def for_scope(query \\ base(), scope) do
+    def for_scope(query \\ base(), scope)
+
+    def for_scope(query, nil) do
+      where(query, [images: i], is_nil(i.user_id))
+    end
+
+    def for_scope(query, scope) do
       where(query, [images: i], i.user_id == ^scope.user.id)
     end
   end

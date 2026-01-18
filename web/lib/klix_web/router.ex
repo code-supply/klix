@@ -19,7 +19,22 @@ defmodule KlixWeb.Router do
   end
 
   scope "/", KlixWeb do
-    pipe_through :browser
+    pipe_through [:browser]
+
+    live_session :current_user,
+      on_mount: [{KlixWeb.UserAuth, :mount_current_scope}] do
+      live "/", HomeLive
+
+      live "/images/new", BuildNewImageLive
+      live "/images/:id", ImageLive
+
+      live "/users/register", UserLive.Registration, :new
+      live "/users/log-in", UserLive.Login, :new
+      live "/users/log-in/:token", UserLive.Confirmation, :new
+    end
+
+    post "/users/log-in", UserSessionController, :create
+    delete "/users/log-out", UserSessionController, :delete
   end
 
   # Other scopes may use custom stacks.
@@ -55,26 +70,9 @@ defmodule KlixWeb.Router do
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
 
       live "/images", ImagesLive
-      live "/images/new", BuildNewImageLive
-      live "/images/:id", ImageLive
     end
 
     post "/users/update-password", UserSessionController, :update_password
-  end
-
-  scope "/", KlixWeb do
-    pipe_through [:browser]
-
-    live_session :current_user,
-      on_mount: [{KlixWeb.UserAuth, :mount_current_scope}] do
-      live "/", HomeLive
-      live "/users/register", UserLive.Registration, :new
-      live "/users/log-in", UserLive.Login, :new
-      live "/users/log-in/:token", UserLive.Confirmation, :new
-    end
-
-    post "/users/log-in", UserSessionController, :create
-    delete "/users/log-out", UserSessionController, :delete
   end
 
   scope "/", KlixWeb do
