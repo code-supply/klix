@@ -15,7 +15,7 @@ defmodule KlixWeb.ImageLive do
                 <.link class="link" navigate={~p"/"}>Home</.link>
               </li>
               <li>
-                <.link class="link" navigate={~p"/images"}>Your Images</.link>
+                <.link class="link" href={~p"/images"}>Your Images</.link>
               </li>
               <li>{@image.hostname}</li>
             </ol>
