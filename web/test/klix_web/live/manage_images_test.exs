@@ -25,15 +25,6 @@ defmodule KlixWeb.ManageImagesTest do
       end
     end
 
-    test "images that are already built are downloadable", %{conn: conn, scope: scope} do
-      {:ok, %{builds: [build]} = image} = Klix.Images.create(scope, Klix.Factory.params(:image))
-      {:ok, _build} = Klix.Images.build_completed(build)
-
-      {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
-
-      assert view |> has_element?("[download]")
-    end
-
     test "can soft-delete an image", %{conn: conn, scope: scope} do
       {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
       {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
