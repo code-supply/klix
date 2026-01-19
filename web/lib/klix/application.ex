@@ -25,14 +25,21 @@ defmodule Klix.Application do
         &Klix.Scheduler.handle/4,
         sleep_time: 2000
       )
-    end
 
-    :telemetry.attach_many(
-      :logger,
-      Klix.Builder.telemetry_events(),
-      &Klix.Builder.Logger.handle/4,
-      []
-    )
+      :telemetry.attach_many(
+        :logger,
+        Klix.Builder.telemetry_events(),
+        &Klix.Builder.Logger.handle/4,
+        []
+      )
+
+      :telemetry.attach_many(
+        :openobserve_logger,
+        [[:builder, :build_log]],
+        &Klix.Builder.OpenObserveLogger.handle/4,
+        []
+      )
+    end
 
     opts = [strategy: :one_for_one, name: Klix.Supervisor]
     Supervisor.start_link(children, opts)

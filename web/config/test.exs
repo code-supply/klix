@@ -5,6 +5,11 @@ config :bcrypt_elixir, :log_rounds, 1
 
 config :ex_unit, assert_receive_timeout: :timer.seconds(2)
 
+config :klix,
+  open_observe_logger: [
+    plug: {Req.Test, Klix.Builder.OpenObserveLogger}
+  ]
+
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used

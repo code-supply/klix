@@ -22,7 +22,18 @@ end
 
 config :klix,
   build_dir: "/tmp/klix-build" |> tap(&File.mkdir_p!/1),
-  run_builder: System.get_env("KLIX_RUN_BUILDER", "true") == "true"
+  run_builder: System.get_env("KLIX_RUN_BUILDER", "true") == "true",
+  open_observe_logger: [
+    auth:
+      {:basic,
+       Enum.join(
+         [
+           System.get_env("ZO_ROOT_USER_EMAIL", "admin@example.com"),
+           System.get_env("ZO_ROOT_USER_PASSWORD", "admin")
+         ],
+         ":"
+       )}
+  ]
 
 config :ex_aws,
   http_client: ExAws.Request.Req,
