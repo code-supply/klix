@@ -30,6 +30,7 @@ defmodule Klix.Images.Build do
   defmodule Query do
     import Ecto.Query
 
+    alias Klix.Images
     alias Klix.Images.Build
 
     def base do
@@ -37,10 +38,8 @@ defmodule Klix.Images.Build do
     end
 
     def for_scope(query \\ base(), scope) do
-      image =
-        from i in Klix.Images.Image, where: i.user_id == ^scope.user.id and is_nil(i.deleted_at)
-
-      join(query, :inner, [builds: b], i in ^image, on: i.id == b.image_id)
+      images = Images.Image.Query.for_scope(scope)
+      join(query, :inner, [builds: b], i in subquery(images), on: i.id == b.image_id)
     end
 
     def next(query \\ base()) do

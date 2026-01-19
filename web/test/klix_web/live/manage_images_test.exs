@@ -133,8 +133,11 @@ defmodule KlixWeb.ManageImagesTest do
 
       {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 
-      assert view |> has_element?("#builds a[download]", ~r/.+ GB/),
-             element(view, "#builds a[download]") |> render
+      {:ok, conn} =
+        view |> element("#builds a.download") |> render_click() |> follow_redirect(conn)
+
+      assert html_response(conn, 302)
+      assert Enum.into(conn.resp_headers, %{})["location"] == Images.download_url(build)
     end
 
     @tag :tmp_dir
@@ -152,8 +155,8 @@ defmodule KlixWeb.ManageImagesTest do
       {:ok, build} = Images.file_ready(build, dir)
       {:ok, _build} = Images.build_completed(build)
 
-      assert view |> has_element?("#builds a[download]", ~r/.+ GB/),
-             element(view, "#builds a[download]") |> render
+      assert view |> has_element?(".download", ~r/.+ GB/),
+             element(view, ".download") |> render()
     end
 
     test "lists all of the user's images, except incomplete ones", %{conn: conn, scope: scope} do

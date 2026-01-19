@@ -33,6 +33,7 @@ defmodule KlixWeb.Router do
       live "/users/log-in/:token", UserLive.Confirmation, :new
     end
 
+    get "/images/:image_id/builds/:id", BuildsController, :download
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
   end

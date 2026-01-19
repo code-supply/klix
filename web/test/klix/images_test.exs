@@ -52,7 +52,7 @@ defmodule Klix.ImagesTest do
       assert Images.list(scope) == []
       assert Images.find(image.uri_id) == nil
       assert_raise Ecto.NoResultsError, fn -> Images.find!(image.uri_id) end
-      assert Images.find_build(scope, image.id, build.id) == nil
+      assert_raise Ecto.NoResultsError, fn -> Images.find_build!(scope, image.id, build.id) end
 
       assert Repo.preload(build, :image).image == nil
     end
@@ -177,11 +177,11 @@ defmodule Klix.ImagesTest do
     end
 
     test "can find own build", %{scope_1: scope, id_1: id, build_id_1: build_id} do
-      assert Images.find_build(scope, id, build_id)
+      assert Images.find_build!(scope, id, build_id)
     end
 
     test "can't find another user's build", %{scope_2: scope_2, id_1: id, build_id_1: build_id} do
-      refute Images.find_build(scope_2, id, build_id)
+      assert_raise Ecto.NoResultsError, fn -> Images.find_build!(scope_2, id, build_id) end
     end
   end
 

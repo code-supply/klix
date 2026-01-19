@@ -118,9 +118,9 @@ defmodule KlixWeb.ImageLive do
                     />
 
                     <.link
-                      class="col-start-2 col-span-2 btn btn-secondary"
-                      href={Images.download_url(build)}
-                      download
+                      class="col-start-2 col-span-2 btn btn-secondary download"
+                      href={~p"/images/#{@image.id}/builds/#{build.id}"}
+                      target="_blank"
                     >
                       <.icon name="hero-arrow-down-tray" /> Download {Images.download_size(build)}
                     </.link>

@@ -107,9 +107,9 @@ defmodule Klix.Images do
     |> Repo.preload(:builds)
   end
 
-  def find_build(%Scope{} = scope, image_id, build_id) do
+  def find_build!(scope, image_id, build_id) do
     Build.Query.for_scope(scope)
-    |> Repo.get_by(image_id: image_id, id: build_id)
+    |> Repo.get_by!(image_id: image_id, id: build_id)
   end
 
   def create(scope, %Ecto.Changeset{} = changeset) do
