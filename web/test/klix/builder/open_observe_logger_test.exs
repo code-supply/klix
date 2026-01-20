@@ -36,7 +36,7 @@ defmodule Klix.Builder.OpenObserveLoggerTest do
     OpenObserveLogger.handle(
       [:builder, :build_log],
       %{content: "here is a log line"},
-      %{build_id: 123, image_id: 321},
+      %{pid: self(), build_id: 123, image_id: 321},
       []
     )
   end

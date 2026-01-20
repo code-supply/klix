@@ -10,7 +10,7 @@ defmodule Klix.Builder.OpenObserveLogger do
             "job" => "builder",
             "log" => measurements.content
           }
-          |> Map.merge(metadata)
+          |> Map.merge(Map.take(metadata, [:image_id, :build_id]))
         ]
       ]
       |> Keyword.merge(Application.fetch_env!(:klix, :open_observe_logger))
