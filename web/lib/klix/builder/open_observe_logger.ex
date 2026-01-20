@@ -1,5 +1,5 @@
 defmodule Klix.Builder.OpenObserveLogger do
-  def handle([:builder, :build_log], measurements, _metadata, _config) do
+  def handle([:builder, :build_log], measurements, metadata, _config) do
     Req.new(
       [
         method: :get,
@@ -10,6 +10,7 @@ defmodule Klix.Builder.OpenObserveLogger do
             "job" => "builder",
             "log" => measurements.content
           }
+          |> Map.merge(metadata)
         ]
       ]
       |> Keyword.merge(Application.fetch_env!(:klix, :open_observe_logger))

@@ -16,7 +16,13 @@ defmodule Klix.Builder.OpenObserveLoggerTest do
 
         assert conn.body_params == %{
                  "_json" => [
-                   %{"job" => "builder", "level" => "info", "log" => "here is a log line"}
+                   %{
+                     "job" => "builder",
+                     "image_id" => 321,
+                     "build_id" => 123,
+                     "level" => "info",
+                     "log" => "here is a log line"
+                   }
                  ]
                }
 
@@ -30,7 +36,7 @@ defmodule Klix.Builder.OpenObserveLoggerTest do
     OpenObserveLogger.handle(
       [:builder, :build_log],
       %{content: "here is a log line"},
-      %{my: :metadata},
+      %{build_id: 123, image_id: 321},
       []
     )
   end
