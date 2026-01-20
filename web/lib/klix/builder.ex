@@ -10,10 +10,8 @@ defmodule Klix.Builder do
 
   defmodule State do
     @enforce_keys [
-      :build,
       :build_dir,
       :cmd,
-      :telemetry_meta,
       :uploader,
       :version_retriever
     ]
@@ -21,10 +19,11 @@ defmodule Klix.Builder do
       :build,
       :build_dir,
       :cmd,
+      :error,
       :output_path,
-      :telemetry_meta,
       :uploader,
-      :version_retriever
+      :version_retriever,
+      telemetry_meta: %{}
     ]
   end
 
@@ -48,7 +47,6 @@ defmodule Klix.Builder do
       struct!(
         State,
         Enum.into(opts, %{
-          build: nil,
           build_dir: "/tmp/klix-build",
           cmd: ~w(
           nix
@@ -57,8 +55,7 @@ defmodule Klix.Builder do
           --no-link 
           --no-pretty 
           .#packages.aarch64-linux.image
-        ) |> Enum.join(" "),
-          telemetry_meta: %{}
+        ) |> Enum.join(" ")
         })
       )
 
@@ -68,9 +65,10 @@ defmodule Klix.Builder do
 
   @impl true
   def handle_info(:set_up, state) do
+    state = clear_build_data(state)
+
     case Images.next_build() do
       nil ->
-        state = %{state | telemetry_meta: %{}, output_path: nil}
         emit(state, :nothing_to_do)
         {:noreply, state}
 
@@ -143,7 +141,17 @@ defmodule Klix.Builder do
     {:noreply, %{state | build: build, output_path: output_path}}
   end
 
-  def handle_info({port, {:data, output}}, state) when is_port(port) do
+  def handle_info({port, {:data, output}}, state)
+      when is_port(port) do
+    state =
+      case Regex.scan(~r/^error: .*line \d+:.*-source\/(.* No such file or directory)/s, output) do
+        [[_full_match, error]] ->
+          %{state | error: ~s(Path to config dir incorrect: "#{error}")}
+
+        _ ->
+          state
+      end
+
     emit(state, :build_log, %{content: output})
     {:noreply, state}
   end
@@ -177,7 +185,10 @@ defmodule Klix.Builder do
 
   def handle_info({port, {:exit_status, code}}, state) when is_port(port) do
     send(port, {self(), :close})
-    {:ok, _build} = Images.build_failed(state.build, "nonzero exit code: #{code}")
+
+    {:ok, _build} =
+      Images.build_failed(state.build, state.error || "nonzero exit code: #{code}")
+
     emit(state, :run_complete)
     {:noreply, state}
   end
@@ -192,6 +203,10 @@ defmodule Klix.Builder do
       measurements,
       Map.put(state.telemetry_meta, :pid, self())
     )
+  end
+
+  defp clear_build_data(state) do
+    %{state | build: nil, error: nil, telemetry_meta: %{}, output_path: nil}
   end
 
   defp flake_nix_path(state), do: Path.join(state.build_dir, "flake.nix")

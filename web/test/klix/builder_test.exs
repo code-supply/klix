@@ -26,7 +26,7 @@ defmodule Klix.BuilderTest do
     setup do
       scope = user_fixture() |> Scope.for_user()
       {:ok, image} = Images.create(scope, Factory.params(:image))
-      %{image: image}
+      %{scope: scope, image: image}
     end
 
     test "emits an event after setup message is sent", ctx do
@@ -201,6 +201,84 @@ defmodule Klix.BuilderTest do
       build = Repo.reload!(build)
 
       assert %DateTime{} = build.completed_at
+      assert build.error == "nonzero exit code: 1"
+    end
+
+    test "when the user-provided config is missing, report that as the error",
+         %{image: %{builds: [build]}} = ctx do
+      nix_message =
+        "error: Cannot build '/nix/store/415xb5l6x4my85ikjlcjry7r0kd4k7a8-create-printer-config.drv'.\n       Reason: builder failed with exit code 1.\n       Output paths:\n         /nix/store/kkqx5ndc67y7rvblg7jbpdvf02xpbscq-create-printer-config\n       Last 1 log lines:\n       > /build/.attr-0l2nkwhif96f51f4amnlf414lhl4rv9vh8iffyp431v6s28gsr90: line 4: /nix/store/8176idgixkanf4af6f5yp8j6ab0k8k46-source/Path:: No such file or directory\n       For full logs, run:\n         nix log /nix/store/415xb5l6x4my85ikjlcjry7r0kd4k7a8-create-printer-config.drv\n"
+
+      %{ref: ref, builder: builder} = start_builder(ctx, "false")
+      send(builder, :run)
+
+      assert_receive {[:builder, :build_started], ^ref, _empty_measurements,
+                      %{port: port, pid: ^builder}}
+
+      send(builder, {port, {:data, nix_message}})
+      assert_receive {[:builder, :build_log], ^ref, %{content: ^nix_message}, %{pid: ^builder}}
+
+      assert_receive {[:builder, :run_complete], ^ref, _empty_measurements, %{pid: ^builder}}
+
+      build = Repo.reload!(build)
+      assert %DateTime{} = build.completed_at
+      assert build.error == ~s(Path to config dir incorrect: "Path:: No such file or directory")
+    end
+
+    test "other errors are just logged", %{image: %{builds: [build]}} = ctx do
+      nix_message = "error: something went wrong"
+
+      %{ref: ref, builder: builder} = start_builder(ctx, "false")
+      send(builder, :run)
+
+      assert_receive {[:builder, :build_started], ^ref, _empty_measurements,
+                      %{port: port, pid: ^builder}}
+
+      send(builder, {port, {:data, nix_message}})
+      assert_receive {[:builder, :build_log], ^ref, %{content: ^nix_message}, %{pid: ^builder}}
+
+      assert_receive {[:builder, :run_complete], ^ref, _empty_measurements, %{pid: ^builder}}
+
+      build = Repo.reload!(build)
+      assert %DateTime{} = build.completed_at
+      assert build.error == "nonzero exit code: 1"
+    end
+
+    test "specific errors are cleared for future runs",
+         %{scope: scope, image: %{builds: [build]}} = ctx do
+      nix_message =
+        "error: line 4: blah-source/non-existent:: No such file or directory"
+
+      %{ref: ref, builder: builder} = start_builder(ctx, "false")
+      send(builder, :run)
+
+      assert_receive {[:builder, :build_started], ^ref, _empty_measurements,
+                      %{port: port, pid: ^builder}}
+
+      send(builder, {port, {:data, nix_message}})
+      assert_receive {[:builder, :run_complete], ^ref, _empty_measurements, %{pid: ^builder}}
+
+      build = Repo.reload!(build)
+
+      assert build.error ==
+               ~s(Path to config dir incorrect: "non-existent:: No such file or directory")
+
+      {:ok, %{builds: [build]} = image} = Images.create(scope, Factory.params(:image))
+      send(builder, :set_up)
+      expected_id = image.id
+
+      assert_receive {[:builder, :setup_complete], ^ref, _empty_measurements,
+                      %{image_id: ^expected_id, pid: ^builder}}
+
+      send(builder, :run)
+
+      assert_receive {[:builder, :build_started], ^ref, _empty_measurements,
+                      %{port: port, pid: ^builder}}
+
+      send(builder, {port, {:data, "error: not-special-so-should-not-be-used"}})
+      assert_receive {[:builder, :run_complete], ^ref, _empty_measurements, %{pid: ^builder}}
+      build = Repo.reload!(build)
+
       assert build.error == "nonzero exit code: 1"
     end
   end
