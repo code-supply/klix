@@ -8,6 +8,29 @@ defmodule Klix.ImagesTest do
 
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
+  test "unfinished images are cleared after wizard is completed", %{scope: scope} do
+    wizard =
+      Images.Image.Steps.sign_up()
+      |> Wizard.new()
+      |> Wizard.next(%{machine: "raspberry_pi_4"})
+      |> Wizard.next(%{hostname: "my-printer", timezone: "Europe/London"})
+      |> Wizard.next(%{public_key: Klix.Factory.params(:image).public_key})
+      |> Wizard.next(%{plugin_shaketune_enabled: true})
+
+    {:ok, _} = Images.save_unfinished(scope, wizard.data)
+
+    wizard =
+      wizard
+      |> Wizard.next(%{
+        klipper_config: %{type: "github", owner: "code-supply", repo: "code-supply"}
+      })
+
+    assert Wizard.complete?(wizard)
+    {:ok, _} = Images.create(scope, wizard.changeset)
+
+    refute Repo.reload!(scope.user).unfinished_image_id
+  end
+
   test "can build an image from a wizard", %{scope: scope} do
     wizard =
       Images.Image.Steps.sign_up()

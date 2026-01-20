@@ -112,18 +112,27 @@ defmodule Klix.Images do
     |> Repo.get_by!(image_id: image_id, id: build_id)
   end
 
-  def create(scope, %Ecto.Changeset{} = changeset) do
+  def create(nil = _scope, %Ecto.Changeset{} = changeset) do
     changeset
     |> Ecto.Changeset.put_change(:completed_at, DateTime.utc_now(:second))
-    |> then(fn cs ->
-      if scope do
-        Ecto.Changeset.put_change(cs, :user, scope.user)
-      else
-        cs
-      end
-    end)
     |> Ecto.Changeset.put_change(:builds, [[]])
     |> Repo.insert()
+  end
+
+  def create(scope, %Ecto.Changeset{} = changeset) do
+    Repo.transact(fn ->
+      with user <- Repo.reload!(scope.user),
+           {:ok, image} <-
+             changeset
+             |> Ecto.Changeset.put_change(:completed_at, DateTime.utc_now(:second))
+             |> then(&Ecto.Changeset.put_change(&1, :user, scope.user))
+             |> Ecto.Changeset.put_change(:builds, [[]])
+             |> Repo.insert(),
+           {:ok, _user} <-
+             Ecto.Changeset.change(user, unfinished_image_id: nil) |> Repo.update() do
+        {:ok, image}
+      end
+    end)
   end
 
   def create(scope, attrs) do
