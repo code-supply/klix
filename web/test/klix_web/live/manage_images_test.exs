@@ -159,6 +159,18 @@ defmodule KlixWeb.ManageImagesTest do
              element(view, ".download") |> render()
     end
 
+    test "when a build fails, show message", %{conn: conn, scope: scope} do
+      {:ok, %{builds: [build]} = image} =
+        Images.create(scope, Klix.Factory.params(:image, hostname: "machineA"))
+
+      {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+      {:ok, _build} = Images.build_failed(build, "poo found in mechanism")
+
+      refute view |> has_element?(".download")
+      assert view |> has_element?("[role=alert]")
+    end
+
     test "lists all of the user's images, except incomplete ones", %{conn: conn, scope: scope} do
       {:ok, _user} =
         Images.save_unfinished(

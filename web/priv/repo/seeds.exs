@@ -10,9 +10,22 @@ scope = Klix.Accounts.Scope.for_user(user)
     Klix.Factory.params(:image, hostname: "finished", plugin_z_calibration_enabled: false)
   )
 
+{:ok, %Klix.Images.Image{builds: [failed_build]} = failed_image} =
+  Klix.Images.create(
+    scope,
+    Klix.Factory.params(:image, hostname: "error")
+  )
+
 build_start =
   DateTime.utc_now(:second)
   |> DateTime.add(-4000, :second, Tzdata.TimeZoneDatabase)
+
+{:ok, failed_build} =
+  failed_build
+  |> Ecto.Changeset.change(inserted_at: build_start, byte_size: 99_999_999)
+  |> Klix.Repo.update()
+
+{:ok, _failed_build} = Klix.Images.build_failed(failed_build, "bad stuff happened!")
 
 {:ok, finished_build} =
   finished_build

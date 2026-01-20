@@ -247,6 +247,7 @@ defmodule Klix.Images do
     |> tap(&broadcast_ready/1)
   end
 
+  def build_failed?(%Build{} = build), do: !!build.completed_at and !!build.error
   def build_ready?(%Build{} = build), do: !!build.completed_at
 
   def build_duration(build, now \\ DateTime.utc_now())

@@ -111,28 +111,54 @@ defmodule KlixWeb.ImageLive do
                 </dl>
 
                 <div class="card-actions grid grid-cols-3 build">
-                  <%= if Images.build_ready?(build) do %>
-                    <.software_versions
-                      title="Software versions"
-                      versions={Images.versions(build.versions)}
-                    />
-
-                    <.link
-                      class="col-start-2 col-span-2 btn btn-secondary download"
-                      href={~p"/images/#{@image.id}/builds/#{build.id}"}
-                      target="_blank"
-                    >
-                      <.icon name="hero-arrow-down-tray" /> Download {Images.download_size(build)}
-                    </.link>
-                  <% else %>
-                    <p class="col-span-2">
-                      Download link will appear here when ready.
-                    </p>
-                    <div class="w-full text-right">
-                      <div class="loading loading-bars loading-xl">
-                        being prepared
+                  <%= cond do %>
+                    <% Images.build_failed?(build) -> %>
+                      <div role="alert" class="col-span-3 alert alert-error">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-6 w-6 shrink-0 stroke-current"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <div>
+                          <h3 class="font-bold">Image build failure</h3>
+                          <p>{build.error}</p>
+                          <p>
+                            Please
+                            <.link class="link" href="mailto:tech@code.supply">get in touch</.link>
+                            to resolve this.
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    <% Images.build_ready?(build) -> %>
+                      <.software_versions
+                        title="Software versions"
+                        versions={Images.versions(build.versions)}
+                      />
+
+                      <.link
+                        class="col-start-2 col-span-2 btn btn-secondary download"
+                        href={~p"/images/#{@image.id}/builds/#{build.id}"}
+                        target="_blank"
+                      >
+                        <.icon name="hero-arrow-down-tray" /> Download {Images.download_size(build)}
+                      </.link>
+                    <% true -> %>
+                      <p class="col-span-2">
+                        Download link will appear here when ready.
+                      </p>
+                      <div class="w-full text-right">
+                        <div class="loading loading-bars loading-xl">
+                          being prepared
+                        </div>
+                      </div>
                   <% end %>
                 </div>
               </div>
