@@ -159,7 +159,9 @@ defmodule Klix.BuilderTest do
       |> File.write!("flake.lock file content")
 
       send(builder, {port, {:data, nix_message}})
-      assert_receive {[:builder, :build_log], ^ref, _measurements, %{pid: ^builder}}
+
+      assert_receive {[:builder, :build_log], ^ref,
+                      %{content: <<"warning: creating", _rest::binary>>}, %{pid: ^builder}}
 
       %{builds: [build]} = ctx.image
 
@@ -177,7 +179,9 @@ defmodule Klix.BuilderTest do
                       %{port: port, pid: ^builder}}
 
       nix_writes_to_disk(builder, port, ctx.tmp_dir, "123")
-      assert_receive {[:builder, :build_log], ^ref, _measurements, %{pid: ^builder}}
+
+      assert_receive {[:builder, :build_log], ^ref, %{content: <<"[{\"drvPath", _rest::binary>>},
+                      %{pid: ^builder}}
 
       %{builds: [build]} = ctx.image
 
