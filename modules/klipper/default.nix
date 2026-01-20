@@ -49,7 +49,7 @@ in
           # all includes get replaced with the user's config dir as base
           # except: includes prefixed with extras/ get replaced with the klipper drv's extras dir, where plugins live
           sed '/\[include extras\//! s#\[include \(.*\)\]#[include ${userConfigDir}/\1]#;s#\[include extras/#[include ${config.services.klipper.package}/lib/klipper/extras/#' \
-          < ${userConfigDir}/printer.cfg \
+          < "${userConfigDir}/printer.cfg" \
           > $out/printer.cfg
         '';
       in
