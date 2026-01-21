@@ -22,7 +22,10 @@ let
 in
 {
   options = {
-    services.klix.configDir = lib.mkOption { example = "./klipper"; };
+    services.klix.configDir = lib.mkOption {
+      example = "./klipper";
+      default = null;
+    };
     services.klipper.plugins = builtins.mapAttrs (name: definition: {
       enable = lib.mkEnableOption definition.description;
     }) plugins;
@@ -57,7 +60,9 @@ in
       {
         enable = true;
 
-        configFile = if (isNull config.services.klipper.settings) then "${configs}/printer.cfg" else null;
+        configFile = if (isNull userConfigDir) then null else "${configs}/printer.cfg";
+        mutableConfig = isNull userConfigDir;
+        settings = if (isNull userConfigDir) then import ./default-config.nix else null;
 
         logFile = "/var/lib/klipper/klipper.log";
         user = "klipper";
