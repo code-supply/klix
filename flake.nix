@@ -84,10 +84,7 @@
       };
 
       checks = forAllSystems (
-        { pkgs, ... }:
-        {
-          default = pkgs.callPackage ./tests { imports = builtins.attrValues modules; };
-        }
+        { pkgs, ... }: pkgs.callPackages ./tests { imports = builtins.attrValues modules; }
       );
 
       devShells = forAllSystems (
