@@ -311,7 +311,7 @@ defmodule Klix.ImagesTest do
                    flake = false;
                  };
                  klix = {
-                   url = "github:code-supply/klix/main";
+                   url = "github:code-supply/klix/release";
                    inputs.nixpkgs.follows = "nixpkgs";
                  };
                };
