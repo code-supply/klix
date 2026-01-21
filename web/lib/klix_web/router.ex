@@ -26,7 +26,7 @@ defmodule KlixWeb.Router do
       live "/", HomeLive
 
       live "/images/new", BuildNewImageLive
-      live "/images/:id", ImageLive
+      live "/images/:id", ManageImageLive
 
       live "/users/register", UserLive.Registration, :new
       live "/users/log-in", UserLive.Login, :new

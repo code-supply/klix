@@ -1,4 +1,4 @@
-defmodule KlixWeb.ImageLive do
+defmodule KlixWeb.ManageImageLive do
   use KlixWeb, :live_view
 
   alias Klix.Images
