@@ -6,7 +6,7 @@
 
 {
   withMutableConfig = nixosTest {
-    name = "Test Klix with empty mutable config";
+    name = "Test Klix with default mutable config";
     nodes.printer = {
       inherit imports;
 

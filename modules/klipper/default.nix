@@ -60,10 +60,6 @@ in
       {
         enable = true;
 
-        configFile = if (isNull userConfigDir) then null else "${configs}/printer.cfg";
-        mutableConfig = isNull userConfigDir;
-        settings = if (isNull userConfigDir) then import ./default-config.nix else null;
-
         logFile = "/var/lib/klipper/klipper.log";
         user = "klipper";
         group = "klipper";
@@ -84,6 +80,18 @@ in
                 "ln -sfv ${pluginSrc}/${plugin.configLink.from} source/klippy/extras/${dest}"
               ) enabledPlugins;
             };
-      };
+      }
+      // (
+        if isNull userConfigDir then
+          {
+            mutableConfig = true;
+            settings = { };
+          }
+        else
+          {
+            mutableConfig = false;
+            configFile = "${configs}/printer.cfg";
+          }
+      );
   };
 }
