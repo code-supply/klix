@@ -22,6 +22,7 @@ defmodule Klix.ImagesTest do
     wizard =
       wizard
       |> Wizard.next(%{
+        klipper_config_mutable: false,
         klipper_config: %{type: "github", owner: "code-supply", repo: "code-supply"}
       })
 
@@ -40,6 +41,7 @@ defmodule Klix.ImagesTest do
       |> Wizard.next(%{public_key: Klix.Factory.params(:image).public_key})
       |> Wizard.next(%{plugin_shaketune_enabled: true})
       |> Wizard.next(%{
+        klipper_config_mutable: false,
         klipper_config: %{type: "github", owner: "code-supply", repo: "code-supply"}
       })
 

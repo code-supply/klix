@@ -24,7 +24,7 @@ defmodule KlixWeb.ManageImageLive do
       </.header>
 
       <div class="md:grid md:grid-cols-2 gap-4">
-        <section>
+        <section id="printer-details">
           <div class="bg-base-100 card card-border border-base-300 mb-4 printer">
             <div class="card-body">
               <h3 class="card-title">
@@ -66,7 +66,9 @@ defmodule KlixWeb.ManageImageLive do
 
                 <dt class="font-bold">Klipper Config</dt>
                 <dd>
+                  <p :if={@image.klipper_config_mutable}>Edit on machine</p>
                   <.link
+                    :if={@image.klipper_config}
                     class="badge"
                     href={"https://#{@image.klipper_config.type}.com/#{@image.klipper_config.owner}/#{@image.klipper_config.repo}/tree/main/#{@image.klipper_config.path}"}
                   >

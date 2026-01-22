@@ -35,7 +35,7 @@ defmodule Klix.Wizard do
     %{wizard | changeset_for_step: changeset_for_step(wizard, step_1)}
   end
 
-  def complete?(wizard), do: get_in(wizard.changeset.valid?)
+  def complete?(wizard), do: !!get_in(wizard.changeset.valid?)
 
   def next(%__MODULE__{steps: steps, current: current} = wizard, params) do
     {step_changeset, wizard} = change_step(wizard, params)

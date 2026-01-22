@@ -1,6 +1,15 @@
 defmodule KlixWeb.ManageImagesTest do
   use KlixWeb.ConnCase, async: true
 
+  test "can manage images with mutable Klipper config", %{conn: conn} do
+    {:ok, image} =
+      Images.create(Scope.for_user(nil), Klix.Factory.params(:image_with_mutable_config))
+
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+    assert view |> has_element?("#printer-details", "Edit on machine")
+  end
+
   test "cannot see soft-delete option when not logged in", %{conn: conn} do
     {:ok, image} = Images.create(Scope.for_user(nil), Klix.Factory.params(:image))
     {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")

@@ -31,8 +31,12 @@ defmodule KlixWeb.BuildNewImageLive do
         </li>
       </ol>
 
-      <.form for={@wizard.changeset_for_step} id="step" phx-submit="next">
-        <.step form={to_form(@wizard.changeset_for_step)} step={@wizard.current} />
+      <.form for={@wizard.changeset_for_step} id="step" phx-submit="next" phx-change="change">
+        <.step
+          form={to_form(@wizard.changeset_for_step)}
+          step={@wizard.current}
+          show_immutable_config_options={@show_immutable_config_options}
+        />
       </.form>
 
       <div :if={!@current_scope} role="alert" class="alert alert-info alert-soft mt-6 w-3/4 m-auto">
@@ -49,7 +53,13 @@ defmodule KlixWeb.BuildNewImageLive do
   end
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, page_title: "Custom 3D Printer OS Image")}
+    {
+      :ok,
+      assign(socket,
+        show_immutable_config_options: false,
+        page_title: "Custom 3D Printer OS Image"
+      )
+    }
   end
 
   def handle_params(%{"step" => step}, _uri, socket) do
@@ -75,6 +85,15 @@ defmodule KlixWeb.BuildNewImageLive do
         wizard:
           Images.Image.Steps.sign_up()
           |> Wizard.new(current_user(socket).unfinished_image)
+      )
+    }
+  end
+
+  def handle_event("change", %{"image" => image_params}, socket) do
+    {
+      :noreply,
+      assign(socket,
+        show_immutable_config_options: image_params["klipper_config_mutable"] == "false"
       )
     }
   end
@@ -136,6 +155,7 @@ defmodule KlixWeb.BuildNewImageLive do
 
   attr :form, Phoenix.HTML.Form
   attr :step, :integer
+  attr :show_immutable_config_options, :boolean
 
   defp step(%{step: Steps.Machine} = assigns) do
     ~H"""
@@ -283,25 +303,47 @@ defmodule KlixWeb.BuildNewImageLive do
     <div class="card bg-base-100 w-3/4 m-auto">
       <div class="card-body">
         <h2 class="card-title">Printer-specific config</h2>
-        <p>
-          Your Klipper config will be pulled from this repo. At present, it must be publically viewable.
-        </p>
-        <p>
-          The "path to config dir" needs to point to the dir inside your repo that contains your <code>printer.cfg</code>.
-          If it's in the root of your repo, you don't need to specify it.
-        </p>
+        <.input
+          id="mutable_klipper_config"
+          label="Mutable Klipper config"
+          type="checkbox"
+          name="image[klipper_config_mutable]"
+          checked={!@show_immutable_config_options}
+        />
 
-        <.inputs_for :let={klipper_config} field={@form[:klipper_config]}>
-          <.input
-            label="Repo type"
-            field={klipper_config[:type]}
-            type="select"
-            options={Klix.Images.KlipperConfig.type_options()}
-          />
-          <.input label="Repo owner" field={klipper_config[:owner]} />
-          <.input label="Repo name" field={klipper_config[:repo]} />
-          <.input label="Path to config dir (optional)" field={klipper_config[:path]} />
-        </.inputs_for>
+        <div :if={!@show_immutable_config_options} class="flex flex-col gap-y-3">
+          <p>
+            Your Klipper config will be editable on the machine, and you will be
+            able to use the Fluidd interface to edit it. It will start with an
+            empty config.
+          </p>
+        </div>
+
+        <div :if={@show_immutable_config_options} class="flex flex-col gap-y-3">
+          <p>
+            Your Klipper config will be pulled from this repo. At present, it
+            must be publically viewable.
+          </p>
+          <p>
+            It won't be editable through the Fluidd UI.
+          </p>
+          <p>
+            The "path to config dir" needs to point to the dir inside your repo that contains your <code>printer.cfg</code>.
+            If it's in the root of your repo, you don't need to specify it.
+          </p>
+
+          <.inputs_for :let={klipper_config} field={@form[:klipper_config]}>
+            <.input
+              label="Repo type"
+              field={klipper_config[:type]}
+              type="select"
+              options={Klix.Images.KlipperConfig.type_options()}
+            />
+            <.input label="Repo owner" field={klipper_config[:owner]} />
+            <.input label="Repo name" field={klipper_config[:repo]} />
+            <.input label="Path to config dir (optional)" field={klipper_config[:path]} />
+          </.inputs_for>
+        </div>
 
         <div class="card-actions justify-between">
           <.link id="prev" patch={~p"/images/new?step=ExtraSoftware"} class="btn btn-lg btn-neutral">

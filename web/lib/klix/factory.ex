@@ -13,12 +13,19 @@ defmodule Klix.Factory do
         repo: "code-supply",
         path: "boxes/ketchup-king/klipper"
       ],
+      klipper_config_mutable: false,
       timezone: "Europe/Madrid",
       public_key:
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
     ]
     |> Keyword.merge(attributes)
     |> Enum.into(%{})
+  end
+
+  def params(:image_with_mutable_config, attributes) do
+    params(:image, attributes)
+    |> Map.delete(:klipper_config)
+    |> Map.put(:klipper_config_mutable, true)
   end
 
   def params(:build, attributes) do

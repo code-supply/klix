@@ -22,6 +22,7 @@ defmodule Klix.Images.Image do
     field :current_versions_updated_at, :utc_datetime
     field :completed_at, :utc_datetime
     field :deleted_at, :utc_datetime
+    field :klipper_config_mutable, :boolean
 
     embeds_one :current_versions, Klix.Images.Versions, on_replace: :update
     embeds_one :klipper_config, Klix.Images.KlipperConfig
@@ -123,12 +124,20 @@ defmodule Klix.Images.Image do
 
       def cast(image, params) do
         image
-        |> Ecto.Changeset.cast(params, [])
+        |> Ecto.Changeset.cast(params, [:klipper_config_mutable])
         |> Ecto.Changeset.cast_embed(:klipper_config)
       end
 
       def validate(changeset) do
-        Ecto.Changeset.validate_required(changeset, :klipper_config)
+        changeset
+        |> Ecto.Changeset.validate_required(:klipper_config_mutable)
+        |> then(fn cs ->
+          if cs.changes[:klipper_config_mutable] do
+            cs
+          else
+            Ecto.Changeset.validate_required(cs, :klipper_config)
+          end
+        end)
       end
     end
 

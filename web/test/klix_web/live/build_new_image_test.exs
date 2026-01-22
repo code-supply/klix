@@ -30,16 +30,10 @@ defmodule KlixWeb.BuildNewImageTest do
       |> fill_in(plugin_kamp_enabled: false)
       |> render_submit()
 
+      # accept default mutable config
       {:ok, _view, html} =
         view
-        |> fill_in(
-          klipper_config: [
-            type: "github",
-            owner: "code-supply",
-            repo: "code-supply",
-            path: "some/path"
-          ]
-        )
+        |> form("#step")
         |> render_submit()
         |> follow_redirect(conn)
 
@@ -78,6 +72,14 @@ defmodule KlixWeb.BuildNewImageTest do
       view
       |> fill_in(plugin_kamp_enabled: false)
       |> render_submit()
+
+      view
+      |> fill_in(klipper_config_mutable: false)
+      |> render_change()
+
+      assert view
+             |> fill_in(klipper_config: [type: "gitlab"])
+             |> render_change() =~ "pulled from this repo"
 
       {:ok, _view, html} =
         view
