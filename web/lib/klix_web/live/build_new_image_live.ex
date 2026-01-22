@@ -194,9 +194,14 @@ defmodule KlixWeb.BuildNewImageLive do
     <div class="card bg-base-100 w-3/4 m-auto">
       <div class="card-body">
         <h2 class="card-title">Locale and Identity</h2>
-        <p>Your machine's hostname may be used to identify itself on the
+        <p>
+          Your machine's hostname may be used to identify itself on the
           network. Some routers may be configured to automatically route requests
-          to the hostname you choose.</p>
+          to the hostname you choose.
+        </p>
+        <p>
+          It could just be the pet name of your printer.
+        </p>
         <div class="flex flex-cols-2 gap-7">
           <.input label="Hostname" placeholder="printy-mc-printface" field={@form[:hostname]} />
           <.input
@@ -311,15 +316,7 @@ defmodule KlixWeb.BuildNewImageLive do
           checked={!@show_immutable_config_options}
         />
 
-        <div :if={!@show_immutable_config_options} class="flex flex-col gap-y-3">
-          <p>
-            Your Klipper config will be editable on the machine, and you will be
-            able to use the Fluidd interface to edit it. It will start with an
-            empty config.
-          </p>
-        </div>
-
-        <div :if={@show_immutable_config_options} class="flex flex-col gap-y-3">
+        <%= if @show_immutable_config_options do %>
           <p>
             Your Klipper config will be pulled from this repo. At present, it
             must be publically viewable.
@@ -343,7 +340,15 @@ defmodule KlixWeb.BuildNewImageLive do
             <.input label="Repo name" field={klipper_config[:repo]} />
             <.input label="Path to config dir (optional)" field={klipper_config[:path]} />
           </.inputs_for>
-        </div>
+        <% else %>
+          <p>
+            Your Klipper config will be editable on the machine, and you will be
+            able to use the Fluidd interface to edit it. It will start with an
+            empty config.
+          </p>
+        <% end %>
+
+        <div :if={@show_immutable_config_options} class="flex flex-col gap-y-3"></div>
 
         <div class="card-actions justify-between">
           <.link id="prev" patch={~p"/images/new?step=ExtraSoftware"} class="btn btn-lg btn-neutral">
