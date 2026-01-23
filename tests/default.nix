@@ -1,11 +1,11 @@
 {
-  nixosTest,
+  testers,
   imports,
   writeTextDir,
 }:
 
 {
-  withMutableConfig = nixosTest {
+  withMutableConfig = testers.nixosTest {
     name = "Test Klix with default mutable config";
     nodes.printer = {
       inherit imports;
@@ -27,7 +27,7 @@
     testScript = builtins.readFile ./default.py;
   };
 
-  withNixConfig = nixosTest {
+  withNixConfig = testers.nixosTest {
     name = "Test Klix with defined config";
     nodes.printer = {
       inherit imports;
