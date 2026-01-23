@@ -255,18 +255,13 @@ defmodule Klix.ImagesTest do
       assert build.image_id == image.id
     end
 
-    test "chooses the oldest build" do
-      _new =
-        struct!(
-          Images.Build,
-          Klix.Factory.params(:build, inserted_at: ~U[3000-01-01 00:00:00Z])
-        )
-        |> Repo.insert!()
+    test "chooses the oldest build", %{scope: scope} do
+      {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
 
       old =
         struct!(
           Images.Build,
-          Klix.Factory.params(:build, inserted_at: ~U[2000-01-01 00:00:00Z])
+          Klix.Factory.params(:build, image_id: image.id, inserted_at: ~U[2000-01-01 00:00:00Z])
         )
         |> Repo.insert!()
 
@@ -367,6 +362,82 @@ defmodule Klix.ImagesTest do
                            };
 
                            services.klipperscreen.enable = false;
+                         }
+                       )
+                     ];
+                   };
+                   versions = klix.versions;
+                 };
+             }
+             """
+  end
+
+  test "converts images mutable with mutable config to a Nix flake", %{scope: scope} do
+    {:ok, image} = Images.create(scope, Klix.Factory.params(:image_with_mutable_config))
+
+    {:ok, image} = Images.set_uri_id(image, "deadb33f-f33d-f00d-d00f-d0feef0f1355")
+
+    # get defaults, like nixpkgs version
+    image = Repo.reload!(image)
+
+    assert to_nix(image) ==
+             """
+             {
+               inputs = {
+                 nixpkgs.url = "github:NixOS/nixpkgs/e6cb50b7edb109d393856d19b797ba6b6e71a4fc";
+                 klix = {
+                   url = "github:code-supply/klix/release";
+                   inputs.nixpkgs.follows = "nixpkgs";
+                 };
+               };
+
+               outputs =
+                 {
+                   self,
+                   nixpkgs,
+                   klix,
+                 }:
+                 {
+                   packages.aarch64-linux.image = self.nixosConfigurations.default.config.system.build.sdImage;
+                   nixosConfigurations.default = klix.lib.nixosSystem {
+                     modules = [
+                       (
+                         { pkgs, ... }:
+                         {
+                           environment.systemPackages = [
+                             (pkgs.writeShellApplication {
+                               name = "klix-update";
+                               runtimeInputs = [
+                                 klix.packages.aarch64-linux.url
+                               ];
+                               text = ''
+                                 dir="$(mktemp -d)"
+                                 (
+                                   cd "$dir"
+                                   curl "$(klix-url #{image.uri_id} config.tar.gz#default)" | tar -xz
+                                   nixos-rebuild switch --flake .#default
+                                   nix eval --json .#versions | curl --request PUT --json @- "$(klix-url #{image.uri_id} versions)"
+                                 )
+                                 rm -rf "$dir"
+                               '';
+                             })
+                           ];
+                           imports = klix.lib.machineImports.raspberry-pi-4;
+                           networking.hostName = "some-printer";
+                           time.timeZone = "Europe/Madrid";
+                           system.stateVersion = "25.05";
+                           users.users.klix.openssh.authorizedKeys.keys = [
+                             "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
+                           ];
+                           services.klipper = {
+                             plugins = {
+                               kamp.enable = true;
+                               shaketune.enable = true;
+                               z_calibration.enable = true;
+                             };
+                           };
+
+                           services.klipperscreen.enable = true;
                          }
                        )
                      ];

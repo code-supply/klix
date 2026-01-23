@@ -175,13 +175,14 @@ defmodule Klix.Images.Image do
   def options_for_machine, do: @options_for_machine
 
   defimpl Klix.ToNix do
-    def to_nix(%Klix.Images.Image{} = image) do
+    alias Klix.Images.Image
+
+    def to_nix(%Image{} = image) do
       """
       {
         inputs = {
           nixpkgs.url = "github:NixOS/nixpkgs/#{image.nixpkgs_version}";
-          klipperConfig = #{image.klipper_config |> Klix.ToNix.to_nix() |> Klix.indent(from: 1) |> Klix.indent(from: 1)};
-          klix = {
+          #{klipper_config_input(image)}klix = {
             url = "github:code-supply/klix/#{image.klix_version}";
             inputs.nixpkgs.follows = "nixpkgs";
           };
@@ -190,8 +191,7 @@ defmodule Klix.Images.Image do
         outputs =
           {
             self,
-            klipperConfig,
-            nixpkgs,
+            #{klipper_config_output(image)}nixpkgs,
             klix,
           }:
           {
@@ -226,8 +226,7 @@ defmodule Klix.Images.Image do
                     users.users.klix.openssh.authorizedKeys.keys = [
                       "#{image.public_key}"
                     ];
-                    services.klix.configDir = "${klipperConfig}/#{image.klipper_config.path}";
-                    services.klipper = {
+                    #{klipper_config_dir(image)}services.klipper = {
                       plugins = {
                         kamp.enable = #{image.plugin_kamp_enabled};
                         shaketune.enable = #{image.plugin_shaketune_enabled};
@@ -246,7 +245,23 @@ defmodule Klix.Images.Image do
       """
     end
 
-    defp machine_import(%Klix.Images.Image{machine: machine}) do
+    defp klipper_config_input(%Image{klipper_config: nil}), do: ""
+
+    defp klipper_config_input(%Image{klipper_config: config}),
+      do: """
+      klipperConfig = #{config |> Klix.ToNix.to_nix() |> Klix.indent(from: 1) |> Klix.indent(from: 1)};
+          \
+      """
+
+    defp klipper_config_output(%Image{klipper_config: nil}), do: ""
+    defp klipper_config_output(%Image{}), do: "klipperConfig,\n      "
+
+    defp klipper_config_dir(%Image{klipper_config: nil}), do: ""
+
+    defp klipper_config_dir(%Image{klipper_config: config}),
+      do: ~s[services.klix.configDir = "${klipperConfig}/#{config.path}";\n              ]
+
+    defp machine_import(%Image{machine: machine}) do
       machine
       |> to_string()
       |> String.replace("_", "-")

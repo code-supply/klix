@@ -35,6 +35,7 @@ defmodule Klix.Images.Build do
 
     def base do
       from(Build, as: :builds)
+      |> order_by([builds: b], asc: b.inserted_at, asc: b.id)
     end
 
     def for_scope(query \\ base(), scope) do
@@ -44,8 +45,8 @@ defmodule Klix.Images.Build do
 
     def next(query \\ base()) do
       query
+      |> join(:inner, [builds: b], i in assoc(b, :image), as: :images)
       |> where([builds: b], is_nil(b.completed_at))
-      |> order_by([builds: b], asc: b.inserted_at, asc: b.id)
       |> limit(1)
       |> preload([:image])
     end

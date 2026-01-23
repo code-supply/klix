@@ -29,6 +29,18 @@ defmodule Klix.BuilderTest do
       %{scope: scope, image: image}
     end
 
+    test "copes with images having mutable klipper config", ctx do
+      Images.soft_delete(ctx.scope, ctx.image)
+      {:ok, image} = Images.create(ctx.scope, Factory.params(:image_with_mutable_config))
+      %{ref: ref, builder: builder} = start_builder(ctx)
+
+      expected_id = image.id
+      [%{id: expected_build_id}] = image.builds
+
+      assert_receive {[:builder, :setup_complete], ^ref, _empty_measurements,
+                      %{image_id: ^expected_id, build_id: ^expected_build_id, pid: ^builder}}
+    end
+
     test "emits an event after setup message is sent", ctx do
       %{ref: ref, builder: builder} = start_builder(ctx)
       expected_id = ctx.image.id
