@@ -3,7 +3,7 @@
   esbuild,
   inotify-tools,
   mkShell,
-  nixfmt-rfc-style,
+  nixfmt,
   python3,
   tailwindcss_4,
   watchman,
@@ -21,7 +21,7 @@ mkShell {
     beamPackages.elixir-ls
     esbuild
     inotify-tools
-    nixfmt-rfc-style
+    nixfmt
     python3
     tailwindcss_4
     watchman
