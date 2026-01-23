@@ -10,7 +10,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-nooverrides = {
       url = "github:NixOS/nixpkgs/nixos-unstable";
     };
@@ -48,12 +48,26 @@
     let
       forAllSystems =
         generate:
-        nixpkgs.lib.genAttrs [
-          "aarch64-darwin"
-          "x86_64-darwin"
-          "aarch64-linux"
-          "x86_64-linux"
-        ] (system: generate (import nixpkgs { inherit system; }));
+        nixpkgs.lib.genAttrs
+          [
+            "aarch64-darwin"
+            "x86_64-darwin"
+            "aarch64-linux"
+            "x86_64-linux"
+          ]
+          (
+            system:
+            generate (
+              import nixpkgs {
+                inherit system;
+                overlays = [
+                  (final: prev: {
+                    beamPackages119 = prev.beamMinimal28Packages.extend (_: prev: { elixir = prev.elixir_1_19; });
+                  })
+                ];
+              }
+            )
+          );
 
       modules = {
         set-inputs._module.args = { inherit inputs; };
@@ -90,7 +104,7 @@
       devShells = forAllSystems (
         { pkgs, ... }:
         {
-          default = pkgs.callPackage ./shell.nix { };
+          default = pkgs.callPackage ./shell.nix { beamPackages = pkgs.beamPackages119; };
         }
       );
 
@@ -144,6 +158,7 @@
         with pkgs;
         {
           default = callPackage ./web {
+            beamPackages = pkgs.beamPackages119;
             version = if self ? rev then "0.0.0-${self.rev}" else "0.0.0-dev";
           };
           url = callPackage ./pkgs/url { };
