@@ -1,9 +1,15 @@
 {
-  pkgs,
   lib,
   beamPackages,
+  cmake,
+  extend,
+  lexbor,
+  fetchFromGitHub,
   overrides ? (x: y: { }),
   overrideFenixOverlay ? null,
+  pkg-config,
+  vips,
+  writeText,
 }:
 
 let
@@ -12,7 +18,7 @@ let
 
   workarounds = {
     portCompiler = _unusedArgs: old: {
-      buildPlugins = [ pkgs.beamPackages.pc ];
+      buildPlugins = [ beamPackages.pc ];
     };
 
     rustlerPrecompiled =
@@ -22,13 +28,13 @@ let
       }:
       old:
       let
-        extendedPkgs = pkgs.extend fenixOverlay;
+        extendedPkgs = extend fenixOverlay;
         fenixOverlay =
           if overrideFenixOverlay == null then
             import "${
               fetchTarball {
-                url = "https://github.com/nix-community/fenix/archive/056c9393c821a4df356df6ce7f14c722dc8717ec.tar.gz";
-                sha256 = "sha256:1cdfh6nj81gjmn689snigidyq7w98gd8hkl5rvhly6xj7vyppmnd";
+                url = "https://github.com/nix-community/fenix/archive/6399553b7a300c77e7f07342904eb696a5b6bf9d.tar.gz";
+                sha256 = "sha256-C6tT7K1Lx6VsYw1BY5S3OavtapUvEnDQtmQB5DSgbCc=";
               }
             }/overlay.nix"
           else
@@ -67,7 +73,12 @@ let
           mkdir -p priv/native
           for lib in ${native}/lib/*
           do
-            ln -s "$lib" "priv/native/$(basename "$lib")"
+            dest="$(basename "$lib")"
+            if [[ "''${dest##*.}" = "dylib" ]]
+            then
+              dest="''${dest%.dylib}.so"
+            fi
+            ln -s "$lib" "priv/native/$dest"
           done
         '';
 
@@ -96,6 +107,26 @@ let
           ${old.buildPhase}
         '';
       };
+
+    elixirMake = _unusedArgs: old: {
+      preConfigure = ''
+        export ELIXIR_MAKE_CACHE_DIR="$TEMPDIR/elixir_make_cache"
+      '';
+    };
+
+    lazyHtml = _unusedArgs: old: {
+      preConfigure = ''
+        export ELIXIR_MAKE_CACHE_DIR="$TEMPDIR/elixir_make_cache"
+      '';
+
+      postPatch = ''
+        substituteInPlace mix.exs           --replace-fail "Fine.include_dir()" '"${packages.fine}/src/c_include"'           --replace-fail '@lexbor_git_sha "244b84956a6dc7eec293781d051354f351274c46"' '@lexbor_git_sha ""'
+      '';
+
+      preBuild = ''
+        install -Dm644           -t _build/c/third_party/lexbor/$LEXBOR_GIT_SHA/build           ${lexbor}/lib/liblexbor_static.a
+      '';
+    };
   };
 
   defaultOverrides = (
@@ -112,8 +143,8 @@ let
           {
             name = "rustlerPrecompiled";
             toolchain = {
-              name = "nightly-2024-11-01";
-              sha256 = "sha256-wq7bZ1/IlmmLkSa3GUJgK17dTWcKyf5A+ndS9yRwB88=";
+              name = "nightly-2025-06-23";
+              sha256 = "sha256-UAoZcxg3iWtS+2n8TFNfANFt/GmkuOMDf7QAE0fRxeA=";
             };
           }
         ];
@@ -190,11 +221,11 @@ let
             ];
           };
         in
-        drv;
+        drv.override (workarounds.elixirMake { } drv);
 
       castore =
         let
-          version = "1.0.15";
+          version = "1.0.17";
           drv = buildMix {
             inherit version;
             name = "castore";
@@ -203,7 +234,7 @@ let
             src = fetchHex {
               inherit version;
               pkg = "castore";
-              sha256 = "96ce4c69d7d5d7a0761420ef743e2f4096253931a3ba69e5ff8ef1844fe446d3";
+              sha256 = "12d24b9d80b910dd3953e165636d68f147a31db945d2dcb9365e441f8b5351e5";
             };
           };
         in
@@ -519,7 +550,7 @@ let
         in
         drv;
 
-      heroicons = pkgs.fetchFromGitHub {
+      heroicons = fetchFromGitHub {
         owner = "tailwindlabs";
         repo = "heroicons";
         rev = "0435d4ca364a608cc75e2f8683d374e55abbae26";
