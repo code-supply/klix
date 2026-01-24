@@ -9,4 +9,5 @@ printer.wait_for_unit("plymouth-quit.service")
 printer.succeed("klix-url some-id versions")
 printer.wait_for_unit("systemd-tmpfiles-setup.service")
 printer.fail("[[ -e /var/lib/klipper/printer.cfg ]]") # should have been set to moonraker dir
-printer.succeed('[[ "$(stat -c "%U %G %a" /var/lib/moonraker/config/printer.cfg)" = "moonraker moonraker 664" ]]')
+printer.succeed('[[ "$(stat --format "%U %G %a" /var/lib/moonraker/config/printer.cfg)" = "moonraker moonraker 664" ]]')
+printer.succeed('[[ "$(stat --format "%N" /var/lib/moonraker/config/extras)" = "\'/var/lib/moonraker/config/extras\' -> "* ]]')

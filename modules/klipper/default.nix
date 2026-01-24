@@ -50,6 +50,7 @@ in
           [
             "d /var/lib/moonraker/config 0775 moonraker klipper -"
             "f /var/lib/moonraker/config/printer.cfg 0664 moonraker moonraker -"
+            "L /var/lib/moonraker/config/extras - - - - ${config.services.klipper.package}/lib/klipper/extras"
           ]
         else
           [ ];
