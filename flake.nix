@@ -185,15 +185,16 @@
               value = nixpkgs.legacyPackages.aarch64-linux.${name}.version;
             }) nixpkgsPackages
           );
-          kernelVersion = {
+          otherVersions = {
             linux =
               (self.lib.nixosSystem {
                 modules = [
                   { nixpkgs.hostPlatform = "aarch64-linux"; }
                 ];
               }).config.boot.kernelPackages.kernel.version;
+            klix = self.rev or "dev";
           };
         in
-        versionsFromInputs // versionsFromNixpkgs // kernelVersion;
+        versionsFromInputs // versionsFromNixpkgs // otherVersions;
     };
 }

@@ -51,7 +51,11 @@ defmodule Klix.VersionRetrievalTest do
     {:ok, build} = Klix.Images.store_versions(build, versions)
 
     for attr <- Images.Versions.permitted_attrs() do
-      assert Map.get(build.versions, attr) =~ ~r/\d/, "#{attr} not set"
+      if attr == :klix do
+        assert String.length(build.versions.klix) > 0
+      else
+        assert Map.get(build.versions, attr) =~ ~r/\d/, "#{attr} not set"
+      end
     end
   end
 

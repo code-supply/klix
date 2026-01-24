@@ -8,6 +8,7 @@ defmodule Klix.Images.Versions do
     :klipper,
     :klipperscreen,
     :linux,
+    :klix,
     :moonraker,
     :nginx,
     :"nixos-raspberrypi",
@@ -27,6 +28,7 @@ defmodule Klix.Images.Versions do
     field :klipper
     field :klipperscreen
     field :linux
+    field :klix
     field :moonraker
     field :nginx
     field :"nixos-raspberrypi"
