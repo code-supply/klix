@@ -346,7 +346,7 @@ defmodule Klix.ImagesTest do
                    flake = false;
                  };
                  klix = {
-                   url = "github:code-supply/klix/f59117b900486631e97b5ad6005390e40f7bf481";
+                   url = "github:code-supply/klix/c0b46a4fedac135c63d490566e7cc34dcfd4ece9";
                    inputs.nixpkgs.follows = "nixpkgs";
                  };
                };
@@ -424,7 +424,7 @@ defmodule Klix.ImagesTest do
                inputs = {
                  nixpkgs.url = "github:NixOS/nixpkgs/e6cb50b7edb109d393856d19b797ba6b6e71a4fc";
                  klix = {
-                   url = "github:code-supply/klix/f59117b900486631e97b5ad6005390e40f7bf481";
+                   url = "github:code-supply/klix/c0b46a4fedac135c63d490566e7cc34dcfd4ece9";
                    inputs.nixpkgs.follows = "nixpkgs";
                  };
                };
