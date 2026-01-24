@@ -95,6 +95,7 @@ in
           {
             mutableConfig = true;
             settings = { };
+            configDir = "/var/lib/moonraker/config";
           }
         else
           {
