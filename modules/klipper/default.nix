@@ -31,33 +31,42 @@ in
     }) plugins;
   };
 
-  config = {
-    users = {
+  config =
+    let
+      userConfigDir = cfg.configDir;
+      mutableConfig = isNull userConfigDir;
+      configs = pkgs.runCommand "create-printer-config" { } ''
+        mkdir $out
+        # all includes get replaced with the user's config dir as base
+        # except: includes prefixed with extras/ get replaced with the klipper drv's extras dir, where plugins live
+        sed '/\[include extras\//! s#\[include \(.*\)\]#[include ${userConfigDir}/\1]#;s#\[include extras/#[include ${config.services.klipper.package}/lib/klipper/extras/#' \
+        < "${userConfigDir}/printer.cfg" \
+        > $out/printer.cfg
+      '';
+    in
+    {
+      systemd.tmpfiles.rules =
+        if mutableConfig then
+          [
+            "d /var/lib/moonraker/config 0775 moonraker klipper -"
+            "f /var/lib/moonraker/config/printer.cfg 0664 moonraker moonraker -"
+          ]
+        else
+          [ ];
+
       users = {
-        klipper = {
-          isSystemUser = true;
-          group = "klipper";
-          home = "/home/klipper";
-          createHome = true;
+        users = {
+          klipper = {
+            isSystemUser = true;
+            group = "klipper";
+            home = "/home/klipper";
+            createHome = true;
+          };
         };
+        groups.klipper = { };
       };
-      groups.klipper = { };
-    };
 
-    services.klipper =
-      let
-        userConfigDir = cfg.configDir;
-        configs = pkgs.runCommand "create-printer-config" { } ''
-          mkdir $out
-          # all includes get replaced with the user's config dir as base
-          # except: includes prefixed with extras/ get replaced with the klipper drv's extras dir, where plugins live
-          sed '/\[include extras\//! s#\[include \(.*\)\]#[include ${userConfigDir}/\1]#;s#\[include extras/#[include ${config.services.klipper.package}/lib/klipper/extras/#' \
-          < "${userConfigDir}/printer.cfg" \
-          > $out/printer.cfg
-        '';
-      in
-
-      {
+      services.klipper = {
         enable = true;
 
         logFile = "/var/lib/klipper/klipper.log";
@@ -82,7 +91,7 @@ in
             };
       }
       // (
-        if isNull userConfigDir then
+        if mutableConfig then
           {
             mutableConfig = true;
             settings = { };
@@ -93,5 +102,5 @@ in
             configFile = "${configs}/printer.cfg";
           }
       );
-  };
+    };
 }

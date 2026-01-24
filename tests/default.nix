@@ -13,8 +13,6 @@
       # deliberately unset
       # services.klix.configDir = "";
 
-      services.klipperscreen.enable = true;
-
       services.klipper = {
         plugins = {
           kamp.enable = true;
@@ -24,7 +22,7 @@
       };
     };
 
-    testScript = builtins.readFile ./default.py;
+    testScript = builtins.readFile ./mutable_config.py;
   };
 
   withNixConfig = testers.nixosTest {
@@ -45,6 +43,6 @@
       };
     };
 
-    testScript = builtins.readFile ./default.py;
+    testScript = builtins.readFile ./immutable_config.py;
   };
 }
