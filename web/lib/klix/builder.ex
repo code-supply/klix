@@ -1,5 +1,5 @@
 defmodule Klix.Builder do
-  use GenServer, restart: :temporary
+  use GenServer
 
   @log_lock_file_creation "warning: creating lock file"
   @log_output_path_ready "[{\"drvPath"
