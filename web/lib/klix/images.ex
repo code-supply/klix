@@ -112,6 +112,11 @@ defmodule Klix.Images do
     |> Repo.get_by!(image_id: image_id, id: build_id)
   end
 
+  def exclude_build(build, e) do
+    Ecto.Changeset.change(build, error: Exception.message(e))
+    |> Repo.update()
+  end
+
   def create(nil = _scope, %Ecto.Changeset{} = changeset) do
     changeset
     |> Ecto.Changeset.put_change(:completed_at, DateTime.utc_now(:second))

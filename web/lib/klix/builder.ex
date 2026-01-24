@@ -23,6 +23,7 @@ defmodule Klix.Builder do
       :output_path,
       :uploader,
       :version_retriever,
+      next_in_queue: &Images.next_build/0,
       telemetry_meta: %{}
     ]
   end
@@ -31,6 +32,7 @@ defmodule Klix.Builder do
     [
       [:builder, :build_log],
       [:builder, :build_started],
+      [:builder, :build_skipped],
       [:builder, :uploading],
       [:builder, :versions_stored]
       | Klix.Scheduler.events_for(:builder)
@@ -67,33 +69,50 @@ defmodule Klix.Builder do
   def handle_info(:set_up, state) do
     state = clear_build_data(state)
 
-    case Images.next_build() do
+    case state.next_in_queue.() do
       nil ->
         emit(state, :nothing_to_do)
         {:noreply, state}
 
       build ->
-        :ok =
-          state
-          |> flake_nix_path()
-          |> File.write(to_nix(build.image))
+        try do
+          :ok =
+            state
+            |> flake_nix_path()
+            |> File.write(to_nix(build.image))
 
-        state
-        |> flake_lock_path()
-        |> File.rm()
-
-        state = %{
           state
-          | build: build,
-            telemetry_meta: %{
-              image_id: build.image_id,
-              build_id: build.id,
-              port: nil
+          |> flake_lock_path()
+          |> File.rm()
+
+          state = %{
+            state
+            | build: build,
+              telemetry_meta: %{
+                image_id: build.image_id,
+                build_id: build.id,
+                port: nil
+              }
+          }
+
+          emit(state, :setup_complete)
+          {:noreply, state}
+        rescue
+          e ->
+            state = %{
+              state
+              | build: build,
+                telemetry_meta: %{
+                  image_id: build.image_id,
+                  build_id: build.id,
+                  port: nil
+                }
             }
-        }
 
-        emit(state, :setup_complete)
-        {:noreply, state}
+            Images.exclude_build(build, e)
+            emit(state, :build_skipped)
+            {:noreply, state}
+        end
     end
   end
 

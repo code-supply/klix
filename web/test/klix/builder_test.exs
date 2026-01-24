@@ -29,6 +29,25 @@ defmodule Klix.BuilderTest do
       %{scope: scope, image: image}
     end
 
+    test "and an exception occurs during setup, that build is no longer picked", ctx do
+      [build] = ctx.image.builds
+
+      %{ref: ref, builder: builder} =
+        ctx
+        |> Map.put(:next_in_queue, fn ->
+          %{build | image: %{wont: :match_in_to_nix}}
+        end)
+        |> start_builder()
+
+      expected_id = ctx.image.id
+      expected_build_id = build.id
+
+      assert_receive {[:builder, :build_skipped], ^ref, _empty_measurements,
+                      %{image_id: ^expected_id, build_id: ^expected_build_id, pid: ^builder}}
+
+      assert Images.next_build() == nil
+    end
+
     test "copes with images having mutable klipper config", ctx do
       Images.soft_delete(ctx.scope, ctx.image)
       {:ok, image} = Images.create(ctx.scope, Factory.params(:image_with_mutable_config))
@@ -319,16 +338,31 @@ defmodule Klix.BuilderTest do
   end
 
   defp start_builder(
-         %{tmp_dir: tmp_dir, uploader: uploader, version_retriever: version_retriever},
+         %{
+           tmp_dir: tmp_dir,
+           uploader: uploader,
+           version_retriever: version_retriever
+         } = ctx,
          cmd \\ "yes @nix {}"
        ) do
     ref = subscribe()
 
-    builder =
-      start_link_supervised!({
-        Builder,
-        build_dir: tmp_dir, cmd: cmd, uploader: uploader, version_retriever: version_retriever
-      })
+    opts =
+      [
+        build_dir: tmp_dir,
+        cmd: cmd,
+        uploader: uploader,
+        version_retriever: version_retriever
+      ]
+      |> Keyword.merge(
+        if ctx[:next_in_queue] do
+          [next_in_queue: ctx.next_in_queue]
+        else
+          []
+        end
+      )
+
+    builder = start_link_supervised!({Builder, opts})
 
     assert_receive {[:builder, :idle], ^ref, _empty_measurements, %{pid: ^builder}}
     Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), builder)

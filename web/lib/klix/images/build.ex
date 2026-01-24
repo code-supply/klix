@@ -46,7 +46,7 @@ defmodule Klix.Images.Build do
     def next(query \\ base()) do
       query
       |> join(:inner, [builds: b], i in assoc(b, :image), as: :images)
-      |> where([builds: b], is_nil(b.completed_at))
+      |> where([builds: b], is_nil(b.completed_at) and is_nil(b.error))
       |> limit(1)
       |> preload([:image])
     end
