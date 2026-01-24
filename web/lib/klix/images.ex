@@ -139,6 +139,11 @@ defmodule Klix.Images do
     create(scope, Image.changeset(%Image{}, attrs))
   end
 
+  def build(image) do
+    Ecto.build_assoc(image, :builds)
+    |> Repo.insert()
+  end
+
   def save_unfinished(nil, image_attrs) do
     {
       :ok,

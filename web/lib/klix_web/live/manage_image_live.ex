@@ -92,14 +92,15 @@ defmodule KlixWeb.ManageImageLive do
         </section>
 
         <section>
-          <ol id="builds">
+          <ol id="builds" class="flex flex-col gap-y-4">
             <li
-              :for={{build, idx} <- Enum.with_index(@image.builds)}
+              :for={{build, idx} <- @image.builds |> Enum.with_index() |> Enum.reverse()}
+              id={["build-", to_string(build.id)]}
               class="bg-base-100 card card-border border-base-300 card-md"
             >
               <div class="card-body">
                 <h3 class="card-title">
-                  <.icon name="hero-cube" class="size-6" /> Build {"##{length(@image.builds) - idx}"}
+                  <.icon name="hero-cube" class="size-6" /> Build {"##{idx + 1}"}
                 </h3>
                 <dl class="grid grid-cols-3">
                   <dt class="font-bold">Started</dt>

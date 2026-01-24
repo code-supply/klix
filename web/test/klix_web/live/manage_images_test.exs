@@ -1,6 +1,18 @@
 defmodule KlixWeb.ManageImagesTest do
   use KlixWeb.ConnCase, async: true
 
+  test "shows all builds with appropriate numbers", %{conn: conn} do
+    {:ok, %{builds: [first]} = image} =
+      Images.create(Scope.for_user(nil), Klix.Factory.params(:image))
+
+    {:ok, second} = Images.build(image)
+
+    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+    assert view |> has_element?("#build-#{first.id}", "Build #1")
+    assert view |> has_element?("#build-#{second.id}", "Build #2")
+  end
+
   test "can manage images with mutable Klipper config", %{conn: conn} do
     {:ok, image} =
       Images.create(Scope.for_user(nil), Klix.Factory.params(:image_with_mutable_config))
