@@ -1,31 +1,42 @@
 defmodule KlixWeb.ManageImagesTest do
   use KlixWeb.ConnCase, async: true
 
-  test "shows all builds with appropriate numbers", %{conn: conn} do
-    {:ok, %{builds: [first]} = image} =
-      Images.create(Scope.for_user(nil), Klix.Factory.params(:image))
+  describe "when not logged in" do
+    test "cannot schedule a rebuild", %{conn: conn} do
+      {:ok, image} =
+        Images.create(Scope.for_user(nil), Klix.Factory.params(:image))
 
-    {:ok, second} = Images.build(image)
+      {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 
-    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+      refute view |> has_element?("#rebuild")
+    end
 
-    assert view |> has_element?("#build-#{first.id}", "Build #1")
-    assert view |> has_element?("#build-#{second.id}", "Build #2")
-  end
+    test "shows all builds with appropriate numbers", %{conn: conn} do
+      {:ok, %{builds: [first]} = image} =
+        Images.create(Scope.for_user(nil), Klix.Factory.params(:image))
 
-  test "can manage images with mutable Klipper config", %{conn: conn} do
-    {:ok, image} =
-      Images.create(Scope.for_user(nil), Klix.Factory.params(:image_with_mutable_config))
+      {:ok, second} = Images.build(image)
 
-    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+      {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
 
-    assert view |> has_element?("#printer-details", "Edit on machine")
-  end
+      assert view |> has_element?("#build-#{first.id}", "Build #1")
+      assert view |> has_element?("#build-#{second.id}", "Build #2")
+    end
 
-  test "cannot see soft-delete option when not logged in", %{conn: conn} do
-    {:ok, image} = Images.create(Scope.for_user(nil), Klix.Factory.params(:image))
-    {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
-    refute view |> has_element?("#delete")
+    test "can manage images with mutable Klipper config", %{conn: conn} do
+      {:ok, image} =
+        Images.create(Scope.for_user(nil), Klix.Factory.params(:image_with_mutable_config))
+
+      {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+      assert view |> has_element?("#printer-details", "Edit on machine")
+    end
+
+    test "cannot see soft-delete option when not logged in", %{conn: conn} do
+      {:ok, image} = Images.create(Scope.for_user(nil), Klix.Factory.params(:image))
+      {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+      refute view |> has_element?("#delete")
+    end
   end
 
   describe "when logged in" do
@@ -33,6 +44,22 @@ defmodule KlixWeb.ManageImagesTest do
       user = user_fixture()
       scope = Klix.Accounts.Scope.for_user(user)
       %{conn: log_in_user(conn, user), scope: scope}
+    end
+
+    test "can request a rebuild when there are none in progress", %{conn: conn, scope: scope} do
+      {:ok, %{builds: [build]} = image} =
+        Images.create(scope, Klix.Factory.params(:image))
+
+      {:ok, _build} = Images.build_completed(build)
+
+      {:ok, view, _html} = live(conn, ~p"/images/#{image.id}")
+
+      refute view |> has_element?("#builds li:nth-child(2)")
+
+      view |> element("#rebuild") |> render_click()
+
+      assert view |> has_element?("#builds li:nth-child(2)")
+      assert view |> has_element?("#rebuild[disabled]")
     end
 
     test "can't go to another user's image", %{conn: conn} do

@@ -33,15 +33,11 @@ defmodule Klix.Images do
     |> Enum.into([])
   end
 
-  def soft_delete(nil, _image), do: {:error, :invalid_scope}
-
-  def soft_delete(%Scope{} = scope, %Image{} = image) do
-    if scope.user.id == image.user_id do
+  def soft_delete(scope, %Image{} = image) do
+    ensure_scope(scope, image, fn ->
       Ecto.Changeset.change(image, deleted_at: DateTime.utc_now(:second))
       |> Repo.update()
-    else
-      {:error, :invalid_scope}
-    end
+    end)
   end
 
   def retrieve_versions(dir) do
@@ -142,6 +138,24 @@ defmodule Klix.Images do
 
   def create(scope, attrs) do
     create(scope, Image.changeset(%Image{}, attrs))
+  end
+
+  def building?(image) do
+    !Enum.all?(image.builds, & &1.completed_at)
+  end
+
+  def build(scope, %Image{} = image) do
+    ensure_scope(scope, image, fn ->
+      image = find!(scope, image.id)
+
+      if building?(image) do
+        {:error, :build_in_progress}
+      else
+        image
+        |> Ecto.build_assoc(:builds)
+        |> Repo.insert()
+      end
+    end)
   end
 
   def build(image) do
@@ -294,6 +308,9 @@ defmodule Klix.Images do
         {:error, :sd_dir_not_found}
     end
   end
+
+  defp ensure_scope(%{user: %{id: user_id}}, %{user_id: user_id}, f), do: f.()
+  defp ensure_scope(_scope, _image, _f), do: {:error, :invalid_scope}
 
   defp broadcast_ready({:ok, build}) do
     broadcast(build.image_id, build_ready: build)

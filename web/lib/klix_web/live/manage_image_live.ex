@@ -7,7 +7,22 @@ defmodule KlixWeb.ManageImageLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <.header>
-        {@image.hostname}
+        <div class="flex items-center">
+          <span class="grow">
+            {@image.hostname}
+          </span>
+
+          <button
+            :if={@current_scope}
+            id="rebuild"
+            class="btn btn-neutral"
+            phx-click="rebuild"
+            disabled={Images.building?(@image)}
+          >
+            <.icon name="hero-arrow-path" class="size-6" /> Rebuild
+          </button>
+        </div>
+
         <:subtitle>
           <div class="breadcrumbs text-sm">
             <ol>
@@ -390,6 +405,19 @@ defmodule KlixWeb.ManageImageLive do
      socket
      |> push_navigate(to: ~p"/images")
      |> put_flash(:info, "Image deleted")}
+  end
+
+  def handle_event("rebuild", _params, %{assigns: %{image: image, current_scope: scope}} = socket) do
+    {:ok, build} = Images.build(scope, image)
+
+    {
+      :noreply,
+      assign(
+        socket,
+        :image,
+        update_in(image.builds, fn builds -> builds ++ [build] end)
+      )
+    }
   end
 
   def handle_info([build_ready: %Images.Build{} = updated_build], socket) do

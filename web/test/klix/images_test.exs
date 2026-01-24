@@ -8,6 +8,44 @@ defmodule Klix.ImagesTest do
 
   setup do: %{scope: user_fixture() |> Scope.for_user()}
 
+  describe "requesting a new build" do
+    test "succeeds for own image", %{scope: scope} do
+      {:ok, %{builds: [build]} = image} = Images.create(scope, Klix.Factory.params(:image))
+      {:ok, _build} = Images.build_completed(build)
+      image = Images.find!(scope, image.id)
+      {:ok, _build} = Images.build(scope, image)
+      image = Images.find!(scope, image.id)
+      assert [%Images.Build{}, %Images.Build{}] = image.builds
+    end
+
+    test "fails if there's a build in progress", %{scope: scope} do
+      {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
+
+      # change the in-memory build to have been completed - force reload
+      image =
+        put_in(
+          image,
+          [Access.key!(:builds), Access.at!(0), Access.key!(:completed_at)],
+          DateTime.utc_now()
+        )
+
+      {:error, :build_in_progress} = Images.build(scope, image)
+    end
+
+    test "fails for others", %{scope: scope} do
+      {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
+      another_scope = user_fixture() |> Scope.for_user()
+      assert {:error, :invalid_scope} = Images.build(another_scope, image)
+      image = Images.find!(scope, image.id)
+      assert [%Images.Build{}] = image.builds
+    end
+
+    test "fails when not logged in", %{scope: scope} do
+      {:ok, image} = Images.create(scope, Klix.Factory.params(:image))
+      assert {:error, :invalid_scope} = Images.build(Scope.for_user(nil), image)
+    end
+  end
+
   test "unfinished images are cleared after wizard is completed", %{scope: scope} do
     wizard =
       Images.Image.Steps.sign_up()
