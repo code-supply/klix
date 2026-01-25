@@ -108,7 +108,7 @@ defmodule KlixWeb.BuildNewImageLive do
 
     cond do
       Wizard.complete?(new_wizard) ->
-        {:ok, image} = Images.create(scope, new_wizard.changeset)
+        {:ok, image} = Images.save_finished(scope, new_wizard.changeset)
         {:noreply, push_navigate(socket, to: ~p"/images/#{image.id}")}
 
       new_wizard.current == original_wizard.current ->
@@ -125,10 +125,9 @@ defmodule KlixWeb.BuildNewImageLive do
         {:ok, user} = Images.save_unfinished(scope, wizard.data)
 
         if user.id do
-          update(socket, :current_scope, fn
-            current_scope ->
-              %{current_scope | user: user}
-          end)
+          socket
+          |> update(:current_scope, &%{&1 | user: user})
+          |> update(:wizard, &%{&1 | data: user.unfinished_image})
         else
           assign(socket, :unfinished_image, user.unfinished_image)
         end

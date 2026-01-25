@@ -55,7 +55,8 @@ defmodule Klix.ImagesTest do
       |> Wizard.next(%{public_key: Klix.Factory.params(:image).public_key})
       |> Wizard.next(%{plugin_shaketune_enabled: true})
 
-    {:ok, _} = Images.save_unfinished(scope, wizard.data)
+    {:ok, user} = Images.save_unfinished(scope, wizard.data)
+    scope = %{scope | user: user}
 
     wizard =
       wizard
@@ -65,9 +66,10 @@ defmodule Klix.ImagesTest do
       })
 
     assert Wizard.complete?(wizard)
-    {:ok, _} = Images.create(scope, wizard.changeset)
+    {:ok, _image} = Images.save_finished(scope, wizard.changeset)
 
     refute Repo.reload!(scope.user).unfinished_image_id
+    assert Repo.aggregate(Images.Image, :count) == 1
   end
 
   test "can build an image from a wizard", %{scope: scope} do

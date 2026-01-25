@@ -125,12 +125,11 @@ defmodule Klix.Images do
       with user <- Repo.reload!(scope.user),
            {:ok, image} <-
              changeset
-             |> Ecto.Changeset.put_change(:completed_at, DateTime.utc_now(:second))
-             |> then(&Ecto.Changeset.put_change(&1, :user, scope.user))
-             |> Ecto.Changeset.put_change(:builds, [[]])
+             |> put_finish_changes(scope)
              |> Repo.insert(),
            {:ok, _user} <-
-             Ecto.Changeset.change(user, unfinished_image_id: nil) |> Repo.update() do
+             Ecto.Changeset.change(user, unfinished_image_id: nil)
+             |> Repo.update() do
         {:ok, image}
       end
     end)
@@ -177,6 +176,39 @@ defmodule Klix.Images do
       unfinished_image: Map.put(image_attrs, :user_id, scope.user.id)
     })
     |> Repo.update()
+  end
+
+  def save_finished(nil, %Ecto.Changeset{} = changeset) do
+    changeset
+    |> Ecto.Changeset.put_change(:completed_at, DateTime.utc_now(:second))
+    |> Ecto.Changeset.put_change(:builds, [[]])
+    |> Repo.insert()
+  end
+
+  def save_finished(%Scope{} = scope, %Ecto.Changeset{} = changeset) do
+    user =
+      scope.user
+      |> Repo.preload(unfinished_image: [:user, :builds])
+
+    Repo.transact(fn ->
+      with {:ok, image} <-
+             user.unfinished_image
+             |> Ecto.Changeset.change(changeset.changes)
+             |> put_finish_changes(scope)
+             |> Repo.update(),
+           {:ok, _user} <-
+             Ecto.Changeset.change(user, unfinished_image_id: nil)
+             |> Repo.update() do
+        {:ok, image}
+      end
+    end)
+  end
+
+  defp put_finish_changes(changeset, scope) do
+    changeset
+    |> Ecto.Changeset.put_change(:user, scope.user)
+    |> Ecto.Changeset.put_change(:completed_at, DateTime.utc_now(:second))
+    |> Ecto.Changeset.put_change(:builds, [[]])
   end
 
   def snapshot(%Image{} = image) do

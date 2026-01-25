@@ -95,6 +95,8 @@ defmodule KlixWeb.BuildNewImageTest do
         |> follow_redirect(conn)
 
       assert html =~ "being prepared"
+
+      assert Repo.aggregate(Klix.Images.Image, :count) == 1
     end
 
     test "can return to a step and continue with the wizard", %{conn: conn} do
