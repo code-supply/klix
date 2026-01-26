@@ -11,6 +11,13 @@
 
     <h2>Immutable config option</h2>
 
+    <figure>
+      <img src={~p"/images/fluidd-config.png"} alt="A mostly-empty config file list in Fluidd" />
+      <figcaption>
+        With an immutable config, the Fluidd interface isn't used to change config files.
+      </figcaption>
+    </figure>
+
     <p>
       To update an immutable Klipper config, you commit changes to your own
       repository and run <code>klix-update</code> to apply them. This approach ensures
@@ -47,6 +54,16 @@
     </p>
 
     <h2>Mutable config option</h2>
+
+    <figure>
+      <img
+        src={~p"/images/fluidd-config-with-extras-link.png"}
+        alt="Config file list in Fluidd with an extras link"
+      />
+      <figcaption>
+        With a mutable config, the Fluidd interface can be used to edit files. Plugins appear under 'extras'.
+      </figcaption>
+    </figure>
 
     <p>
       The main advantage of a mutable Klipper configuration is flexibility.
