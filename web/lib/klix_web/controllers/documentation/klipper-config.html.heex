@@ -1,0 +1,85 @@
+<Layouts.app flash={@flash}>
+  <article class="py-6 prose prose-headings:font-semibold">
+    <h1>Klipper Config</h1>
+
+    <p class="lead">
+      Klipper configuration can be set to mutable or immutable. A mutable
+      configuration allows changes directly on the running system, while an
+      immutable configuration is managed declaratively through a version
+      control repository.
+    </p>
+
+    <h2>Immutable config option</h2>
+
+    <p>
+      To update an immutable Klipper config, you commit changes to your own
+      repository and run <code>klix-update</code> to apply them. This approach ensures
+      reproducible, version-controlled configurations while keeping updates
+      predictable and controlled.
+    </p>
+
+    <p>
+      There's a slower feedback loop when doing this, but it does protect you
+      against accidental changes, because you can always roll them back by
+      reverting your Git commit, or by using Klix's rollback system (which is
+      powered by NixOS).
+    </p>
+
+    <p>
+      You usually don't need a backup of your config if it's in version control,
+      as it already exists on multiple systems.
+    </p>
+
+    <p>
+      [insert image showing error when editing through web]
+    </p>
+
+    <h3>Using plugins</h3>
+
+    <p>
+      Plugins you've chosen to install with Klix appear under an <code>extras</code>
+      directory inside your version-controlled config.
+    </p>
+
+    <p>
+      This lets you include them like this: <code>[include extras/KAMP/Voron_Purge.cfg]</code>
+    </p>
+
+    <p>
+      Your version-controlled config doesn't need to include this directory —
+      it'll be added when your config is installed.
+    </p>
+
+    <h2>Mutable config option</h2>
+
+    <p>
+      The main advantage of a mutable Klipper configuration is flexibility.
+      Settings can be edited directly through a web interface, allowing
+      you to adjust printer behavior, tune parameters, or add macros without
+      needing to use Git or rebuilding anything. This makes
+      experimentation and on-the-fly adjustments simple and immediate.
+    </p>
+
+    <p>
+      If you're concerned about losing your printer config in the case of an SD
+      card failure or other problem, you'll need to back up your config.
+    </p>
+
+    <h3>Using plugins</h3>
+
+    <p>
+      Plugins you've chosen to install with Klix are put under a symlinked <code>extras</code>
+      directory in your default config directory.
+    </p>
+
+    <p>
+      This lets you include them like this: <code>[include extras/KAMP/Voron_Purge.cfg]</code>
+    </p>
+
+    <p>
+      Because your config is fully mutable, you can also choose to install
+      plugins manually in your config directory. We'd like it if you requested
+      that they be added to Klix's automatic installation system too, though!
+    </p>
+  </article>
+</Layouts.app>

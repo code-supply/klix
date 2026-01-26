@@ -1,0 +1,30 @@
+<Layouts.app flash={@flash}>
+  <article class="py-6 prose prose-headings:font-semibold">
+    <h1>Klix Documentation</h1>
+
+    <p class="lead">
+      Klix is a system for installing, configuring, and upgrading the operating
+      system and printing software on Klipper-based 3D printers.
+    </p>
+
+    <p>
+      With Klix, you don’t need to wrestle with individual installers or use
+      Git. System updates are handled cleanly and only applied when you want,
+      letting you spend more time printing and less time managing the OS. All
+      configuration is done through the web, and while images are built on
+      Klix's servers, sign-up is optional and your settings are only used to
+      generate the image you requested.
+    </p>
+
+    <p>
+      Under the hood, it’s NixOS, but you don’t need to learn Nix or NixOS to use Klix.
+    </p>
+
+    <div class="flex justify-between">
+      <span />
+      <a class="btn btn-outline no-underline" href={~p"/docs/klipper-config"}>
+        Next: Klipper Config <.icon name="hero-arrow-long-right" class="size-6" />
+      </a>
+    </div>
+  </article>
+</Layouts.app>

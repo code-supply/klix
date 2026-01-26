@@ -33,23 +33,14 @@ defmodule KlixWeb.Router do
       live "/users/log-in/:token", UserLive.Confirmation, :new
     end
 
+    get "/docs", DocumentationController, :index
+    get "/docs/:section", DocumentationController, :show
     get "/images/:image_id/builds/:id", BuildsController, :download
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", KlixWeb do
-  #   pipe_through :api
-  # end
-
-  # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:klix, :dev_routes) do
-    # If you want to use the LiveDashboard in production, you should put
-    # it behind authentication and allow only admins to access it.
-    # If your application does not have an admins-only section yet,
-    # you can use Plug.BasicAuth to set up some basic authentication
-    # as long as you are also using SSL (which you should anyway).
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do
@@ -59,8 +50,6 @@ defmodule KlixWeb.Router do
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
-
-  ## Authentication routes
 
   scope "/", KlixWeb do
     pipe_through [:browser, :require_authenticated_user]

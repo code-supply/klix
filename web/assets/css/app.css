@@ -14,6 +14,8 @@
   @apply flex flex-col gap-3;
 }
 
+@plugin "@tailwindcss/typography";
+
 /* A Tailwind plugin that makes "hero-#{ICON}" classes available.
    The heroicons installation itself is managed by your mix.exs */
 @plugin "../vendor/heroicons";

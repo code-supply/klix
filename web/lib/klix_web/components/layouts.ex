@@ -70,6 +70,11 @@ defmodule KlixWeb.Layouts do
         <.theme_toggle />
       </div>
       <nav>
+        <h6 class="footer-title">Documentation</h6>
+        <a class="link link-hover" href={~p"/docs"}>Home</a>
+        <a class="link link-hover" href={~p"/docs/klipper-config"}>Klipper Config</a>
+      </nav>
+      <nav>
         <h6 class="footer-title">Developers</h6>
         <a class="link link-hover" href="https://code.supply/">Code Supply</a>
         <a class="link link-hover" href="https://www.andrewbruce.net/">Andrew Bruce</a>
