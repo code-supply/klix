@@ -214,6 +214,7 @@ defmodule Klix.Images.Image do
                             curl "$(klix-url #{image.uri_id} config.tar.gz#default)" | tar -xz
                             nixos-rebuild switch --flake .#default
                             nix eval --json .#versions | curl --request PUT --json @- "$(klix-url #{image.uri_id} versions)"
+                            systemctl list-unit-files --quiet cage-tty1.service 1> /dev/null && systemctl restart cage-tty1.service
                           )
                           rm -rf "$dir"
                         '';
