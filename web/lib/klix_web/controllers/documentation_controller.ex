@@ -2,11 +2,16 @@ defmodule KlixWeb.DocumentationController do
   use KlixWeb, :controller
 
   def index(conn, _params) do
-    render(conn, :index)
+    render(conn, :index, page_title: "Klix Documentation")
   end
 
   def show(conn, params) do
-    :"klipper-config"
-    render(conn, String.to_existing_atom(params["section"]))
+    case params["section"] do
+      "klipper-config" ->
+        render(conn, :"klipper-config", page_title: "Klipper Config - Klix Documentation")
+
+      _ ->
+        raise Phoenix.Router.NoRouteError, conn: conn, router: KlixWeb.Router
+    end
   end
 end
