@@ -21,4 +21,7 @@
       };
     };
   };
+  systemd.tmpfiles.rules = [
+    "d /var/lib/moonraker/logs 0775 moonraker moonraker -"
+  ];
 }
