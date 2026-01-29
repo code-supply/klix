@@ -5,8 +5,8 @@
 }:
 
 {
-  withMutableConfig = testers.nixosTest {
-    name = "Test Klix with default mutable config";
+  mutableConfig = testers.nixosTest {
+    name = "Mutable config";
     nodes.printer = {
       inherit imports;
 
@@ -25,8 +25,8 @@
     testScript = builtins.readFile ./mutable_config.py;
   };
 
-  withNixConfig = testers.nixosTest {
-    name = "Test Klix with defined config";
+  immutableConfig = testers.nixosTest {
+    name = "Immutable config";
     nodes.printer = {
       inherit imports;
 
