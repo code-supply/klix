@@ -23,7 +23,6 @@ defmodule Klix.VersionRetrievalTest do
           "kamp" => "b0dad8ec9ee31cb644b94e39d4b8a8fb9d6c9ba0",
           "klipper" => "0.13.0-unstable-2025-08-15",
           "klipperscreen" => "5ba4a1ff134ac1eba236043b8ec316c2298846e5",
-          "linux" => "6.12.34-stable_20250702",
           "moonraker" => "0.9.3-unstable-2025-08-01",
           "nginx" => "1.28.0",
           "nixpkgs" => "e6cb50b7edb109d393856d19b797ba6b6e71a4fc",
@@ -37,7 +36,6 @@ defmodule Klix.VersionRetrievalTest do
     versions = Images.versions(build.versions)
 
     assert {:cage, "0.2.0"} in versions
-    assert {:linux, "6.12.34"} in versions
     assert {:kamp, "b0dad8e"} in versions
     refute Keyword.has_key?(versions, :id)
   end

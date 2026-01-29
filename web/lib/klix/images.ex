@@ -51,7 +51,7 @@ defmodule Klix.Images do
         [_junk, doc] = String.split(versions, "{", parts: 2)
         JSON.decode("{" <> doc)
 
-      {_, exit_status} ->
+      {_output, exit_status} ->
         {:error, :nix_eval_failed, exit_status}
     end
   end

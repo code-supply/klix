@@ -77,7 +77,6 @@ defmodule KlixWeb.VersionsControllerTest do
         "kamp" => "b0dad8ec9ee31cb644b94e39d4b8a8fb9d6c9ba0",
         "klipper" => "0.13.0-unstable-2025-08-15",
         "klipperscreen" => "5ba4a1ff134ac1eba236043b8ec316c2298846e5",
-        "linux" => "6.12.34-stable_20250702",
         "moonraker" => "0.9.3-unstable-2025-08-01",
         "nginx" => "1.28.0",
         "nixos-hardware" => "db030f62a449568345372bd62ed8c5be4824fa49",

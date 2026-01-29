@@ -7,7 +7,6 @@ defmodule Klix.Images.Versions do
     :kamp,
     :klipper,
     :klipperscreen,
-    :linux,
     :klix,
     :moonraker,
     :nginx,
@@ -27,7 +26,6 @@ defmodule Klix.Images.Versions do
     field :kamp
     field :klipper
     field :klipperscreen
-    field :linux
     field :klix
     field :moonraker
     field :nginx

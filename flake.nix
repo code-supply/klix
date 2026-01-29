@@ -186,12 +186,6 @@
             }) nixpkgsPackages
           );
           otherVersions = {
-            linux =
-              (self.lib.nixosSystem {
-                modules = [
-                  { nixpkgs.hostPlatform = "aarch64-linux"; }
-                ];
-              }).config.boot.kernelPackages.kernel.version;
             klix = self.rev or "dev";
           };
         in
