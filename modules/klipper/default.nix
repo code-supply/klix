@@ -75,8 +75,7 @@ in
         group = "klipper";
 
         package =
-          with inputs.nixpkgs-nooverrides.legacyPackages.${pkgs.stdenv.hostPlatform.system};
-          (klipper.override {
+          (pkgs.klipper.override {
             inherit extraPythonPackages;
           }).overrideAttrs
             {

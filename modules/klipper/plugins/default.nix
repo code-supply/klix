@@ -10,7 +10,7 @@
     configLink.from = "shaketune";
     deps =
       p: with p; [
-        GitPython
+        gitpython
         matplotlib
         numpy
         scipy

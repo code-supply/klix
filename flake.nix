@@ -10,10 +10,11 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-nooverrides = {
-      url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    nixos-raspberrypi = {
+      url = "github:nvmd/nixos-raspberrypi/remove-options-compat";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi";
 
     klipperscreen = {
       url = "github:KlipperScreen/KlipperScreen";
@@ -141,7 +142,7 @@
                   # nixos-images sets this with `mkForce`, thus `mkOverride 40`
                   image.baseName =
                     let
-                      cfg = config.boot.loader.raspberryPi;
+                      cfg = config.boot.loader.raspberry-pi;
                     in
                     lib.mkOverride 40 "nixos-installer-rpi${cfg.variant}-${cfg.bootloader}";
 
@@ -156,7 +157,7 @@
         { pkgs, ... }:
         with pkgs;
         {
-          default = callPackage ./web {
+          web = callPackage ./web {
             beamPackages = pkgs.beamPackages119;
             version = if self ? rev then "0.0.0-${self.rev}" else "0.0.0-dev";
           };
