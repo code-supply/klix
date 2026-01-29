@@ -389,7 +389,6 @@ defmodule Klix.ImagesTest do
                            imports = klix.lib.machineImports.raspberry-pi-5;
                            networking.hostName = "some-printer";
                            time.timeZone = "Europe/Madrid";
-                           system.stateVersion = "25.05";
                            users.users.klix.openssh.authorizedKeys.keys = [
                              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
                            ];
@@ -467,7 +466,6 @@ defmodule Klix.ImagesTest do
                            imports = klix.lib.machineImports.raspberry-pi-4;
                            networking.hostName = "some-printer";
                            time.timeZone = "Europe/Madrid";
-                           system.stateVersion = "25.05";
                            users.users.klix.openssh.authorizedKeys.keys = [
                              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxmQDDdlqsMmQ69TsBWxqFOPfyipAX0h+4GGELsGRup nobody@ever"
                            ];

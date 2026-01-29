@@ -223,7 +223,6 @@ defmodule Klix.Images.Image do
                     imports = klix.lib.machineImports.#{machine_import(image)};
                     networking.hostName = "#{image.hostname}";
                     time.timeZone = "#{image.timezone}";
-                    system.stateVersion = "25.05";
                     users.users.klix.openssh.authorizedKeys.keys = [
                       "#{image.public_key}"
                     ];
