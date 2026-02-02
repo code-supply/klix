@@ -73,19 +73,20 @@ defmodule KlixWeb.Layouts do
         <h6 class="footer-title">Documentation</h6>
         <a class="link link-hover" href={~p"/docs"}>Home</a>
         <a class="link link-hover" href={~p"/docs/klipper-config"}>Klipper Config</a>
+        <a class="link link-hover" href={~p"/docs/privacy-policy"}>Privacy Policy</a>
+        <a class="link link-hover" href="https://github.com/code-supply/klix/blob/main/LICENSE">
+          License
+        </a>
       </nav>
       <nav>
         <h6 class="footer-title">Developers</h6>
         <a class="link link-hover" href="https://code.supply/">Code Supply</a>
+        Copyright © {Date.utc_today().year}
         <a class="link link-hover" href="https://www.andrewbruce.net/">Andrew Bruce</a>
-        Copyright © {Date.utc_today().year} Andrew Bruce
       </nav>
       <nav>
         <h6 class="footer-title">Source</h6>
         <a class="link link-hover" href="https://github.com/code-supply/klix">GitHub</a>
-        <a class="link link-hover" href="https://github.com/code-supply/klix/blob/main/LICENSE">
-          License
-        </a>
       </nav>
     </footer>
     """
