@@ -25,6 +25,8 @@ jobs:
           AWS_ACCESS_KEY_ID: rustfsadmin
           AWS_SECRET_ACCESS_KEY: rustfsadmin
         working-directory: web
+        shell: nix develop . --command {0}
         run: |
-          nix develop . --command s3dev &
-          nix develop . --command mix test
+          s3dev &
+          mix deps.get
+          mix test
