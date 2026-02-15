@@ -35,13 +35,6 @@ config :klix,
        )}
   ]
 
-config :ex_aws,
-  http_client: ExAws.Request.Req,
-  s3: [
-    scheme: "https://",
-    host: "hel1.your-objectstorage.com"
-  ]
-
 if config_env() == :prod do
   config :klix, Klix.Repo, pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
   # For machines with several cores, consider starting multiple pools of `pool_size`

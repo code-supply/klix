@@ -140,8 +140,8 @@ defmodule Klix.ImagesTest do
   end
 
   describe "download URL" do
-    test "uses https" do
-      assert Images.download_url(%Images.Build{id: 123}) |> String.starts_with?("https://")
+    test "is derived from S3 config" do
+      assert Images.download_url(%Images.Build{id: 123}) =~ "X-Amz-Algorithm"
     end
   end
 

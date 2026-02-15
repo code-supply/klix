@@ -7,6 +7,13 @@ import Config
 # before starting your production server.
 config :klix, KlixWeb.Endpoint, cache_static_manifest: "priv/static/cache_manifest.json"
 
+config :ex_aws,
+  http_client: ExAws.Request.Req,
+  s3: [
+    scheme: "https://",
+    host: "hel1.your-objectstorage.com"
+  ]
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Req
 
