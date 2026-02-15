@@ -7,10 +7,24 @@ on:
     pull_request:
 
 jobs:
-  test:
+  nixos-tests:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - run: nix flake check --print-build-logs
+
+  web-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - env:
+          AWS_ACCESS_KEY_ID: rustfsadmin
+          AWS_SECRET_ACCESS_KEY: rustfsadmin
+        working-directory: web
+        run: |
+          nix develop . --command s3dev &
+          nix develop . --command mix test
