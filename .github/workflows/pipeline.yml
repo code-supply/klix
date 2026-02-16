@@ -1,7 +1,9 @@
 name: Klix Pipeline
 on:
   push:
-    branches: [main ci]
+    branches:
+      - main
+      - ci
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
