@@ -3,7 +3,8 @@ on:
   push:
     branches: [main ci]
   workflow_dispatch:
-  schedule: {cron: "0 0 * * *"}
+  schedule:
+    - cron: "0 0 * * *"
   pull_request:
 
 jobs:
