@@ -22,7 +22,7 @@ defmodule Klix.Snapshotter do
 
     {_, 0} = cmd(state, ~w(rm -f flake.lock config.tar.gz))
 
-    case cmd(state, ~w(nix flake lock --offline)) do
+    case cmd(state, ~w(nix flake lock)) do
       {_, 0} ->
         snapshot = %Snapshot{
           flake_nix: flake_nix,
