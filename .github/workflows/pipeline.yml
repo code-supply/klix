@@ -1,7 +1,7 @@
 name: Klix Pipeline
 on:
   push:
-    branches: [main]
+    branches: [main ci]
     workflow_dispatch:
     schedule: {cron: "0 0 * * *"}
     pull_request:
@@ -27,6 +27,5 @@ jobs:
         working-directory: web
         shell: nix develop . --command {0}
         run: |
-          s3dev &
           mix deps.get
           mix test
