@@ -37,7 +37,6 @@ mkShell {
     awscli2
     beamPackages.elixir
     beamPackages.elixir-ls
-    beamPackages.hex
     esbuild
     inotify-tools
     nixfmt
