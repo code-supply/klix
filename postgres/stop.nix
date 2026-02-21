@@ -1,7 +1,9 @@
-{ writeShellScriptBin
+{
+  postgresql_18,
+  writeShellScriptBin,
 }:
 writeShellScriptBin "postgres-stop" ''
-  pg_ctl \
+  ${postgresql_18}/bin/pg_ctl \
     -D "$PGHOST/db" \
     -l "$PGHOST/log" \
     -o "--unix_socket_directories=$PGHOST" \
