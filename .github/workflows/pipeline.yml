@@ -30,6 +30,7 @@ jobs:
         working-directory: web
         shell: nix develop . --command bash {0}
         run: |
+          postgres-start
           s3dev &
           mix deps.get
           mix test
