@@ -26,8 +26,6 @@ config :klix,
   run_builder: false,
   build_bucket: "klix-dev"
 
-config :klix, Klix.Repo, socket_dir: "/run/postgresql"
-
 # Configures the endpoint
 config :klix, KlixWeb.Endpoint,
   url: [host: "localhost"],

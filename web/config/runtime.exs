@@ -20,6 +20,8 @@ if System.get_env("PHX_SERVER") do
   config :klix, KlixWeb.Endpoint, server: true
 end
 
+config :klix, Klix.Repo, socket_dir: System.fetch_env!("PGHOST")
+
 config :klix,
   build_dir: "/tmp/klix-build" |> tap(&File.mkdir_p!/1),
   run_builder: System.get_env("KLIX_RUN_BUILDER", "true") == "true",
