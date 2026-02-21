@@ -1,6 +1,7 @@
 {
   awscli2,
   beamPackages,
+  callPackage,
   esbuild,
   inotify-tools,
   mkShell,
@@ -34,6 +35,8 @@ mkShell {
   '';
 
   packages = [
+    (callPackage postgres/start.nix { })
+    (callPackage postgres/stop.nix { })
     awscli2
     beamPackages.elixir
     beamPackages.elixir-ls
