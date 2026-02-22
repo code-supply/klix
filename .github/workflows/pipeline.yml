@@ -27,6 +27,7 @@ jobs:
       - env:
           AWS_ACCESS_KEY_ID: rustfsadmin
           AWS_SECRET_ACCESS_KEY: rustfsadmin
+          PGHOST: /tmp/postgresql
         working-directory: web
         shell: nix develop . --command bash {0}
         run: |
