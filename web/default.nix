@@ -18,21 +18,21 @@ beamPackages.mixRelease {
 
   DATABASE_URL = "";
   SECRET_KEY_BASE = "";
+  PGHOST = "";
 
   postBuild = ''
     tailwind_path="$(mix do \
-      app.config --no-deps-check --no-compile, \
+      app.config --no-deps-check --no-compile + \
       eval 'Tailwind.bin_path() |> IO.puts()')"
     esbuild_path="$(mix do \
-      app.config --no-deps-check --no-compile, \
+      app.config --no-deps-check --no-compile + \
       eval 'Esbuild.bin_path() |> IO.puts()')"
 
-    ln -s ${mixNixDeps.heroicons} /build/web/deps/heroicons
-    ln -s ${tailwindcss_4}/bin/tailwindcss "$tailwind_path"
-    ln -s ${esbuild}/bin/esbuild "$esbuild_path"
+    ln -sv ${tailwindcss_4}/bin/tailwindcss "$tailwind_path"
+    ln -sv ${esbuild}/bin/esbuild "$esbuild_path"
 
     mix do \
-      app.config --no-deps-check --no-compile, \
+      app.config --no-deps-check --no-compile + \
       assets.deploy --no-deps-check
   '';
 }

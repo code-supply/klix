@@ -9,7 +9,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:code-supply/nixpkgs";
 
     nixos-raspberrypi = {
       url = "github:nvmd/nixos-raspberrypi/remove-options-compat";
